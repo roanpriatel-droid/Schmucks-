@@ -42,6 +42,12 @@
 /* --------------------------------------------------
 * Base overrides (reset.css loads before this)
 * -------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: var(--font-body);
   color: var(--ink);
@@ -1074,4 +1080,396 @@ aside header h3 {
   margin: 4rem auto;
   padding: 0 var(--gutter);
   text-align: center;
+}
+
+/* --------------------------------------------------
+* Interior page head band
+* -------------------------------------------------- */
+.sx-pagehead {
+  background: var(--ink);
+  color: var(--cream);
+  border-bottom: var(--line-thick) solid var(--ink);
+  padding-block: clamp(2rem, 5vw, 3.25rem);
+}
+.sx-pagehead__eyebrow {
+  color: var(--mustard);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  margin: 0 0 0.5rem;
+}
+.sx-pagehead__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 0.92;
+  margin: 0;
+}
+.sx-pagehead__desc {
+  margin-top: 0.9rem;
+  max-width: 60ch;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.sx-shop {
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+}
+.sx-shop__pager {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+.sx-shop__pager a {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Collection tiles (collections index) */
+.sx-collections-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 720px) {
+  .sx-collections-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.sx-collection-tile {
+  display: block;
+  border: var(--line) solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--cream);
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+.sx-collection-tile:hover {
+  text-decoration: none;
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--ketchup);
+}
+.sx-collection-tile__media {
+  aspect-ratio: 4 / 3;
+  background: var(--cream-shade);
+  border-bottom: var(--line) solid var(--ink);
+  overflow: hidden;
+}
+.sx-collection-tile__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sx-collection-tile__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.15rem;
+  padding: 0.75rem 1rem;
+  margin: 0;
+}
+
+/* --------------------------------------------------
+* Product detail page
+* -------------------------------------------------- */
+.sx-product {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 860px) {
+  .sx-product {
+    grid-template-columns: 1.05fr 1fr;
+    align-items: start;
+  }
+}
+.sx-product__media {
+  border: var(--line-thick) solid var(--ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--cream-shade);
+  overflow: hidden;
+}
+.sx-product__media img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+@media (min-width: 860px) {
+  .sx-product__main {
+    position: sticky;
+    top: 90px;
+  }
+}
+.sx-product__eyebrow {
+  color: var(--ketchup);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  margin: 0 0 0.5rem;
+}
+.sx-product__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  line-height: 0.95;
+  margin: 0 0 0.75rem;
+}
+.sx-product__rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.sx-product__price {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  margin-bottom: 1.5rem;
+}
+.sx-product__price .product-price-on-sale {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+.sx-product__price s {
+  opacity: 0.45;
+  font-size: 1.2rem;
+}
+
+/* Option chips */
+.product-form .product-options {
+  margin-bottom: 1.25rem;
+}
+.product-form h5 {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  margin: 0 0 0.6rem;
+}
+.product-options-grid {
+  gap: 0.6rem;
+}
+.product-options-item,
+.product-options-item:disabled {
+  min-width: 3rem;
+  padding: 0.6rem 0.9rem;
+  font-family: var(--font-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.85rem;
+  background: var(--cream);
+  border: var(--line) solid var(--ink) !important;
+  box-shadow: 3px 3px 0 var(--ink);
+  cursor: pointer;
+  transition:
+    transform 80ms ease,
+    box-shadow 80ms ease;
+}
+.product-options-item:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.product-options-item:disabled {
+  box-shadow: none;
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Add-to-cart (the only .product-form button that isn't an option chip) */
+.product-form button:not(.product-options-item) {
+  width: 100%;
+  margin-top: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1rem;
+  padding: 1.1rem 1.5rem;
+  color: var(--cream);
+  background: var(--ketchup);
+  border: var(--outline);
+  box-shadow: var(--shadow-hard);
+  cursor: pointer;
+  transition:
+    transform 90ms ease,
+    box-shadow 90ms ease;
+}
+.product-form button:not(.product-options-item):hover {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.product-form button:not(.product-options-item):disabled {
+  background: var(--ink-soft);
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.sx-product__perks {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 1rem 1.25rem;
+  border: var(--line) dashed var(--ink);
+  background: var(--cream-shade);
+  display: grid;
+  gap: 0.5rem;
+}
+.sx-product__perks li {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  gap: 0.5rem;
+}
+.sx-product__perks li::before {
+  content: '★';
+  color: var(--ketchup);
+}
+.sx-product__desc {
+  margin-top: 1.75rem;
+  border-top: var(--line) solid var(--ink);
+  padding-top: 1.25rem;
+}
+.sx-product__desc h2 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+.sx-product__desc p {
+  margin-bottom: 0.75rem;
+  line-height: 1.55;
+}
+
+/* --------------------------------------------------
+* Static content pages (Contact / FAQ)
+* -------------------------------------------------- */
+.sx-page {
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+}
+.sx-page__grid {
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 820px) {
+  .sx-page__grid {
+    grid-template-columns: 1.3fr 1fr;
+  }
+}
+.sx-prose {
+  max-width: 62ch;
+}
+.sx-prose h2 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.4rem;
+  margin: 2rem 0 0.75rem;
+}
+.sx-prose p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+.sx-prose a {
+  color: var(--ketchup);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sx-faq__item {
+  border: var(--line) solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--cream);
+  margin-bottom: 1rem;
+}
+.sx-faq__q {
+  font-family: var(--font-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.95rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+.sx-faq__q::-webkit-details-marker {
+  display: none;
+}
+.sx-faq__q::after {
+  content: '+';
+  font-family: var(--font-display);
+  color: var(--ketchup);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+details[open] .sx-faq__q::after {
+  content: '–';
+}
+.sx-faq__a {
+  padding: 0 1.25rem 1.25rem;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.sx-contact-card {
+  border: var(--line) solid var(--ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--mustard);
+  padding: 1.75rem;
+}
+.sx-contact-card h3 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.3rem;
+  margin: 0 0 1rem;
+}
+.sx-contact-card p {
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+.sx-contact-card a {
+  color: var(--ink);
+  font-weight: 800;
+  text-decoration: underline;
+}
+.sx-contact-form {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  max-width: 100%;
+}
+.sx-contact-form label {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+}
+.sx-contact-form input,
+.sx-contact-form textarea {
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.75rem;
+  margin: 0.2rem 0 0.4rem;
+  box-shadow: 3px 3px 0 var(--ink);
+  width: 100%;
+}
+.sx-contact-form textarea {
+  min-height: 120px;
+  resize: vertical;
 }

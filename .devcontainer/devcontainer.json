@@ -1,0 +1,24 @@
+{
+  "name": "Schmucks (Hydrogen)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "npm install",
+  "postAttachCommand": {
+    "note": "Run 'npm run dev' to start the Hydrogen dev server on port 3000."
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Hydrogen dev",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "GraphQL.vscode-graphql"
+      ]
+    }
+  }
+}

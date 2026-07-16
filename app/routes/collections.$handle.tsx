@@ -7,7 +7,7 @@ import {ProductItem} from '~/components/ProductItem';
 import type {ProductItemFragment} from 'storefrontapi.generated';
 
 export const meta: Route.MetaFunction = ({data}) => {
-  return [{title: `Hydrogen | ${data?.collection.title ?? ''} Collection`}];
+  return [{title: `${data?.collection.title ?? 'Shop'} — SCHMUCKS`}];
 };
 
 export async function loader(args: Route.LoaderArgs) {
@@ -69,21 +69,32 @@ export default function Collection() {
   const {collection} = useLoaderData<typeof loader>();
 
   return (
-    <div className="collection">
-      <h1>{collection.title}</h1>
-      <p className="collection-description">{collection.description}</p>
-      <PaginatedResourceSection<ProductItemFragment>
-        connection={collection.products}
-        resourcesClassName="products-grid"
-      >
-        {({node: product, index}) => (
-          <ProductItem
-            key={product.id}
-            product={product}
-            loading={index < 8 ? 'eager' : undefined}
-          />
-        )}
-      </PaginatedResourceSection>
+    <div className="sx-collection">
+      <section className="sx-pagehead">
+        <div className="sx-wrap">
+          <p className="sx-pagehead__eyebrow">The Menu Board</p>
+          <h1 className="sx-pagehead__title">{collection.title}</h1>
+          {collection.description ? (
+            <p className="sx-pagehead__desc">{collection.description}</p>
+          ) : null}
+        </div>
+      </section>
+      <section className="sx-shop">
+        <div className="sx-wrap">
+          <PaginatedResourceSection<ProductItemFragment>
+            connection={collection.products}
+            resourcesClassName="sx-grid"
+          >
+            {({node: product, index}) => (
+              <ProductItem
+                key={product.id}
+                product={product}
+                loading={index < 8 ? 'eager' : undefined}
+              />
+            )}
+          </PaginatedResourceSection>
+        </div>
+      </section>
       <Analytics.CollectionView
         data={{
           collection: {

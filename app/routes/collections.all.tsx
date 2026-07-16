@@ -6,7 +6,7 @@ import {ProductItem} from '~/components/ProductItem';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Hydrogen | Products`}];
+  return [{title: `Shop All — SCHMUCKS`}];
 };
 
 export async function loader(args: Route.LoaderArgs) {
@@ -51,20 +51,33 @@ export default function Collection() {
   const {products} = useLoaderData<typeof loader>();
 
   return (
-    <div className="collection">
-      <h1>Products</h1>
-      <PaginatedResourceSection<CollectionItemFragment>
-        connection={products}
-        resourcesClassName="products-grid"
-      >
-        {({node: product, index}) => (
-          <ProductItem
-            key={product.id}
-            product={product}
-            loading={index < 8 ? 'eager' : undefined}
-          />
-        )}
-      </PaginatedResourceSection>
+    <div className="sx-collection">
+      <section className="sx-pagehead">
+        <div className="sx-wrap">
+          <p className="sx-pagehead__eyebrow">Everything We Make</p>
+          <h1 className="sx-pagehead__title">Shop All</h1>
+          <p className="sx-pagehead__desc">
+            The whole menu. Every terrible idea we&rsquo;ve committed to cotton.
+            $25 flat, sizes S–3XL.
+          </p>
+        </div>
+      </section>
+      <section className="sx-shop">
+        <div className="sx-wrap">
+          <PaginatedResourceSection<CollectionItemFragment>
+            connection={products}
+            resourcesClassName="sx-grid"
+          >
+            {({node: product, index}) => (
+              <ProductItem
+                key={product.id}
+                product={product}
+                loading={index < 8 ? 'eager' : undefined}
+              />
+            )}
+          </PaginatedResourceSection>
+        </div>
+      </section>
     </div>
   );
 }

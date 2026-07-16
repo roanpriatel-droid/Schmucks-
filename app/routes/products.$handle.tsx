@@ -15,7 +15,7 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
 export const meta: Route.MetaFunction = ({data}) => {
   return [
-    {title: `Hydrogen | ${data?.product.title ?? ''}`},
+    {title: `${data?.product.title ?? 'Shirt'} — SCHMUCKS`},
     {
       rel: 'canonical',
       href: `/products/${data?.product.handle}`,
@@ -98,27 +98,45 @@ export default function Product() {
   const {title, descriptionHtml} = product;
 
   return (
-    <div className="product">
-      <ProductImage image={selectedVariant?.image} />
-      <div className="product-main">
-        <h1>{title}</h1>
-        <ProductPrice
-          price={selectedVariant?.price}
-          compareAtPrice={selectedVariant?.compareAtPrice}
-        />
-        <br />
+    <div className="sx-product sx-wrap">
+      <div className="sx-product__media">
+        <ProductImage image={selectedVariant?.image} />
+      </div>
+      <div className="sx-product__main">
+        <p className="sx-product__eyebrow">Fine Apparel for Idiots</p>
+        <h1 className="sx-product__title">{title}</h1>
+        <div className="sx-product__rating">
+          <span className="sx-stars">★★★★★</span>
+          <span>4.9 · Loved by certified idiots</span>
+        </div>
+        <div className="sx-product__price">
+          <ProductPrice
+            price={selectedVariant?.price}
+            compareAtPrice={selectedVariant?.compareAtPrice}
+          />
+        </div>
         <ProductForm
           productOptions={productOptions}
           selectedVariant={selectedVariant}
         />
-        <br />
-        <br />
-        <p>
-          <strong>Description</strong>
-        </p>
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-        <br />
+        <ul className="sx-product__perks">
+          <li>Free US shipping when you grab 2+ shirts</li>
+          <li>Stack &amp; save up to 30% — auto-applied at checkout</li>
+          <li>30-day returns, no interrogation (maybe one question)</li>
+          <li>Printed to order on cotton that can take a joke</li>
+        </ul>
+        <div className="sx-product__desc">
+          <h2>The Fine Print</h2>
+          {descriptionHtml ? (
+            <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
+          ) : (
+            <p>
+              A genuinely comfortable, unisex heavyweight tee with a design your
+              group chat will respect and your relatives won&rsquo;t. Sizes
+              S–3XL. Wear responsibly. Or don&rsquo;t.
+            </p>
+          )}
+        </div>
       </div>
       <Analytics.ProductView
         data={{

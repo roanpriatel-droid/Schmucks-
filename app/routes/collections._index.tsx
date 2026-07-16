@@ -46,20 +46,32 @@ export default function Collections() {
   const {collections} = useLoaderData<typeof loader>();
 
   return (
-    <div className="collections">
-      <h1>Collections</h1>
-      <PaginatedResourceSection<CollectionFragment>
-        connection={collections}
-        resourcesClassName="collections-grid"
-      >
-        {({node: collection, index}) => (
-          <CollectionItem
-            key={collection.id}
-            collection={collection}
-            index={index}
-          />
-        )}
-      </PaginatedResourceSection>
+    <div className="sx-collection">
+      <section className="sx-pagehead">
+        <div className="sx-wrap">
+          <p className="sx-pagehead__eyebrow">Browse the Categories</p>
+          <h1 className="sx-pagehead__title">New Drops &amp; Collections</h1>
+          <p className="sx-pagehead__desc">
+            Pick a lane. They all lead somewhere embarrassing.
+          </p>
+        </div>
+      </section>
+      <section className="sx-shop">
+        <div className="sx-wrap">
+          <PaginatedResourceSection<CollectionFragment>
+            connection={collections}
+            resourcesClassName="sx-collections-grid"
+          >
+            {({node: collection, index}) => (
+              <CollectionItem
+                key={collection.id}
+                collection={collection}
+                index={index}
+              />
+            )}
+          </PaginatedResourceSection>
+        </div>
+      </section>
     </div>
   );
 }
@@ -73,21 +85,23 @@ function CollectionItem({
 }) {
   return (
     <Link
-      className="collection-item"
+      className="sx-collection-tile"
       key={collection.id}
       to={`/collections/${collection.handle}`}
       prefetch="intent"
     >
-      {collection?.image && (
-        <Image
-          alt={collection.image.altText || collection.title}
-          aspectRatio="1/1"
-          data={collection.image}
-          loading={index < 3 ? 'eager' : undefined}
-          sizes="(min-width: 45em) 400px, 100vw"
-        />
-      )}
-      <h5>{collection.title}</h5>
+      <div className="sx-collection-tile__media">
+        {collection?.image && (
+          <Image
+            alt={collection.image.altText || collection.title}
+            aspectRatio="4/3"
+            data={collection.image}
+            loading={index < 3 ? 'eager' : undefined}
+            sizes="(min-width: 45em) 400px, 100vw"
+          />
+        )}
+      </div>
+      <h2 className="sx-collection-tile__title">{collection.title}</h2>
     </Link>
   );
 }
