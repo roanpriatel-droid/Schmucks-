@@ -15,7 +15,9 @@ import favicon from '~/assets/favicon.svg';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
+import schmucksStyles from '~/styles/schmucks.css?url';
 import {PageLayout} from './components/PageLayout';
+import {MelShrug} from '~/components/brand/Brand';
 
 export type RootLoader = typeof loader;
 
@@ -60,6 +62,16 @@ export function links() {
     {
       rel: 'preconnect',
       href: 'https://shop.app',
+    },
+    {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.gstatic.com',
+      crossOrigin: 'anonymous',
+    },
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@400;500;600;700;800;900&display=swap',
     },
     {rel: 'icon', type: 'image/svg+xml', href: favicon},
   ];
@@ -151,6 +163,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
+        <link rel="stylesheet" href={schmucksStyles}></link>
         <Meta />
         <Links />
       </head>
@@ -195,9 +208,27 @@ export function ErrorBoundary() {
     errorMessage = error.message;
   }
 
+  if (errorStatus === 404) {
+    return (
+      <div className="sx-404">
+        <div>
+          <MelShrug className="sx-404__mel" />
+          <div className="sx-404__code sx-display">404</div>
+          <p className="sx-404__msg">
+            Mel looked everywhere. This page isn&rsquo;t here. Honestly, that
+            tracks.
+          </p>
+          <a className="sx-btn" href="/">
+            Back to the good stuff
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="route-error">
-      <h1>Oops</h1>
+      <h1 className="sx-display">Well, this is embarrassing.</h1>
       <h2>{errorStatus}</h2>
       {errorMessage && (
         <fieldset>

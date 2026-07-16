@@ -94,15 +94,18 @@ function CartEmpty({
 }) {
   const {close} = useAside();
   return (
-    <div hidden={hidden}>
-      <br />
-      <p>
-        Looks like you haven&rsquo;t added anything yet, let&rsquo;s get you
-        started!
+    <div hidden={hidden} className="sx-cart-empty">
+      <div className="sx-cart-empty__title sx-display">No regrets yet.</div>
+      <p className="sx-cart-empty__note">
+        Your cart is empty and your reputation is intact. Let&rsquo;s fix that.
       </p>
-      <br />
-      <Link to="/collections" onClick={close} prefetch="viewport">
-        Continue shopping →
+      <Link
+        className="sx-btn"
+        to="/collections/all"
+        onClick={close}
+        prefetch="viewport"
+      >
+        Start making mistakes →
       </Link>
     </div>
   );
