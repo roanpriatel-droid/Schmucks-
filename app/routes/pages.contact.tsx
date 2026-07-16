@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import type {Route} from './+types/pages.contact';
 
 export const meta: Route.MetaFunction = () => {
@@ -53,38 +54,65 @@ export default function ContactPage() {
           <div>
             <div className="sx-contact-card">
               <h3>Drop Us a Line</h3>
-              <p>Fill this out and we&rsquo;ll get back to you. Probably.</p>
-              <form
-                className="sx-contact-form"
-                onSubmit={(e) => e.preventDefault()}
-              >
-                <div>
-                  <label htmlFor="c-name">Your Name</label>
-                  <input id="c-name" type="text" placeholder="A. Schmuck" />
-                </div>
-                <div>
-                  <label htmlFor="c-email">Email</label>
-                  <input
-                    id="c-email"
-                    type="email"
-                    placeholder="you@regrets.com"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="c-msg">Message</label>
-                  <textarea
-                    id="c-msg"
-                    placeholder="Where is my shirt / here is my joke"
-                  />
-                </div>
-                <button className="sx-btn sx-btn--ink" type="submit">
-                  Send It
-                </button>
-              </form>
+              <ContactForm />
             </div>
           </div>
         </div>
       </section>
     </div>
+  );
+}
+
+function ContactForm() {
+  const [submitted, setSubmitted] = useState(false);
+
+  if (submitted) {
+    return (
+      <div className="sx-form-success" role="status">
+        <div className="sx-form-success__title">Got it.</div>
+        <p>
+          Thanks for reaching out. We&rsquo;ll get back to you within 1–2
+          business days — or sooner if the joke was good.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <p>Fill this out and we&rsquo;ll get back to you. Probably.</p>
+      <form
+        className="sx-contact-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setSubmitted(true);
+        }}
+      >
+        <div>
+          <label htmlFor="c-name">Your Name</label>
+          <input id="c-name" type="text" required placeholder="A. Schmuck" />
+        </div>
+        <div>
+          <label htmlFor="c-email">Email</label>
+          <input
+            id="c-email"
+            type="email"
+            required
+            placeholder="you@regrets.com"
+          />
+        </div>
+        <div>
+          <label htmlFor="c-msg">Message</label>
+          <textarea
+            id="c-msg"
+            required
+            placeholder="Where is my shirt / here is my joke"
+          />
+        </div>
+        <button className="sx-btn sx-btn--ink" type="submit">
+          Send It
+        </button>
+      </form>
+    </>
   );
 }

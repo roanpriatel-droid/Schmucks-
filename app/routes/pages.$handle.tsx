@@ -58,11 +58,18 @@ export default function Page() {
   const {page} = useLoaderData<typeof loader>();
 
   return (
-    <div className="page">
-      <header>
-        <h1>{page.title}</h1>
-      </header>
-      <main dangerouslySetInnerHTML={{__html: page.body}} />
+    <div className="sx-genericpage">
+      <section className="sx-pagehead">
+        <div className="sx-wrap">
+          <h1 className="sx-pagehead__title">{page.title}</h1>
+        </div>
+      </section>
+      <section className="sx-page">
+        <div
+          className="sx-wrap sx-prose"
+          dangerouslySetInnerHTML={{__html: page.body}}
+        />
+      </section>
     </div>
   );
 }

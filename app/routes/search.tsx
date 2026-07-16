@@ -14,7 +14,7 @@ import type {
 } from 'storefrontapi.generated';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Hydrogen | Search`}];
+  return [{title: `Search — SCHMUCKS`}];
 };
 
 export async function loader({request, context}: Route.LoaderArgs) {
@@ -41,38 +41,50 @@ export default function SearchPage() {
   if (type === 'predictive') return null;
 
   return (
-    <div className="search">
-      <h1>Search</h1>
-      <SearchForm>
-        {({inputRef}) => (
-          <>
-            <input
-              defaultValue={term}
-              name="q"
-              placeholder="Search…"
-              ref={inputRef}
-              type="search"
-            />
-            &nbsp;
-            <button type="submit">Search</button>
-          </>
-        )}
-      </SearchForm>
-      {error && <p style={{color: 'red'}}>{error}</p>}
-      {!term || !result?.total ? (
-        <SearchResults.Empty />
-      ) : (
-        <SearchResults result={result} term={term}>
-          {({articles, pages, products, term}) => (
-            <div>
-              <SearchResults.Products products={products} term={term} />
-              <SearchResults.Pages pages={pages} term={term} />
-              <SearchResults.Articles articles={articles} term={term} />
-            </div>
+    <div className="sx-search">
+      <section className="sx-pagehead">
+        <div className="sx-wrap">
+          <p className="sx-pagehead__eyebrow">Find Your Poison</p>
+          <h1 className="sx-pagehead__title">Search</h1>
+        </div>
+      </section>
+      <section className="sx-page">
+        <div className="sx-wrap">
+          <SearchForm className="sx-search-form">
+            {({inputRef}) => (
+              <>
+                <input
+                  defaultValue={term}
+                  name="q"
+                  placeholder="Search the menu…"
+                  ref={inputRef}
+                  type="search"
+                />
+                <button className="sx-btn" type="submit">
+                  Search
+                </button>
+              </>
+            )}
+          </SearchForm>
+          {error && <p style={{color: 'var(--ketchup)'}}>{error}</p>}
+          {!term || !result?.total ? (
+            <SearchResults.Empty />
+          ) : (
+            <SearchResults result={result} term={term}>
+              {({articles, pages, products, term}) => (
+                <div>
+                  <SearchResults.Products products={products} term={term} />
+                  <SearchResults.Pages pages={pages} term={term} />
+                  <SearchResults.Articles articles={articles} term={term} />
+                </div>
+              )}
+            </SearchResults>
           )}
-        </SearchResults>
-      )}
-      <Analytics.SearchView data={{searchTerm: term, searchResults: result}} />
+          <Analytics.SearchView
+            data={{searchTerm: term, searchResults: result}}
+          />
+        </div>
+      </section>
     </div>
   );
 }

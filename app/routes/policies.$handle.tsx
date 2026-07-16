@@ -8,7 +8,7 @@ type SelectedPolicies = keyof Pick<
 >;
 
 export const meta: Route.MetaFunction = ({data}) => {
-  return [{title: `Hydrogen | ${data?.policy.title ?? ''}`}];
+  return [{title: `${data?.policy.title ?? 'Policy'} — SCHMUCKS`}];
 };
 
 export async function loader({params, context}: Route.LoaderArgs) {
@@ -45,15 +45,24 @@ export default function Policy() {
   const {policy} = useLoaderData<typeof loader>();
 
   return (
-    <div className="policy">
-      <br />
-      <br />
-      <div>
-        <Link to="/policies">← Back to Policies</Link>
-      </div>
-      <br />
-      <h1>{policy.title}</h1>
-      <div dangerouslySetInnerHTML={{__html: policy.body}} />
+    <div className="sx-policy">
+      <section className="sx-pagehead">
+        <div className="sx-wrap">
+          <p className="sx-pagehead__eyebrow">Fine Print</p>
+          <h1 className="sx-pagehead__title">{policy.title}</h1>
+        </div>
+      </section>
+      <section className="sx-page">
+        <div className="sx-wrap">
+          <Link className="sx-policy-back" to="/policies">
+            ← Back to Policies
+          </Link>
+          <div
+            className="sx-prose"
+            dangerouslySetInnerHTML={{__html: policy.body}}
+          />
+        </div>
+      </section>
     </div>
   );
 }

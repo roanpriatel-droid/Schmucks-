@@ -25,15 +25,22 @@ export default function Policies() {
   const {policies} = useLoaderData<typeof loader>();
 
   return (
-    <div className="policies">
-      <h1>Policies</h1>
-      <div>
-        {policies.map((policy) => (
-          <fieldset key={policy.id}>
-            <Link to={`/policies/${policy.handle}`}>{policy.title}</Link>
-          </fieldset>
-        ))}
-      </div>
+    <div className="sx-policies">
+      <section className="sx-pagehead">
+        <div className="sx-wrap">
+          <p className="sx-pagehead__eyebrow">The Boring But Important Bits</p>
+          <h1 className="sx-pagehead__title">Policies</h1>
+        </div>
+      </section>
+      <section className="sx-page">
+        <div className="sx-wrap sx-policy-list">
+          {policies.map((policy) => (
+            <Link key={policy.id} to={`/policies/${policy.handle}`}>
+              {policy.title}
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

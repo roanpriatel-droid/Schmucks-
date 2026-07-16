@@ -330,6 +330,7 @@ function TrustBar() {
 }
 
 function JoinTheSchmucks() {
+  const [submitted, setSubmitted] = useState(false);
   return (
     <section className="sx-join" aria-labelledby="sx-join-title">
       <div className="sx-wrap">
@@ -345,22 +346,35 @@ function JoinTheSchmucks() {
           Get 10% off your first mistake, plus early access to weekly drops
           before they sell out to smarter people.
         </p>
-        <form
-          className="sx-join__form"
-          onSubmit={(e) => e.preventDefault()}
-          aria-label="Email signup"
-        >
-          <input
-            className="sx-join__input"
-            type="email"
-            required
-            placeholder="you@regrets.com"
-            aria-label="Email address"
-          />
-          <button className="sx-btn sx-btn--ink" type="submit">
-            Sign Me Up
-          </button>
-        </form>
+        {submitted ? (
+          <div className="sx-form-success" role="status">
+            <div className="sx-form-success__title">You&rsquo;re in.</div>
+            <p>
+              Welcome to the Schmucks. Check your inbox for your 10% code — and
+              our sincere condolences.
+            </p>
+          </div>
+        ) : (
+          <form
+            className="sx-join__form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setSubmitted(true);
+            }}
+            aria-label="Email signup"
+          >
+            <input
+              className="sx-join__input"
+              type="email"
+              required
+              placeholder="you@regrets.com"
+              aria-label="Email address"
+            />
+            <button className="sx-btn sx-btn--ink" type="submit">
+              Sign Me Up
+            </button>
+          </form>
+        )}
         <p className="sx-join__fine">
           No spam. Just bad decisions, delivered weekly.
         </p>

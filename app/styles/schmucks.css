@@ -1473,3 +1473,279 @@ details[open] .sx-faq__q::after {
   min-height: 120px;
   resize: vertical;
 }
+
+/* Form success state (email + contact) */
+.sx-form-success {
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: var(--shadow-hard);
+  padding: 1.5rem 1.75rem;
+  text-align: center;
+  max-width: 460px;
+  margin-inline: auto;
+}
+.sx-form-success__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.6rem;
+  margin-bottom: 0.4rem;
+}
+.sx-contact-card .sx-form-success {
+  background: var(--cream);
+  margin-top: 1rem;
+}
+
+/* --------------------------------------------------
+* Cart (page + drawer)
+* -------------------------------------------------- */
+.sx-cart-page {
+  padding-block: 0 clamp(2rem, 5vw, 3.5rem);
+}
+.sx-cart-page__grid {
+  padding-top: 2rem;
+}
+
+/* Stack & Save progress meter */
+.sx-stackbar {
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.25rem;
+}
+.sx-stackbar__msg {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.82rem;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.sx-stackbar__msg .sx-stars {
+  font-size: 0.9em;
+}
+.sx-stackbar__track {
+  height: 14px;
+  background: var(--cream-shade);
+  border: 2px solid var(--ink);
+  overflow: hidden;
+}
+.sx-stackbar__fill {
+  height: 100%;
+  background: var(--mustard);
+  border-right: 2px solid var(--ink);
+  transition: width 300ms ease;
+}
+.sx-stackbar__fill--max {
+  background: var(--ketchup);
+}
+.sx-stackbar__ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.65;
+}
+
+/* Cart line items */
+.cart-line {
+  padding: 1rem 0;
+  border-bottom: var(--line) dashed var(--ink);
+}
+.cart-line img {
+  border: 2px solid var(--ink);
+  margin-right: 1rem;
+}
+.cart-line strong {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-size: 0.95rem;
+}
+.cart-line small {
+  opacity: 0.7;
+}
+.cart-line-quantity {
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.cart-line-quantity button {
+  min-width: 1.9rem;
+  height: 1.9rem;
+  border: 2px solid var(--ink);
+  background: var(--cream);
+  font-weight: 800;
+  cursor: pointer;
+  line-height: 1;
+}
+.cart-line-quantity button:hover:not(:disabled) {
+  background: var(--mustard);
+}
+.cart-line-quantity button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.cart-line-quantity > small {
+  font-weight: 700;
+}
+.cart-line-quantity a,
+.cart-line-quantity [aria-label='Remove'] {
+  text-decoration: underline;
+}
+
+/* Cart summary */
+.cart-summary-page,
+.cart-summary-aside {
+  border-top: var(--line-thick) solid var(--ink);
+  padding-top: 1.25rem;
+  margin-top: 0.5rem;
+}
+.cart-summary-aside {
+  background: var(--cream);
+}
+.cart-summary-page h4,
+.cart-summary-aside h4 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+}
+.cart-subtotal {
+  justify-content: space-between;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+.cart-subtotal dd {
+  font-family: var(--font-display);
+}
+.cart-discount code {
+  background: var(--mustard);
+  color: var(--ink);
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  padding: 0.15em 0.4em;
+}
+/* Discount + gift card apply rows */
+.cart-summary-page section input,
+.cart-summary-aside section input {
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 0.5rem 0.6rem;
+  margin: 0.3rem 0.4rem 0.3rem 0;
+}
+.cart-summary-page section button,
+.cart-summary-aside section button {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.78rem;
+  padding: 0.5rem 0.85rem;
+  border: 2px solid var(--ink);
+  background: var(--cream);
+  cursor: pointer;
+}
+.cart-summary-page section button:hover,
+.cart-summary-aside section button:hover {
+  background: var(--mustard);
+}
+/* Checkout button */
+.sx-checkout {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  text-align: center;
+  font-family: var(--font-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1rem;
+  padding: 1.1rem 1.5rem;
+  color: var(--cream);
+  background: var(--ketchup);
+  border: var(--outline);
+  box-shadow: var(--shadow-hard);
+  transition:
+    transform 90ms ease,
+    box-shadow 90ms ease;
+}
+.sx-checkout:hover {
+  text-decoration: none;
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.sx-checkout p {
+  margin: 0;
+}
+
+/* --------------------------------------------------
+* Search + policies
+* -------------------------------------------------- */
+.sx-search-form {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.sx-search-form input[type='search'] {
+  flex: 1;
+  min-width: 240px;
+  border: var(--line) solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 0.85rem 1rem;
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+}
+.sx-search h2,
+.sx-search h5 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+}
+
+.sx-policy-list {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 560px;
+}
+.sx-policy-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: var(--line) solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--cream);
+  padding: 1rem 1.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.95rem;
+}
+.sx-policy-list a::after {
+  content: '→';
+  color: var(--ketchup);
+}
+.sx-policy-list a:hover {
+  text-decoration: none;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ketchup);
+}
+.sx-policy-back {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.8rem;
+}
