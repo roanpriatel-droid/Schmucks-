@@ -1749,3 +1749,205 @@ details[open] .sx-faq__q::after {
   letter-spacing: 0.04em;
   font-size: 0.8rem;
 }
+
+/* --------------------------------------------------
+* Matching Sets — how-it-works steps + empty note
+* -------------------------------------------------- */
+.sx-steps {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .sx-steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.sx-step {
+  border: var(--line) solid var(--ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--cream);
+  padding: 1.5rem;
+}
+.sx-step__n {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  background: var(--mustard);
+  border: var(--line) solid var(--ink);
+  font-size: 1.5rem;
+  margin-bottom: 0.9rem;
+}
+.sx-step__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  margin: 0 0 0.4rem;
+}
+.sx-step__body {
+  font-weight: 500;
+  line-height: 1.5;
+}
+.sx-empty-note {
+  border: var(--line) dashed var(--ink);
+  background: var(--cream-shade);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+}
+.sx-empty-note__mel {
+  width: 96px;
+}
+.sx-empty-note a {
+  color: var(--ketchup);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------
+* Blog
+* -------------------------------------------------- */
+.sx-blog-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .sx-blog-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.sx-blog-card {
+  display: block;
+  border: var(--line) solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--cream);
+  overflow: hidden;
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+.sx-blog-card:hover {
+  text-decoration: none;
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--ketchup);
+}
+.sx-blog-card__media {
+  aspect-ratio: 3 / 2;
+  background: var(--cream-shade);
+  border-bottom: var(--line) solid var(--ink);
+  overflow: hidden;
+}
+.sx-blog-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sx-blog-card__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  padding: 0.9rem 1.1rem;
+  margin: 0;
+}
+.sx-article {
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+}
+.sx-article__body {
+  max-width: 68ch;
+  margin-inline: auto;
+  line-height: 1.65;
+}
+.sx-article__body img {
+  width: 100%;
+  height: auto;
+  border: var(--line) solid var(--ink);
+  margin: 1.5rem 0;
+}
+
+/* --------------------------------------------------
+* Account
+* -------------------------------------------------- */
+.sx-account {
+  padding-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+.sx-account__menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.5rem 0 2rem;
+}
+.sx-account__menu a,
+.sx-account__logout button {
+  font-family: var(--font-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.78rem;
+  padding: 0.55rem 1rem;
+  background: var(--cream);
+  color: var(--ink);
+  border: var(--line) solid var(--ink);
+  cursor: pointer;
+}
+.sx-account__menu a:hover,
+.sx-account__logout button:hover {
+  text-decoration: none;
+  background: var(--mustard);
+}
+.sx-account__menu a.active {
+  background: var(--ink);
+  color: var(--cream);
+}
+.sx-account__logout {
+  display: inline-block;
+  margin: 0;
+}
+.sx-account fieldset {
+  border: var(--line) solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--cream);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.sx-account legend {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
+.sx-account table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.sx-account th,
+.sx-account td {
+  text-align: left;
+  padding: 0.6rem;
+  border-bottom: 2px solid var(--ink);
+  font-size: 0.9rem;
+}
+.sx-account th {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+}
+.sx-account button[type='submit'] {
+  font-family: var(--font-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.85rem 1.4rem;
+  color: var(--cream);
+  background: var(--ketchup);
+  border: var(--outline);
+  box-shadow: 4px 4px 0 var(--ink);
+  cursor: pointer;
+}
+.sx-account button[type='submit']:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}

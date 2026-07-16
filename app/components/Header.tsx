@@ -18,11 +18,11 @@ interface HeaderProps {
 
 type Viewport = 'desktop' | 'mobile';
 
-// Minimal deli menu-board nav. Swap targets once real collections/pages exist.
+// Deli menu-board nav — product lines are live.
 const SX_NAV = [
+  {title: 'Tees', to: '/tees'},
+  {title: 'Matching Sets', to: '/matching-sets'},
   {title: 'Shop All', to: '/collections/all'},
-  {title: 'Best Sellers', to: '/collections/featured'},
-  {title: 'New', to: '/collections'},
   {title: 'Contact', to: '/pages/contact'},
 ];
 

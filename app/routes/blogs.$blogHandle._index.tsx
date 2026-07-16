@@ -65,19 +65,29 @@ export default function Blog() {
   const {articles} = blog;
 
   return (
-    <div className="blog">
-      <h1>{blog.title}</h1>
-      <div className="blog-grid">
-        <PaginatedResourceSection<ArticleItemFragment> connection={articles}>
-          {({node: article, index}) => (
-            <ArticleItem
-              article={article}
-              key={article.id}
-              loading={index < 2 ? 'eager' : 'lazy'}
-            />
-          )}
-        </PaginatedResourceSection>
-      </div>
+    <div className="sx-blog">
+      <section className="sx-pagehead">
+        <div className="sx-wrap">
+          <p className="sx-pagehead__eyebrow">The Deli Counter</p>
+          <h1 className="sx-pagehead__title">{blog.title}</h1>
+        </div>
+      </section>
+      <section className="sx-shop">
+        <div className="sx-wrap">
+          <PaginatedResourceSection<ArticleItemFragment>
+            connection={articles}
+            resourcesClassName="sx-blog-grid"
+          >
+            {({node: article, index}) => (
+              <ArticleItem
+                article={article}
+                key={article.id}
+                loading={index < 2 ? 'eager' : 'lazy'}
+              />
+            )}
+          </PaginatedResourceSection>
+        </div>
+      </section>
     </div>
   );
 }
@@ -95,23 +105,27 @@ function ArticleItem({
     day: 'numeric',
   }).format(new Date(article.publishedAt!));
   return (
-    <div className="blog-article" key={article.id}>
-      <Link to={`/blogs/${article.blog.handle}/${article.handle}`}>
-        {article.image && (
-          <div className="blog-article-image">
-            <Image
-              alt={article.image.altText || article.title}
-              aspectRatio="3/2"
-              data={article.image}
-              loading={loading}
-              sizes="(min-width: 768px) 50vw, 100vw"
-            />
-          </div>
-        )}
-        <h3>{article.title}</h3>
-        <small>{publishedAt}</small>
-      </Link>
-    </div>
+    <Link
+      className="sx-blog-card"
+      to={`/blogs/${article.blog.handle}/${article.handle}`}
+      key={article.id}
+    >
+      {article.image && (
+        <div className="sx-blog-card__media">
+          <Image
+            alt={article.image.altText || article.title}
+            aspectRatio="3/2"
+            data={article.image}
+            loading={loading}
+            sizes="(min-width: 768px) 50vw, 100vw"
+          />
+        </div>
+      )}
+      <h3 className="sx-blog-card__title">{article.title}</h3>
+      <small style={{padding: '0 1.1rem 1rem', display: 'block', opacity: 0.7}}>
+        {publishedAt}
+      </small>
+    </Link>
   );
 }
 

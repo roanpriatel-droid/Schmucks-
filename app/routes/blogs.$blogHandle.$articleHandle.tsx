@@ -76,20 +76,32 @@ export default function Article() {
   }).format(new Date(article.publishedAt));
 
   return (
-    <div className="article">
-      <h1>
-        {title}
-        <div>
-          <time dateTime={article.publishedAt}>{publishedDate}</time> &middot;{' '}
-          <address>{author?.name}</address>
+    <div className="sx-article-page">
+      <section className="sx-pagehead">
+        <div className="sx-wrap">
+          <p className="sx-pagehead__eyebrow">
+            <time dateTime={article.publishedAt}>{publishedDate}</time>
+            {author?.name ? ` · ${author.name}` : ''}
+          </p>
+          <h1 className="sx-pagehead__title">{title}</h1>
         </div>
-      </h1>
-
-      {image && <Image data={image} sizes="90vw" loading="eager" />}
-      <div
-        dangerouslySetInnerHTML={{__html: contentHtml}}
-        className="article"
-      />
+      </section>
+      <section className="sx-article">
+        <div className="sx-wrap sx-article__body">
+          {image && (
+            <Image
+              data={image}
+              sizes="90vw"
+              loading="eager"
+              className="sx-article__hero"
+            />
+          )}
+          <div
+            className="sx-prose"
+            dangerouslySetInnerHTML={{__html: contentHtml}}
+          />
+        </div>
+      </section>
     </div>
   );
 }

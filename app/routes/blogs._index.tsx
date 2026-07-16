@@ -7,7 +7,7 @@ import type {BlogsQuery} from 'storefrontapi.generated';
 type BlogNode = BlogsQuery['blogs']['nodes'][0];
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Hydrogen | Blogs`}];
+  return [{title: `The Deli Counter — SCHMUCKS`}];
 };
 
 export async function loader(args: Route.LoaderArgs) {
@@ -54,22 +54,36 @@ export default function Blogs() {
   const {blogs} = useLoaderData<typeof loader>();
 
   return (
-    <div className="blogs">
-      <h1>Blogs</h1>
-      <div className="blogs-grid">
-        <PaginatedResourceSection<BlogNode> connection={blogs}>
-          {({node: blog}) => (
-            <Link
-              className="blog"
-              key={blog.handle}
-              prefetch="intent"
-              to={`/blogs/${blog.handle}`}
-            >
-              <h2>{blog.title}</h2>
-            </Link>
-          )}
-        </PaginatedResourceSection>
-      </div>
+    <div className="sx-blogs">
+      <section className="sx-pagehead">
+        <div className="sx-wrap">
+          <p className="sx-pagehead__eyebrow">Words, For Some Reason</p>
+          <h1 className="sx-pagehead__title">The Deli Counter</h1>
+          <p className="sx-pagehead__desc">
+            Drop announcements, behind-the-scenes, and the occasional bad idea
+            in long form.
+          </p>
+        </div>
+      </section>
+      <section className="sx-shop">
+        <div className="sx-wrap">
+          <PaginatedResourceSection<BlogNode>
+            connection={blogs}
+            resourcesClassName="sx-blog-grid"
+          >
+            {({node: blog}) => (
+              <Link
+                className="sx-blog-card"
+                key={blog.handle}
+                prefetch="intent"
+                to={`/blogs/${blog.handle}`}
+              >
+                <h2 className="sx-blog-card__title">{blog.title}</h2>
+              </Link>
+            )}
+          </PaginatedResourceSection>
+        </div>
+      </section>
     </div>
   );
 }

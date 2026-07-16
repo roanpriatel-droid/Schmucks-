@@ -80,11 +80,11 @@ function Hero() {
           <span>Loved by 12,000+ proud idiots</span>
         </p>
         <div className="sx-hero__ctas">
-          <Link className="sx-btn sx-btn--ketchup" to="/collections/featured">
-            Shop Bestsellers
+          <Link className="sx-btn sx-btn--ketchup" to="/tees">
+            Shop the Tees
           </Link>
-          <Link className="sx-btn sx-btn--ghost" to="/collections">
-            New Drops
+          <Link className="sx-btn sx-btn--ghost" to="/matching-sets">
+            Matching Sets
           </Link>
         </div>
       </div>

@@ -9,10 +9,10 @@ interface FooterProps {
 }
 
 const SHOP_LINKS = [
+  {title: 'Tees', to: '/tees'},
+  {title: 'Matching Sets', to: '/matching-sets'},
   {title: 'Shop All', to: '/collections/all'},
-  {title: 'Best Sellers', to: '/collections/featured'},
-  {title: 'New Drops', to: '/collections'},
-  {title: 'Matching Sets (Soon)', to: '/collections'},
+  {title: 'Browse Collections', to: '/collections'},
 ];
 
 const HELP_LINKS = [
