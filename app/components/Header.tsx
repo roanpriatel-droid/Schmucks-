@@ -22,6 +22,7 @@ type Viewport = 'desktop' | 'mobile';
 const SX_NAV = [
   {title: 'Tees', to: '/tees'},
   {title: 'Matching Sets', to: '/matching-sets'},
+  {title: 'Lookbook', to: '/lookbook'},
   {title: 'Shop All', to: '/collections/all'},
   {title: 'Contact', to: '/pages/contact'},
 ];
