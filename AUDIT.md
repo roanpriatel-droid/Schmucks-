@@ -16,18 +16,22 @@ React Router 7, data via mock.shop (real store injected on Oxygen)._
 - **Styling:** hand-rolled design system in `app/styles/schmucks.css` (no
   Tailwind). Brand tokens in `:root`. See `BRAND.md`.
 
-## Scores (1–10) — baseline → target
+## Scores (1–10) — before → after
 
-| Dimension | Before | Target | Notes |
+| Dimension | Before | After | What shipped |
 |---|---:|---:|---|
-| Visual craft | 7 | 9 | Strong system; homepage needs editorial rhythm, micro-interactions, scroll reveals, card hover image-swap |
-| Page depth | 5 | 9 | Missing About, Materials, Size & Fit, Care, Lookbook, Journal. FAQ/Contact exist |
-| PDP persuasion | 5 | 9 | No gallery zoom, no accordions, no sticky ATC, no cross-sell, no size-guide modal, no Product schema |
-| Mobile | 7 | 9 | Responsive already; needs sticky ATC, swipe gallery, tap targets audit |
-| Performance | 7 | 9 | Hydrogen `Image` used; add hero preload, font-display swap, blur/skeletons |
-| SEO / GEO | 5 | 9 | Per-route titles mostly done; missing OG images, canonical, JSON-LD, `llms.txt`, editorial entity copy |
-| Accessibility | 6 | 9 | Aside/accordions need keyboard + focus states; alt text; contrast pass |
-| Conversion architecture | 6 | 9 | Free-ship bar (meter) present; need trust row, cross-sell, email modal, filtering, analytics events |
+| Visual craft | 7 | 9 | Scroll reveals, product-card hover image-swap, editorial statement bands, split/pullquote system, spec cards |
+| Page depth | 5 | 9 | Added About, Materials, Size & Fit, Care, Lookbook, Journal (3 articles) — all fully designed |
+| PDP persuasion | 5 | 9 | Swipe gallery + zoom, accordions, sticky ATC, size-guide modal, cross-sell, Product schema, honest badges |
+| Mobile | 7 | 9 | Sticky ATC, native swipe gallery, responsive grids/tables, box-sizing fix |
+| Performance | 7 | 8.5 | Hydrogen `Image` + lazy below-fold, `display=swap` + preconnect; hero is text (fast LCP). Real-device Lighthouse pending |
+| SEO / GEO | 5 | 9 | Per-route titles/meta, OG/Twitter, Organization+WebSite+Product+FAQ+Article JSON-LD, `llms.txt`, entity-rich copy |
+| Accessibility | 6 | 8.5 | Focus-visible ring, skip link, native accordions, Esc-closable modals, alt text; full AT testing pending |
+| Conversion architecture | 6 | 9 | Free-ship progress, cart trust row, cross-sell, exit-intent email modal, collection sort+count, analytics events |
+
+Perf & a11y are marked ~8.5 honestly — both want real-device Lighthouse and
+assistive-tech testing, which needs the running dev server (blocked on this
+ARM64 box; verified via build + typecheck + static-render screenshots instead).
 
 ## Known issues to fix (honesty)
 
@@ -60,5 +64,35 @@ React Router 7, data via mock.shop (real store injected on Oxygen)._
 
 ## Changelog
 
-- **Phase 0** (this commit): reverse-engineered `BRAND.md`, wrote this audit and
-  `NEEDS_INPUT.md`. No functional changes.
+- **Phase 0** — reverse-engineered `BRAND.md`, this audit, `NEEDS_INPUT.md`.
+- **Phase 1** — `Reveal` scroll util (reduced-motion aware); product-card hover
+  image-swap (added `images(first:2)` to product fragments); editorial statement
+  band; **removed all fabricated social proof** (hero "12,000+", the "4.9/5"
+  reviews block, per-card counts) → honest facts + "Schmucks Promise" + product
+  meta.
+- **Phase 2** — new pages, all fully designed: About/Philosophy, Materials &
+  Construction, Size & Fit (w/ Find-My-Size), Care, Journal (index + 3× 600-word
+  articles), Lookbook. Footer upgraded with newsletter + Shop/Learn/Help sitemap.
+- **Phase 3** — PDP rebuild: swipe gallery + lightbox zoom, honest badges, size
+  modal, Details/Materials/Care/Shipping accordions, sticky ATC, cross-sell,
+  Product JSON-LD.
+- **Phase 4** — cart free-ship progress + trust row, exit-intent email modal,
+  on-brand empty search, collection server-side sort + count + intro, dataLayer
+  analytics (view_item / add_to_cart / begin_checkout / newsletter_signup).
+- **Phase 5** — `llms.txt`; Organization/WebSite/FAQ JSON-LD; OG/Twitter meta;
+  focus-visible ring + skip link + main landmark.
+- **Phase 6** — build + typecheck green across all phases; static-render
+  screenshots of home, PDP, cart, materials, matching-sets, favicon.
+
+## Framework deviations / notes
+
+- **Journal** is a local seeded content route (`app/data/journal.ts`), not the
+  Shopify blog — gives full editorial control and works regardless of store blog
+  config. The Shopify `/blogs/*` routes remain, re-skinned.
+- **Reviews** intentionally omitted (honesty rule). Wire a reviews app when real
+  data exists; `aggregateRating` will slot into the existing Product JSON-LD.
+- **Stack & Save + free-ship bar** are honest UI; both need the matching Shopify
+  automatic discount / confirmed threshold to be *functionally* true (NEEDS_INPUT).
+- Could not run the Hydrogen dev server locally (workerd fails on this ARM64
+  39-bit-VA box); verification was build + `tsc` + headless-Chromium static
+  renders. Full end-to-end click-through should be done in Codespaces/Oxygen.
