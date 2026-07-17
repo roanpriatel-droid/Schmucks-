@@ -6,6 +6,7 @@ import type {
 } from '@shopify/hydrogen/storefront-api-types';
 import {AddToCartButton} from './AddToCartButton';
 import {useAside} from './Aside';
+import {track} from '~/lib/analytics';
 import type {ProductFragment} from 'storefrontapi.generated';
 
 export function ProductForm({
@@ -104,6 +105,10 @@ export function ProductForm({
       <AddToCartButton
         disabled={!selectedVariant || !selectedVariant.availableForSale}
         onClick={() => {
+          track('add_to_cart', {
+            variant_id: selectedVariant?.id,
+            price: selectedVariant?.price?.amount,
+          });
           open('cart');
         }}
         lines={

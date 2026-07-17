@@ -4,6 +4,10 @@ import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {ProductItem} from '~/components/ProductItem';
+import {
+  CollectionControls,
+  collectionSortArgs,
+} from '~/components/CollectionControls';
 import type {ProductItemFragment} from 'storefrontapi.generated';
 
 export const meta: Route.MetaFunction = ({data}) => {
@@ -28,8 +32,10 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   const {handle} = params;
   const {storefront} = context;
   const paginationVariables = getPaginationVariables(request, {
-    pageBy: 8,
+    pageBy: 12,
   });
+  const sort = new URL(request.url).searchParams.get('sort') || 'featured';
+  const {sortKey, reverse} = collectionSortArgs(sort);
 
   if (!handle) {
     throw redirect('/collections');
@@ -37,7 +43,7 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
 
   const [{collection}] = await Promise.all([
     storefront.query(COLLECTION_QUERY, {
-      variables: {handle, ...paginationVariables},
+      variables: {handle, sortKey, reverse, ...paginationVariables},
       // Add other queries here, so that they are loaded in parallel
     }),
   ]);
@@ -53,6 +59,7 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
 
   return {
     collection,
+    sort,
   };
 }
 
@@ -66,7 +73,7 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 }
 
 export default function Collection() {
-  const {collection} = useLoaderData<typeof loader>();
+  const {collection, sort} = useLoaderData<typeof loader>();
 
   return (
     <div className="sx-collection">
@@ -74,13 +81,18 @@ export default function Collection() {
         <div className="sx-wrap">
           <p className="sx-pagehead__eyebrow">The Menu Board</p>
           <h1 className="sx-pagehead__title">{collection.title}</h1>
-          {collection.description ? (
-            <p className="sx-pagehead__desc">{collection.description}</p>
-          ) : null}
+          <p className="sx-pagehead__desc">
+            {collection.description ||
+              `Every ${collection.title.toLowerCase()} design we make — $25 flat, unisex S–3XL, printed to order.`}
+          </p>
         </div>
       </section>
       <section className="sx-shop">
         <div className="sx-wrap">
+          <CollectionControls
+            count={collection.products.nodes.length}
+            sort={sort}
+          />
           <PaginatedResourceSection<ProductItemFragment>
             connection={collection.products}
             resourcesClassName="sx-grid"
@@ -154,6 +166,8 @@ const COLLECTION_QUERY = `#graphql
     $last: Int
     $startCursor: String
     $endCursor: String
+    $sortKey: ProductCollectionSortKeys = COLLECTION_DEFAULT
+    $reverse: Boolean = false
   ) @inContext(country: $country, language: $language) {
     collection(handle: $handle) {
       id
@@ -164,7 +178,9 @@ const COLLECTION_QUERY = `#graphql
         first: $first,
         last: $last,
         before: $startCursor,
-        after: $endCursor
+        after: $endCursor,
+        sortKey: $sortKey,
+        reverse: $reverse
       ) {
         nodes {
           ...ProductItem

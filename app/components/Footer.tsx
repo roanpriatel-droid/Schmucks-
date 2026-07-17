@@ -2,6 +2,7 @@ import {useState} from 'react';
 import {NavLink} from 'react-router';
 import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
 import {WordmarkFlat, Badge} from '~/components/brand/Brand';
+import {track} from '~/lib/analytics';
 
 interface FooterProps {
   footer: Promise<FooterQuery | null>;
@@ -137,6 +138,7 @@ function NewsletterForm() {
       className="sx-footer-news__form"
       onSubmit={(e) => {
         e.preventDefault();
+        track('newsletter_signup', {location: 'footer'});
         setDone(true);
       }}
       aria-label="Newsletter signup"

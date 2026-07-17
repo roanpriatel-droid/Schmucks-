@@ -7,6 +7,7 @@ import {Marquee} from '~/components/home/Marquee';
 import {StackLadder} from '~/components/home/StackLadder';
 import {Mel, Badge} from '~/components/brand/Brand';
 import {Reveal} from '~/components/Reveal';
+import {track} from '~/lib/analytics';
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -380,6 +381,7 @@ function JoinTheSchmucks() {
             className="sx-join__form"
             onSubmit={(e) => {
               e.preventDefault();
+              track('newsletter_signup', {location: 'home_hero'});
               setSubmitted(true);
             }}
             aria-label="Email signup"

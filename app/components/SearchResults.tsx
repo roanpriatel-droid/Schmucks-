@@ -157,5 +157,18 @@ function SearchResultsProducts({
 }
 
 function SearchResultsEmpty() {
-  return <p>No results, try a different search.</p>;
+  return (
+    <div className="sx-empty-note" style={{marginTop: '1rem'}}>
+      <p style={{fontFamily: 'var(--font-display)', textTransform: 'uppercase', fontSize: '1.4rem'}}>
+        Nothing. Nada. Zip.
+      </p>
+      <p>
+        No shirts matched that. Try a different word, or just{' '}
+        <a href="/tees" style={{color: 'var(--ketchup)', fontWeight: 800, textDecoration: 'underline'}}>
+          browse all the tees
+        </a>
+        .
+      </p>
+    </div>
+  );
 }

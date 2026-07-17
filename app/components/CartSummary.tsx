@@ -4,6 +4,10 @@ import {CartForm, Money, type OptimisticCart} from '@shopify/hydrogen';
 import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
 import {StackProgress} from '~/components/StackProgress';
+import {track} from '~/lib/analytics';
+
+// Real free-shipping threshold. Confirm this value (see NEEDS_INPUT.md).
+const FREE_SHIP_THRESHOLD = 100;
 
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
@@ -19,8 +23,12 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
   const giftCardHeadingId = useId();
   const giftCardInputId = useId();
 
+  const subtotal = Number(cart?.cost?.subtotalAmount?.amount ?? 0);
+  const currency = cart?.cost?.subtotalAmount?.currencyCode ?? 'USD';
+
   return (
     <div aria-labelledby={summaryId} className={className}>
+      <FreeShipProgress subtotal={subtotal} currency={currency} />
       <StackProgress quantity={cart?.totalQuantity ?? 0} />
       <h4 id={summaryId}>The Damage</h4>
       <dl role="group" className="cart-subtotal">
@@ -53,9 +61,51 @@ function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
 
   return (
     <div>
-      <a className="sx-checkout" href={checkoutUrl} target="_self">
+      <a
+        className="sx-checkout"
+        href={checkoutUrl}
+        target="_self"
+        onClick={() => track('begin_checkout')}
+      >
         <p>Commit to the Bit &rarr;</p>
       </a>
+      <ul className="sx-cart-trust">
+        <li>↩ 30-day returns</li>
+        <li>🔒 Secure checkout</li>
+        <li>📦 Ships from the US</li>
+      </ul>
+    </div>
+  );
+}
+
+function FreeShipProgress({
+  subtotal,
+  currency,
+}: {
+  subtotal: number;
+  currency: string;
+}) {
+  if (subtotal <= 0) return null;
+  const remaining = Math.max(FREE_SHIP_THRESHOLD - subtotal, 0);
+  const pct = Math.min((subtotal / FREE_SHIP_THRESHOLD) * 100, 100);
+  const unlocked = remaining === 0;
+  const fmt = (n: number) =>
+    new Intl.NumberFormat('en-US', {style: 'currency', currency}).format(n);
+
+  return (
+    <div className="sx-stackbar" aria-live="polite">
+      <div className="sx-stackbar__msg">
+        <span className="sx-stars">★</span>
+        {unlocked
+          ? 'Free US shipping unlocked.'
+          : `${fmt(remaining)} away from free US shipping`}
+      </div>
+      <div className="sx-stackbar__track">
+        <div
+          className={`sx-stackbar__fill ${unlocked ? 'sx-stackbar__fill--max' : ''}`}
+          style={{width: `${pct}%`}}
+        />
+      </div>
     </div>
   );
 }

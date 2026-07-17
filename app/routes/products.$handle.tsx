@@ -1,6 +1,7 @@
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/products.$handle';
+import {track} from '~/lib/analytics';
 import {
   getSelectedProductOptions,
   Analytics,
@@ -115,6 +116,10 @@ export default function Product() {
   });
 
   const {title, descriptionHtml} = product;
+
+  useEffect(() => {
+    track('view_item', {item_id: product.id, item_name: product.title});
+  }, [product.id, product.title]);
 
   // Gallery: product images, fall back to the selected variant image.
   const galleryImages = product.images?.nodes?.length

@@ -1,6 +1,7 @@
 import {useEffect, useState, type RefObject, type ReactNode} from 'react';
 import {AddToCartButton} from '~/components/AddToCartButton';
 import {useAside} from '~/components/Aside';
+import {track} from '~/lib/analytics';
 import type {ProductFragment} from 'storefrontapi.generated';
 
 /**
@@ -47,7 +48,10 @@ export function StickyAddToCart({
         <div className="sx-sticky-atc__cta">
           <AddToCartButton
             disabled={!available}
-            onClick={() => open('cart')}
+            onClick={() => {
+              track('add_to_cart', {variant_id: selectedVariant?.id});
+              open('cart');
+            }}
             lines={
               selectedVariant
                 ? [{merchandiseId: selectedVariant.id, quantity: 1, selectedVariant}]

@@ -9,6 +9,7 @@ import {Aside} from '~/components/Aside';
 import {Footer} from '~/components/Footer';
 import {Header, HeaderMenu} from '~/components/Header';
 import {AnnouncementBar} from '~/components/home/AnnouncementBar';
+import {EmailModal} from '~/components/EmailModal';
 import {CartMain} from '~/components/CartMain';
 import {
   SEARCH_ENDPOINT,
@@ -53,6 +54,7 @@ export function PageLayout({
         header={header}
         publicStoreDomain={publicStoreDomain}
       />
+      <EmailModal />
     </Aside.Provider>
   );
 }

@@ -1,8 +1,12 @@
 import type {Route} from './+types/collections.all';
 import {useLoaderData} from 'react-router';
-import {getPaginationVariables, Image, Money} from '@shopify/hydrogen';
+import {getPaginationVariables} from '@shopify/hydrogen';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {ProductItem} from '~/components/ProductItem';
+import {
+  CollectionControls,
+  catalogSortArgs,
+} from '~/components/CollectionControls';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 
 export const meta: Route.MetaFunction = () => {
@@ -26,16 +30,18 @@ export async function loader(args: Route.LoaderArgs) {
 async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const {storefront} = context;
   const paginationVariables = getPaginationVariables(request, {
-    pageBy: 8,
+    pageBy: 12,
   });
+  const sort = new URL(request.url).searchParams.get('sort') || 'featured';
+  const {sortKey, reverse} = catalogSortArgs(sort);
 
   const [{products}] = await Promise.all([
     storefront.query(CATALOG_QUERY, {
-      variables: {...paginationVariables},
+      variables: {...paginationVariables, sortKey, reverse},
     }),
     // Add other queries here, so that they are loaded in parallel
   ]);
-  return {products};
+  return {products, sort};
 }
 
 /**
@@ -48,7 +54,7 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 }
 
 export default function Collection() {
-  const {products} = useLoaderData<typeof loader>();
+  const {products, sort} = useLoaderData<typeof loader>();
 
   return (
     <div className="sx-collection">
@@ -64,6 +70,7 @@ export default function Collection() {
       </section>
       <section className="sx-shop">
         <div className="sx-wrap">
+          <CollectionControls count={products.nodes.length} sort={sort} />
           <PaginatedResourceSection<CollectionItemFragment>
             connection={products}
             resourcesClassName="sx-grid"
@@ -127,8 +134,10 @@ const CATALOG_QUERY = `#graphql
     $last: Int
     $startCursor: String
     $endCursor: String
+    $sortKey: ProductSortKeys = BEST_SELLING
+    $reverse: Boolean = false
   ) @inContext(country: $country, language: $language) {
-    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
+    products(first: $first, last: $last, before: $startCursor, after: $endCursor, sortKey: $sortKey, reverse: $reverse) {
       nodes {
         ...CollectionItem
       }
