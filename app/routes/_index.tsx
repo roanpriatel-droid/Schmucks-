@@ -6,6 +6,7 @@ import type {HomeProductFragment} from 'storefrontapi.generated';
 import {Marquee} from '~/components/home/Marquee';
 import {StackLadder} from '~/components/home/StackLadder';
 import {Mel, Badge} from '~/components/brand/Brand';
+import {Reveal} from '~/components/Reveal';
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -52,12 +53,33 @@ export default function Homepage() {
         ]}
       />
       <Specials collections={collections as HomeCollection[]} />
+      <Statement />
       <StackLadder />
-      <Reviews />
+      <PromiseSection />
       <UGC />
       <TrustBar />
       <JoinTheSchmucks />
     </div>
+  );
+}
+
+function Statement() {
+  return (
+    <section className="sx-statement" aria-label="Brand statement">
+      <div className="sx-wrap">
+        <Reveal>
+          <p className="sx-statement__text sx-display">
+            Dumb on the front.
+            <br />
+            <em>Serious</em> about the shirt.
+          </p>
+          <p className="sx-statement__sub">
+            Heavyweight ringspun cotton, printed to order in the USA. The joke is
+            free; the quality isn&rsquo;t an accident.
+          </p>
+        </Reveal>
+      </div>
+    </section>
   );
 }
 
@@ -76,8 +98,11 @@ function Hero() {
           printed on cotton that can take a joke.
         </p>
         <p className="sx-hero__social">
-          <span className="sx-stars">★★★★★</span>
-          <span>Loved by 12,000+ proud idiots</span>
+          <span>$25 flat</span>
+          <span className="sx-hero__dot">·</span>
+          <span>Free US shipping over $100</span>
+          <span className="sx-hero__dot">·</span>
+          <span>30-day returns</span>
         </p>
         <div className="sx-hero__ctas">
           <Link className="sx-btn sx-btn--ketchup" to="/tees">
@@ -155,11 +180,11 @@ function Specials({collections}: {collections: HomeCollection[]}) {
           </div>
         )}
 
-        <div className="sx-grid">
+        <Reveal className="sx-grid">
           {current.products.map((product, i) => (
             <ProductCard key={product.id} product={product} index={i} />
           ))}
-        </div>
+        </Reveal>
 
         <div className="sx-specials__cta">
           <Link className="sx-btn" to="/collections/all">
@@ -178,29 +203,39 @@ function ProductCard({
   product: HomeProductFragment;
   index: number;
 }) {
-  const image = product.featuredImage;
-  // Deterministic placeholder review counts until real reviews are wired.
-  const reviews = 40 + ((index * 37 + 11) % 260);
+  const gallery = product.images?.nodes ?? [];
+  const image = product.featuredImage ?? gallery[0] ?? null;
+  const secondary = gallery.find((img) => img?.id && img.id !== image?.id);
+  const sizes = '(min-width: 940px) 300px, (min-width: 620px) 33vw, 50vw';
   return (
     <Link className="sx-card" to={`/products/${product.handle}`} prefetch="intent">
-      <div className="sx-card__media">
-        {index === 0 && <span className="sx-card__flag">Bestseller</span>}
+      <div className={`sx-card__media ${secondary ? 'sx-card__media--swap' : ''}`}>
+        {index === 0 && <span className="sx-card__flag">Fresh Drop</span>}
         {image && (
           <Image
             data={image}
             alt={image.altText || product.title}
             aspectRatio="1/1"
-            sizes="(min-width: 940px) 300px, (min-width: 620px) 33vw, 50vw"
+            sizes={sizes}
             loading={index < 4 ? 'eager' : 'lazy'}
+            className="sx-card__img--primary"
+          />
+        )}
+        {secondary && (
+          <Image
+            data={secondary}
+            alt=""
+            aria-hidden="true"
+            aspectRatio="1/1"
+            sizes={sizes}
+            loading="lazy"
+            className="sx-card__img--secondary"
           />
         )}
       </div>
       <div className="sx-card__body">
         <h3 className="sx-card__title">{product.title}</h3>
-        <div className="sx-card__reviews">
-          <span className="sx-stars">★★★★★</span>
-          <span>({reviews})</span>
-        </div>
+        <div className="sx-card__meta">Unisex tee · S–3XL</div>
         <div className="sx-card__price sx-display">
           <Money data={product.priceRange.minVariantPrice} />
         </div>
@@ -209,62 +244,48 @@ function ProductCard({
   );
 }
 
-const REVIEWS = [
+const PROMISE = [
   {
-    stars: 5,
-    body: 'Wore it to my mother-in-law’s birthday. Not invited back. Worth it.',
-    name: 'Danny T.',
-    initial: 'D',
+    title: 'Real Cotton, Real Weight',
+    body: 'Heavyweight ringspun cotton with a soft hand and a print that survives the wash. The shirt is not the punchline.',
   },
   {
-    stars: 5,
-    body: 'The fabric is genuinely nice, which feels like a mistake given the design.',
-    name: 'Priya S.',
-    initial: 'P',
+    title: 'Printed to Order',
+    body: 'Every shirt is made when you order it — less waste, no dusty warehouse stock, fresh prints every time.',
   },
   {
-    stars: 5,
-    body: 'Bought four. My wife has stopped making eye contact. Ten out of ten.',
-    name: 'Marcus L.',
-    initial: 'M',
+    title: '30-Day Returns',
+    body: 'Wrong size or second thoughts? Send it back within 30 days. No interrogation. Maybe one gentle question.',
   },
 ];
 
-function Reviews() {
+function PromiseSection() {
   return (
-    <section className="sx-reviews" aria-labelledby="sx-reviews-title">
+    <section className="sx-reviews" aria-labelledby="sx-promise-title">
       <div className="sx-wrap">
         <div className="sx-reviews__head">
           <p className="sx-eyebrow" style={{color: 'var(--ketchup)'}}>
-            Certified Schmucks
+            The Schmucks Promise
           </p>
-          <div className="sx-reviews__score sx-display">
-            4.9/5 <span className="sx-stars">★★★★★</span>
-          </div>
-          <p>From 12,000+ idiots who should&rsquo;ve known better.</p>
+          <h2 className="sx-section-title" id="sx-promise-title">
+            Dumb Shirt. Serious Standards.
+          </h2>
+          <p style={{maxWidth: '46ch', margin: '0.75rem auto 0'}}>
+            We don&rsquo;t do fake five-star quotes. Here&rsquo;s what we&rsquo;ll
+            actually stand behind.
+          </p>
         </div>
-        <div className="sx-review-grid">
-          {REVIEWS.map((r) => (
-            <figure className="sx-review" key={r.name}>
-              <div className="sx-review__stars">
-                {'★'.repeat(r.stars)}
+        <Reveal className="sx-review-grid">
+          {PROMISE.map((p) => (
+            <div className="sx-review" key={p.title}>
+              <div className="sx-review__stars" aria-hidden="true">
+                ★
               </div>
-              <blockquote className="sx-review__body">
-                &ldquo;{r.body}&rdquo;
-              </blockquote>
-              <figcaption className="sx-review__who">
-                <span className="sx-review__avatar sx-display">
-                  {r.initial}
-                </span>
-                <span>
-                  <span className="sx-review__name">{r.name}</span>
-                  <br />
-                  <span className="sx-review__badge">Verified Idiot</span>
-                </span>
-              </figcaption>
-            </figure>
+              <h3 className="sx-promise__title">{p.title}</h3>
+              <p className="sx-review__body">{p.body}</p>
+            </div>
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -394,6 +415,15 @@ const HOME_COLLECTIONS_QUERY = `#graphql
       altText
       width
       height
+    }
+    images(first: 2) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
     }
     priceRange {
       minVariantPrice {
