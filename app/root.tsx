@@ -155,6 +155,24 @@ function loadDeferredData({context}: Route.LoaderArgs) {
   };
 }
 
+const ORG_JSONLD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      name: 'SCHMUCKS',
+      description:
+        'Fine Apparel for Idiots — funny graphic tees printed to order on heavyweight cotton.',
+      slogan: 'Fine Apparel for Idiots',
+    },
+    {
+      '@type': 'WebSite',
+      name: 'SCHMUCKS',
+      description: 'Funny graphic tees, $25 flat, printed to order.',
+    },
+  ],
+};
+
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
 
@@ -163,13 +181,26 @@ export function Layout({children}: {children?: React.ReactNode}) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="theme-color" content="#F2B33D" />
+        <meta property="og:site_name" content="SCHMUCKS" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="og:image" content="/apple-touch-icon.png" />
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
         <link rel="stylesheet" href={schmucksStyles}></link>
         <Meta />
         <Links />
+        <script
+          type="application/ld+json"
+          nonce={nonce}
+          dangerouslySetInnerHTML={{__html: JSON.stringify(ORG_JSONLD)}}
+        />
       </head>
       <body>
+        <a href="#main-content" className="sx-skip">
+          Skip to content
+        </a>
         {children}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />

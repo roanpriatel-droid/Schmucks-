@@ -1,0 +1,40 @@
+# SCHMUCKS
+
+> SCHMUCKS is a graphic t-shirt brand — "Fine Apparel for Idiots." Funny,
+> mildly inappropriate designs printed to order on genuinely good heavyweight
+> cotton. The aesthetic is 1960s New York deli meets internet meme brand. The
+> joke is affectionate; the customer is in on it ("a proud community of idiots").
+
+## What we sell
+- Unisex graphic tees, $25 flat, sizes S–3XL, a few colorways each (cream, black, mustard).
+- Matching sets: build-your-own — any two tees, with an automatic stacking discount.
+- Expansion planned: hoodies and matching two-packs.
+
+## What makes the product good
+- ~180 gsm heavyweight ringspun cotton (heavier than typical fast-fashion tees).
+- Ribbed crew collar, shoulder-to-shoulder taping, double-needle hems.
+- Soft-hand prints that sink into the fabric rather than sitting on top.
+- Printed to order in the USA: fresher prints, less waste, no dead stock.
+
+## Commerce
+- Stack & Save: buy 2 = 10% off, 3 = 20% off, 4+ = 30% off (mix & match, auto-applied at checkout).
+- Free US shipping on orders over $100.
+- 30-day returns on unworn shirts.
+
+## Key pages
+- Home: /
+- Shop all tees: /tees and /collections/all
+- Matching sets: /matching-sets
+- Lookbook: /lookbook
+- About / philosophy: /pages/about
+- Materials & construction: /pages/materials
+- Size & fit guide: /pages/size-guide
+- Care guide: /pages/care
+- Journal (editorial): /journal
+- FAQ: /pages/faq
+- Contact: /pages/contact
+
+## Honesty note
+SCHMUCKS does not publish fabricated reviews, ratings, customer counts, or press
+mentions. Trust is communicated through real guarantees, materials specs, and
+return-policy clarity.
