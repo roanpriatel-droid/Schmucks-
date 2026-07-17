@@ -1503,6 +1503,315 @@ aside header h3 {
 }
 
 /* --------------------------------------------------
+* PDP gallery
+* -------------------------------------------------- */
+.sx-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.sx-gallery__main {
+  border: var(--line-thick) solid var(--ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--cream-shade);
+  overflow: hidden;
+  position: relative;
+}
+.sx-gallery__track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.sx-gallery__track::-webkit-scrollbar {
+  display: none;
+}
+.sx-gallery__slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  aspect-ratio: 1 / 1;
+  cursor: zoom-in;
+  border: 0;
+  padding: 0;
+  background: var(--cream-shade);
+}
+.sx-gallery__slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sx-gallery__thumbs {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.sx-gallery__thumb {
+  width: 68px;
+  height: 68px;
+  border: var(--line) solid var(--ink);
+  background: var(--cream-shade);
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.sx-gallery__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sx-gallery__thumb[aria-current='true'] {
+  outline: 3px solid var(--ketchup);
+  outline-offset: -3px;
+}
+.sx-gallery__zoomhint {
+  position: absolute;
+  bottom: 0.6rem;
+  right: 0.6rem;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.5rem;
+  pointer-events: none;
+}
+/* Mobile: swipe gallery with dots */
+@media (max-width: 640px) {
+  .sx-gallery__main {
+    cursor: default;
+  }
+  .sx-gallery__main.is-zoomed img {
+    transform: none;
+  }
+}
+.sx-gallery__dots {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+}
+.sx-gallery__dot {
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--ink);
+  background: var(--cream);
+  padding: 0;
+  cursor: pointer;
+}
+.sx-gallery__dot[aria-current='true'] {
+  background: var(--ink);
+}
+
+/* Honest PDP badges (replace fake rating) */
+.sx-product__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.sx-product__badge {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--cream-shade);
+  border: 2px solid var(--ink);
+}
+
+/* Size-guide trigger row */
+.sx-sizerow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.sx-sizeguide-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  color: var(--ketchup);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* PDP accordions (native details) */
+.sx-acc {
+  border: var(--line) solid var(--ink);
+  margin-top: 1.5rem;
+  background: var(--cream);
+}
+.sx-acc__item {
+  border-bottom: 2px solid var(--ink);
+}
+.sx-acc__item:last-child {
+  border-bottom: 0;
+}
+.sx-acc__q {
+  list-style: none;
+  cursor: pointer;
+  padding: 1rem 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.sx-acc__q::-webkit-details-marker {
+  display: none;
+}
+.sx-acc__q::after {
+  content: '+';
+  font-family: var(--font-display);
+  color: var(--ketchup);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.sx-acc__item[open] .sx-acc__q::after {
+  content: '–';
+}
+.sx-acc__a {
+  padding: 0 1.1rem 1.1rem;
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+.sx-acc__a ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1rem;
+  list-style: disc;
+}
+.sx-acc__a li {
+  margin-bottom: 0.3rem;
+}
+
+/* Sticky add-to-cart bar */
+.sx-sticky-atc {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background: var(--cream);
+  border-top: var(--line-thick) solid var(--ink);
+  box-shadow: 0 -6px 0 rgba(0, 0, 0, 0.08);
+  transform: translateY(110%);
+  transition: transform 220ms ease;
+}
+.sx-sticky-atc.is-shown {
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-sticky-atc {
+    transition: none;
+  }
+}
+.sx-sticky-atc__inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem var(--gutter);
+  max-width: var(--wrap);
+  margin-inline: auto;
+}
+.sx-sticky-atc__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.sx-sticky-atc__name {
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sx-sticky-atc__price {
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+.sx-sticky-atc__cta {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.sx-sticky-atc__cta button {
+  width: auto !important;
+  margin: 0 !important;
+  white-space: nowrap;
+  padding: 0.85rem 1.4rem !important;
+}
+@media (max-width: 520px) {
+  .sx-sticky-atc__price {
+    display: none;
+  }
+}
+
+/* Modal (size guide) */
+.sx-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+.sx-modal__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 23, 20, 0.6);
+  border: 0;
+  cursor: pointer;
+}
+.sx-modal__panel {
+  position: relative;
+  background: var(--cream);
+  border: var(--line-thick) solid var(--ink);
+  box-shadow: 10px 10px 0 var(--ketchup);
+  max-width: 620px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 1.75rem;
+}
+.sx-modal__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--ink);
+  background: var(--mustard);
+  font-weight: 800;
+  cursor: pointer;
+  line-height: 1;
+}
+.sx-modal__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+}
+
+/* Cross-sell */
+.sx-crosssell {
+  border-top: var(--line-thick) solid var(--ink);
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+}
+
+/* --------------------------------------------------
 * Static content pages (Contact / FAQ)
 * -------------------------------------------------- */
 .sx-page {

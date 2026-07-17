@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import type {Route} from './+types/pages.size-guide';
 import {Link} from 'react-router';
+import {SIZES} from '~/data/sizing';
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -12,16 +13,6 @@ export const meta: Route.MetaFunction = () => {
     },
   ];
 };
-
-// Flat-measured (garment laid flat), inches. Unisex tee.
-const SIZES = [
-  {size: 'S', chest: 18, length: 28, sleeve: 8},
-  {size: 'M', chest: 20, length: 29, sleeve: 8.5},
-  {size: 'L', chest: 22, length: 30, sleeve: 9},
-  {size: 'XL', chest: 24, length: 31, sleeve: 9.5},
-  {size: '2XL', chest: 26, length: 32, sleeve: 10},
-  {size: '3XL', chest: 28, length: 33, sleeve: 10.5},
-];
 
 const FITS = [
   {name: 'True to Size', body: 'Take your normal size for a clean, relaxed fit that skims the body without clinging. This is how we cut it.'},
