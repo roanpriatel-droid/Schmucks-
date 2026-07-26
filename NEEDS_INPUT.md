@@ -23,6 +23,20 @@ before it can ship as a factual claim. Until then I use honest alternatives.
   data confirms it. Confirm real fulfillment windows to hard-code copy.
 
 ## Store configuration
+- **BLOCKER — publish the collections and products to the Hydrogen sales
+  channel.** As of 2026-07-26 the Storefront API returns **0 products and none
+  of the ten smart collections** for this storefront token; only the default
+  `frontpage` collection is visible. Everything is wired and will populate the
+  moment the collections + products are published to the Hydrogen/headless
+  channel in admin (Products → … → Manage sales channels). Until then every
+  shelf renders its restocking state.
+- **`PUBLIC_CHECKOUT_DOMAIN` is not set** on the storefront environment, which
+  made `Analytics.Provider` log a console error. The code now falls back to
+  `PUBLIC_STORE_DOMAIN`; set the real value if checkout runs on its own domain.
+- **`content/pairs.json`** — the pipeline's pairing map isn't reachable from
+  this repo, so the mapping lives at `app/data/pairs.ts` in the identical
+  shape (`{handle: [handle, ...]}`) and is currently empty. Drop the real pairs
+  in and "Complete the Pair" switches from shelf-fallback to explicit pairs.
 - **Shop policies must be written in admin** (Settings → Policies): shipping,
   refund, privacy, terms. The footer links Shipping/Returns directly, and
   `/policies` lists whatever exists. Until a policy is published, that URL

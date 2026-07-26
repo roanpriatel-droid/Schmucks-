@@ -1,11 +1,12 @@
-import {useMemo, useState} from 'react';
 import {useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/_index';
 import {Image, Money} from '@shopify/hydrogen';
 import type {HomeProductFragment} from 'storefrontapi.generated';
 import {Marquee} from '~/components/home/Marquee';
 import {StackLadder} from '~/components/home/StackLadder';
-import {Mel, Badge} from '~/components/brand/Brand';
+import {ShelfBoards, type BoardCollection} from '~/components/home/ShelfBoards';
+import {MembershipCard} from '~/components/home/MembershipCard';
+import {Mel} from '~/components/brand/Brand';
 import {Reveal} from '~/components/Reveal';
 import {track} from '~/lib/analytics';
 import {pageMeta} from '~/lib/seo';
@@ -23,22 +24,32 @@ export async function loader(args: Route.LoaderArgs) {
 }
 
 async function loadCriticalData({context}: Route.LoaderArgs) {
-  const [{collections}] = await Promise.all([
-    context.storefront.query(HOME_COLLECTIONS_QUERY),
-  ]);
+  const data = await context.storefront.query(HOME_SHELVES_QUERY);
 
-  return {collections: collections?.nodes ?? []};
+  // Best Sellers needs sales history to populate. Until the store has any, the
+  // row falls back to New Arrivals rather than rendering an empty rail.
+  const bestSellers = data?.bestSellers?.products?.nodes ?? [];
+  const newArrivals = data?.newArrivals?.products?.nodes ?? [];
+  const usingFallback = bestSellers.length === 0 && newArrivals.length > 0;
+
+  return {
+    featured: {
+      title: usingFallback ? 'New Arrivals' : 'Best Sellers',
+      handle: usingFallback ? 'new-arrivals' : 'best-sellers',
+      usingFallback,
+      products: usingFallback ? newArrivals : bestSellers,
+    },
+    boards: [
+      data?.confessional,
+      data?.courtship,
+      data?.pettyCrimes,
+    ] as BoardCollection[],
+    pair: data?.pairProgramme ?? null,
+  };
 }
 
-type HomeCollection = {
-  id: string;
-  title: string;
-  handle: string;
-  products: {nodes: HomeProductFragment[]};
-};
-
 export default function Homepage() {
-  const {collections} = useLoaderData<typeof loader>();
+  const {featured, boards, pair} = useLoaderData<typeof loader>();
   return (
     <div className="sx-home">
       <Hero />
@@ -50,14 +61,134 @@ export default function Homepage() {
           'NEW SCHMUCK DROPS WEEKLY',
         ]}
       />
-      <Specials collections={collections as HomeCollection[]} />
+      <FeaturedRow featured={featured} />
+      <ShelfBoards boards={boards} />
+      <PairBanner hasProducts={Boolean(pair?.products?.nodes?.length)} />
       <Statement />
       <StackLadder />
       <PromiseSection />
-      <UGC />
       <TrustBar />
-      <JoinTheSchmucks />
+      <MembershipCard />
     </div>
+  );
+}
+
+/**
+ * Best Sellers, falling back to New Arrivals while the store has no sales
+ * history. When both shelves are empty the row becomes a restocking notice
+ * instead of a blank grid.
+ */
+function FeaturedRow({
+  featured,
+}: {
+  featured: {
+    title: string;
+    handle: string;
+    usingFallback: boolean;
+    products: HomeProductFragment[];
+  };
+}) {
+  const hasProducts = featured.products.length > 0;
+
+  return (
+    <section className="sx-specials" aria-labelledby="sx-featured-title">
+      <div className="sx-wrap">
+        <div className="sx-section-head">
+          <div>
+            <p className="sx-eyebrow">
+              {featured.usingFallback ? 'Straight Off the Press' : 'Bought Most'}
+            </p>
+            <h2 className="sx-section-title" id="sx-featured-title">
+              {featured.title}
+            </h2>
+          </div>
+          <p className="sx-section-note">
+            {!hasProducts
+              ? 'This shelf fills itself the moment the tagging run finds something.'
+              : featured.usingFallback
+                ? 'Nobody has voted with their wallet yet, so here’s what’s newest.'
+                : 'The ones other idiots bought. Draw your own conclusions.'}
+          </p>
+        </div>
+
+        {hasProducts ? (
+          <>
+            <Reveal className="sx-grid">
+              {featured.products.slice(0, 8).map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))}
+            </Reveal>
+            <div className="sx-specials__cta">
+              <Link className="sx-btn" to={`/collections/${featured.handle}`}>
+                See the whole shelf
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className="sx-restock">
+            <p className="sx-restock__title sx-display">Restocking</p>
+            <p className="sx-restock__body">
+              The shelves fill themselves when the next tagging run lands. In
+              the meantime the whole menu is one click away.
+            </p>
+            <Link className="sx-btn sx-btn--ketchup" to="/tees">
+              Show me everything
+            </Link>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** Sells the matching-set concept and points at The Pair Programme. */
+function PairBanner({hasProducts}: {hasProducts: boolean}) {
+  return (
+    <section className="sx-pairbanner" aria-labelledby="sx-pair-title">
+      <div className="sx-wrap sx-pairbanner__inner">
+        <div className="sx-pairbanner__copy">
+          <p className="sx-eyebrow sx-eyebrow--mustard">The Pair Programme</p>
+          <h2 className="sx-pairbanner__title sx-display" id="sx-pair-title">
+            Two shirts.
+            <br />
+            One bad idea.
+          </h2>
+          <p className="sx-pairbanner__body">
+            Pick any two designs — for you and whoever agreed to this. No
+            separate &ldquo;set&rdquo; to buy and no code to remember: add two
+            shirts and the discount applies itself at checkout.
+          </p>
+          <ul className="sx-pairbanner__ladder">
+            <li>
+              <span className="sx-display">2</span> shirts — 10% off
+            </li>
+            <li>
+              <span className="sx-display">3</span> shirts — 20% off
+            </li>
+            <li>
+              <span className="sx-display">4+</span> shirts — 30% off
+            </li>
+          </ul>
+          <div className="sx-pairbanner__ctas">
+            <Link className="sx-btn sx-btn--mustard" to="/matching-sets">
+              Enrol in the Programme
+            </Link>
+            {hasProducts ? (
+              <Link
+                className="sx-btn sx-btn--ghost-light"
+                to="/collections/the-pair-programme"
+              >
+                Browse the pairs
+              </Link>
+            ) : null}
+          </div>
+        </div>
+        <div className="sx-pairbanner__art" aria-hidden="true">
+          <Mel />
+          <Mel />
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -112,84 +243,6 @@ function Hero() {
         </div>
       </div>
       <Mel className="sx-mel-peek" />
-    </section>
-  );
-}
-
-function Specials({collections}: {collections: HomeCollection[]}) {
-  const withProducts = collections.filter((c) => c.products?.nodes?.length);
-
-  // "All" = de-duped union across collections, capped to a clean grid.
-  const all = useMemo(() => {
-    const seen = new Set<string>();
-    const out: HomeCollection['products']['nodes'] = [];
-    for (const c of withProducts) {
-      for (const p of c.products.nodes) {
-        if (!seen.has(p.id)) {
-          seen.add(p.id);
-          out.push(p);
-        }
-      }
-    }
-    return out.slice(0, 8);
-  }, [withProducts]);
-
-  const tabs = [
-    {key: '__all', title: 'All', products: all},
-    ...withProducts.map((c) => ({
-      key: c.handle,
-      title: c.title,
-      products: c.products.nodes.slice(0, 8),
-    })),
-  ];
-
-  const [active, setActive] = useState('__all');
-  const current = tabs.find((t) => t.key === active) ?? tabs[0];
-
-  return (
-    <section className="sx-specials" aria-labelledby="sx-specials-title">
-      <div className="sx-wrap">
-        <div className="sx-section-head">
-          <div>
-            <p className="sx-eyebrow">Today&rsquo;s Specials</p>
-            <h2 className="sx-section-title" id="sx-specials-title">
-              The Goods
-            </h2>
-          </div>
-          <p className="sx-section-note">
-            Fresh off the press. Order at the counter, we&rsquo;ll bring it to
-            your door.
-          </p>
-        </div>
-
-        {tabs.length > 1 && (
-          <div className="sx-tabs" role="tablist" aria-label="Filter shirts">
-            {tabs.map((t) => (
-              <button
-                key={t.key}
-                role="tab"
-                aria-selected={active === t.key}
-                className="sx-tab"
-                onClick={() => setActive(t.key)}
-              >
-                {t.title}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <Reveal className="sx-grid">
-          {current.products.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
-          ))}
-        </Reveal>
-
-        <div className="sx-specials__cta">
-          <Link className="sx-btn" to="/collections/all">
-            View the Whole Menu
-          </Link>
-        </div>
-      </div>
     </section>
   );
 }
@@ -289,38 +342,6 @@ function PromiseSection() {
   );
 }
 
-function UGC() {
-  return (
-    <section className="sx-ugc" aria-labelledby="sx-ugc-title">
-      <div className="sx-wrap">
-        <div className="sx-section-head">
-          <div>
-            <p className="sx-eyebrow">Schmucks in the Wild</p>
-            <h2 className="sx-section-title" id="sx-ugc-title">
-              Caught in Public
-            </h2>
-          </div>
-          <p className="sx-section-note">
-            Tag <strong>@schmucks</strong> for a feature and 10% off your next
-            mistake.
-          </p>
-        </div>
-        <div className="sx-ugc__grid">
-          {Array.from({length: 4}).map((_, i) => (
-            <figure className="sx-ugc__tile" key={i}>
-              <Mel />
-              <figcaption className="sx-ugc__handle">@idiot_{i + 1}</figcaption>
-            </figure>
-          ))}
-        </div>
-        <p className="sx-ugc__cap">
-          Real photos coming soon. These are Mel. Mel is not for sale.
-        </p>
-      </div>
-    </section>
-  );
-}
-
 const TRUST = [
   {title: '30-Day Returns', note: 'Changed your mind? Fine.', icon: '↩'},
   {title: 'Free US Shipping', note: 'On orders $100+', icon: '📦'},
@@ -348,62 +369,7 @@ function TrustBar() {
   );
 }
 
-function JoinTheSchmucks() {
-  const [submitted, setSubmitted] = useState(false);
-  return (
-    <section className="sx-join" aria-labelledby="sx-join-title">
-      <div className="sx-wrap">
-        <div
-          style={{display: 'grid', placeItems: 'center', marginBottom: '1rem'}}
-        >
-          <Badge className="sx-join__badge" />
-        </div>
-        <h2 className="sx-join__title" id="sx-join-title">
-          Join the Schmucks
-        </h2>
-        <p className="sx-join__sub">
-          Get 10% off your first mistake, plus early access to weekly drops
-          before they sell out to smarter people.
-        </p>
-        {submitted ? (
-          <div className="sx-form-success" role="status">
-            <div className="sx-form-success__title">You&rsquo;re in.</div>
-            <p>
-              Welcome to the Schmucks. Check your inbox for your 10% code — and
-              our sincere condolences.
-            </p>
-          </div>
-        ) : (
-          <form
-            className="sx-join__form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              track('newsletter_signup', {location: 'home_hero'});
-              setSubmitted(true);
-            }}
-            aria-label="Email signup"
-          >
-            <input
-              className="sx-join__input"
-              type="email"
-              required
-              placeholder="you@regrets.com"
-              aria-label="Email address"
-            />
-            <button className="sx-btn sx-btn--ink" type="submit">
-              Sign Me Up
-            </button>
-          </form>
-        )}
-        <p className="sx-join__fine">
-          No spam. Just bad decisions, delivered weekly.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-const HOME_COLLECTIONS_QUERY = `#graphql
+const HOME_SHELVES_QUERY = `#graphql
   fragment HomeProduct on Product {
     id
     title
@@ -431,17 +397,68 @@ const HOME_COLLECTIONS_QUERY = `#graphql
       }
     }
   }
-  query HomeCollections($country: CountryCode, $language: LanguageCode)
-    @inContext(country: $country, language: $language) {
-    collections(first: 5, sortKey: UPDATED_AT, reverse: true) {
+  fragment HomeBoard on Collection {
+    id
+    title
+    handle
+    description
+    image {
+      id
+      url
+      altText
+      width
+      height
+    }
+    products(first: 3) {
       nodes {
         id
         title
         handle
-        products(first: 8) {
-          nodes {
-            ...HomeProduct
-          }
+        featuredImage {
+          id
+          url
+          altText
+          width
+          height
+        }
+      }
+    }
+  }
+  query HomeShelves($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    bestSellers: collection(handle: "best-sellers") {
+      id
+      handle
+      products(first: 8) {
+        nodes {
+          ...HomeProduct
+        }
+      }
+    }
+    newArrivals: collection(handle: "new-arrivals") {
+      id
+      handle
+      products(first: 8) {
+        nodes {
+          ...HomeProduct
+        }
+      }
+    }
+    confessional: collection(handle: "the-confessional") {
+      ...HomeBoard
+    }
+    courtship: collection(handle: "courtship") {
+      ...HomeBoard
+    }
+    pettyCrimes: collection(handle: "petty-crimes") {
+      ...HomeBoard
+    }
+    pairProgramme: collection(handle: "the-pair-programme") {
+      id
+      handle
+      products(first: 1) {
+        nodes {
+          id
         }
       }
     }

@@ -4,7 +4,7 @@ import {getPaginationVariables, Image} from '@shopify/hydrogen';
 import type {CollectionFragment} from 'storefrontapi.generated';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {Breadcrumbs} from '~/components/Breadcrumbs';
-import {MelShrug} from '~/components/brand/Brand';
+import {ALL_SHELVES} from '~/data/shelves';
 import {pageMeta, toDescription} from '~/lib/seo';
 
 export const meta: Route.MetaFunction = (args) =>
@@ -54,7 +54,41 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
 export default function Collections() {
   const {collections} = useLoaderData<typeof loader>();
-  const hasCollections = collections.nodes.length > 0;
+
+  // The shelves are the storefront's own taxonomy, so they're always listed —
+  // in their own order, with the store's copy when it exists and ours when it
+  // doesn't. Anything else the store publishes is appended after them.
+  const published = new Map(
+    collections.nodes.map((node) => [node.handle, node]),
+  );
+  const shelfTiles = ALL_SHELVES.filter((shelf) => shelf.handle !== 'tees').map(
+    (shelf) => {
+      const node = published.get(shelf.handle);
+      return {
+        key: shelf.handle,
+        handle: shelf.handle,
+        title: node?.title ?? shelf.title,
+        description: node?.description || shelf.descriptor,
+        image: node?.image ?? null,
+        live: Boolean(node),
+      };
+    },
+  );
+  const extraTiles = collections.nodes
+    .filter(
+      (node) =>
+        node.handle !== 'frontpage' &&
+        !ALL_SHELVES.some((shelf) => shelf.handle === node.handle),
+    )
+    .map((node) => ({
+      key: node.id,
+      handle: node.handle,
+      title: node.title,
+      description: node.description ?? '',
+      image: node.image ?? null,
+      live: true,
+    }));
+  const tiles = [...shelfTiles, ...extraTiles];
 
   return (
     <div className="sx-collection">
@@ -75,42 +109,30 @@ export default function Collections() {
       </section>
       <section className="sx-shop">
         <div className="sx-wrap">
-          {hasCollections ? (
-            <PaginatedResourceSection<CollectionFragment>
-              connection={collections}
-              resourcesClassName="sx-collections-grid"
-            >
-              {({node: collection, index}) => (
-                <CollectionItem
-                  key={collection.id}
-                  collection={collection}
-                  index={index}
-                />
-              )}
-            </PaginatedResourceSection>
-          ) : (
-            <div className="sx-empty-note">
-              <MelShrug className="sx-empty-note__mel" />
-              <p>
-                No collections are published yet — the shirts are still filed
-                under &ldquo;everything&rdquo;.
-              </p>
-              <p>
-                <Link to="/tees">Go look at all of them</Link> instead.
-              </p>
-            </div>
-          )}
+          <div className="sx-collections-grid">
+            {tiles.map((tile, index) => (
+              <CollectionItem key={tile.key} collection={tile} index={index} />
+            ))}
+          </div>
         </div>
       </section>
     </div>
   );
 }
 
+type Tile = {
+  handle: string;
+  title: string;
+  description: string;
+  image: CollectionFragment['image'] | null;
+  live: boolean;
+};
+
 function CollectionItem({
   collection,
   index,
 }: {
-  collection: CollectionFragment;
+  collection: Tile;
   index: number;
 }) {
   const dek = toDescription(collection.description, 90);
@@ -118,21 +140,23 @@ function CollectionItem({
   return (
     <Link
       className="sx-collection-tile"
-      key={collection.id}
       to={`/collections/${collection.handle}`}
       prefetch="intent"
     >
       <div className="sx-collection-tile__media">
-        {collection?.image ? (
+        {collection.image ? (
           <Image
             alt={collection.image.altText || collection.title}
             aspectRatio="4/3"
             data={collection.image}
-            loading={index < 3 ? 'eager' : undefined}
+            loading={index < 3 ? 'eager' : 'lazy'}
             sizes="(min-width: 45em) 400px, 100vw"
           />
         ) : (
-          <MelShrug />
+          <span className="sx-collection-tile__blank" aria-hidden="true" />
+        )}
+        {collection.live ? null : (
+          <span className="sx-collection-tile__flag">Restocking</span>
         )}
       </div>
       <h2 className="sx-collection-tile__title">{collection.title}</h2>

@@ -11,6 +11,7 @@ import {Header, HeaderMenu} from '~/components/Header';
 import {AnnouncementBar} from '~/components/home/AnnouncementBar';
 import {EmailModal} from '~/components/EmailModal';
 import {CartMain} from '~/components/CartMain';
+import {SkeletonLines} from '~/components/Skeleton';
 import {
   SEARCH_ENDPOINT,
   SearchFormPredictive,
@@ -62,7 +63,7 @@ export function PageLayout({
 function CartAside({cart}: {cart: PageLayoutProps['cart']}) {
   return (
     <Aside type="cart" heading="YOUR TERRIBLE DECISIONS">
-      <Suspense fallback={<p>Counting your mistakes…</p>}>
+      <Suspense fallback={<SkeletonLines count={4} label="Counting your mistakes" />}>
         <Await resolve={cart}>
           {(cart) => {
             return <CartMain cart={cart} layout="aside" />;

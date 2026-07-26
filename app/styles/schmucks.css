@@ -761,6 +761,8 @@ a {
 }
 .sx-board__row--best {
   background: var(--mustard);
+  /* Mustard is a fill, never a text backdrop for cream — flip to ink. */
+  color: var(--ink);
 }
 .sx-board__qty {
   font-family: var(--font-display);
@@ -781,6 +783,9 @@ a {
   letter-spacing: 0;
   opacity: 0.7;
   font-size: 0.78rem;
+}
+.sx-board__row--best .sx-board__label small {
+  opacity: 0.85;
 }
 .sx-board__save {
   font-family: var(--font-display);
@@ -898,6 +903,12 @@ a {
 }
 .sx-ugc .sx-section-title,
 .sx-ugc .sx-eyebrow {
+  color: var(--ink);
+}
+/* Ketchup on the cream-shade fill lands at 4.21:1 — below AA for 11.5px text.
+   On those bands the eyebrow goes ink. */
+.sx-shelfdir .sx-eyebrow,
+.sx-filters .sx-eyebrow {
   color: var(--ink);
 }
 .sx-ugc__grid {
@@ -1155,7 +1166,7 @@ a {
   color: var(--ink);
   text-decoration: none;
 }
-.sx-footer__col h4 {
+.sx-footer__col h3 {
   font-family: var(--font-display);
   text-transform: uppercase;
   font-size: 1rem;
@@ -2347,9 +2358,13 @@ details[open] .sx-faq__q::after {
   width: 96px;
 }
 .sx-empty-note a {
-  color: var(--ketchup);
+  /* Ketchup on the cream-shade fill is 4.21:1 — under AA at this size. */
+  color: var(--ink);
   font-weight: 800;
   text-decoration: underline;
+  text-decoration-color: var(--ketchup);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 /* --------------------------------------------------
@@ -3401,4 +3416,960 @@ details[open] .sx-faq__q::after {
   .sx-blog-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+/* ============================================================
+   Shelf system — nav mega-menu, menu boards, filters, pair
+   programme, membership card, restocking + skeleton states.
+   Locked palette only: mustard / ink / cream / ketchup.
+   Flat, square, 3px outlines, off-register hard shadows.
+   ============================================================ */
+
+/* ---------- Tees mega-dropdown ---------- */
+.sx-mega {
+  display: flex;
+  align-items: center;
+}
+/* The panel anchors to the nav strip (not the trigger) so it can never run off
+   the right edge of the viewport. */
+.header-menu-desktop {
+  position: relative;
+}
+.sx-mega__trigger {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.sx-mega__caret {
+  font-size: 0.7em;
+  transition: transform 120ms ease;
+}
+.sx-mega__trigger.is-open .sx-mega__caret {
+  transform: rotate(180deg);
+}
+.sx-mega__panel {
+  position: absolute;
+  top: calc(100% + 0.9rem);
+  right: 0;
+  left: auto;
+  z-index: 60;
+  width: min(46rem, calc(100vw - 2 * var(--gutter)));
+  background: var(--cream);
+  border: var(--line-thick) solid var(--ink);
+  box-shadow: var(--shadow-hard);
+}
+.sx-mega__inner {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+}
+.sx-mega__col {
+  padding: 1.4rem 1.5rem 1.5rem;
+}
+.sx-mega__col--shelves {
+  border-right: var(--line) solid var(--ink);
+  background: var(--cream-shade);
+}
+.sx-mega__label {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ketchup);
+  margin: 0 0 0.85rem;
+}
+.sx-mega__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+.sx-mega__list a {
+  display: block;
+  padding: 0.5rem 0.6rem;
+  color: var(--ink);
+  text-decoration: none;
+  border: 2px solid transparent;
+}
+.sx-mega__list a:hover,
+.sx-mega__list a:focus-visible {
+  background: var(--mustard);
+  border-color: var(--ink);
+}
+.sx-mega__title {
+  display: block;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 0.98rem;
+  line-height: 1.05;
+}
+.sx-mega__desc {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  opacity: 0.75;
+  margin-top: 0.15rem;
+}
+.sx-mega__all {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ketchup);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 900px) {
+  .sx-mega__panel {
+    display: none;
+  }
+}
+
+/* ---------- Mobile nav tree ---------- */
+.sx-navtree {
+  display: grid;
+  gap: 0.15rem;
+}
+.sx-navtree > a:first-child {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  padding: 0.5rem 0.6rem;
+}
+.sx-navtree__label {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ketchup);
+  margin: 1.25rem 0 0.4rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--ink);
+}
+.sx-navtree__item {
+  display: block;
+  padding: 0.6rem;
+  color: var(--ink);
+  text-decoration: none;
+  border: 2px solid transparent;
+}
+.sx-navtree__item:hover,
+.sx-navtree__item:focus-visible,
+.sx-navtree__item.active {
+  background: var(--mustard);
+  border-color: var(--ink);
+}
+.sx-navtree__title {
+  display: block;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1rem;
+  line-height: 1.05;
+}
+.sx-navtree__desc {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  opacity: 0.75;
+  margin-top: 0.1rem;
+}
+
+/* ---------- Full-bleed menu board ---------- */
+.sx-board-section {
+  background: var(--ink);
+  color: var(--cream);
+  padding-block: clamp(3rem, 7vw, 5rem);
+}
+.sx-section-head--onink .sx-section-title {
+  color: var(--cream);
+}
+.sx-section-head--onink .sx-section-note {
+  color: var(--cream);
+  opacity: 0.75;
+}
+.sx-eyebrow--mustard {
+  color: var(--mustard);
+}
+/* On ketchup, mustard drops to 2.8:1 — use cream. */
+.sx-pairbanner .sx-eyebrow--mustard {
+  color: var(--cream);
+}
+.sx-boards {
+  display: grid;
+  gap: 0;
+  align-items: stretch;
+  grid-template-columns: 1fr;
+  border-block: var(--line-thick) solid var(--mustard);
+  margin-top: 2rem;
+}
+@media (min-width: 860px) {
+  .sx-boards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.sx-boards > * {
+  display: flex;
+}
+.sx-board {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  color: var(--cream);
+  text-decoration: none;
+  background: var(--ink);
+  border-bottom: var(--line) solid var(--ink-soft);
+  transition: background 140ms ease;
+}
+@media (min-width: 860px) {
+  .sx-board {
+    border-bottom: 0;
+    border-right: var(--line) solid var(--ink-soft);
+  }
+  .sx-boards > *:last-child .sx-board {
+    border-right: 0;
+  }
+}
+.sx-board:hover,
+.sx-board:focus-visible {
+  background: var(--ketchup);
+  text-decoration: none;
+}
+.sx-board__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.sx-board__no {
+  font-size: 1.1rem;
+  color: var(--mustard);
+}
+.sx-board:hover .sx-board__no {
+  color: var(--cream);
+}
+.sx-board__title {
+  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  margin: 0;
+}
+.sx-board__desc {
+  font-size: 0.98rem;
+  line-height: 1.55;
+  opacity: 0.85;
+  margin: 0;
+  max-width: 34ch;
+}
+.sx-board__strip {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 4.5rem;
+  margin-top: auto;
+}
+.sx-board__thumb {
+  display: block;
+  width: 4.5rem;
+  height: 4.5rem;
+  border: 2px solid var(--cream);
+  background: var(--cream-shade);
+  overflow: hidden;
+}
+.sx-board__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sx-board__thumb-empty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--cream-shade);
+}
+.sx-board__restock {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mustard);
+  border: 2px dashed var(--mustard);
+  padding: 0.6rem 0.8rem;
+}
+.sx-board:hover .sx-board__restock {
+  color: var(--cream);
+  border-color: var(--cream);
+}
+.sx-board__cta {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mustard);
+}
+.sx-board:hover .sx-board__cta {
+  color: var(--cream);
+}
+.sx-boards__all {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+.sx-btn--mustard {
+  --btn-bg: var(--mustard);
+  --btn-fg: var(--ink);
+}
+.sx-btn--ghost-light {
+  --btn-bg: transparent;
+  --btn-fg: var(--cream);
+  border-color: var(--cream);
+  box-shadow: 6px 6px 0 var(--mustard);
+}
+
+/* ---------- Pair Programme banner ---------- */
+.sx-pairbanner {
+  background: var(--ketchup);
+  color: var(--cream);
+  border-block: var(--line-thick) solid var(--ink);
+  padding-block: clamp(2.5rem, 6vw, 4.5rem);
+}
+.sx-pairbanner__inner {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 880px) {
+  .sx-pairbanner__inner {
+    grid-template-columns: 1.3fr 1fr;
+  }
+}
+.sx-pairbanner__title {
+  font-size: clamp(2.1rem, 6vw, 3.6rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+  margin: 0.25rem 0 1rem;
+}
+.sx-pairbanner__body {
+  font-size: 1.02rem;
+  line-height: 1.6;
+  max-width: 46ch;
+  margin: 0 0 1.25rem;
+}
+.sx-pairbanner__ladder {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+.sx-pairbanner__ladder li {
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  padding: 0.5rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.sx-pairbanner__ladder span {
+  font-size: 1.15rem;
+}
+.sx-pairbanner__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.sx-pairbanner__art {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.sx-pairbanner__art svg {
+  width: min(38%, 150px);
+  height: auto;
+}
+.sx-pairbanner__art svg:last-child {
+  transform: scaleX(-1) translateY(0.75rem);
+}
+
+/* ---------- Shelf directory (on /tees) ---------- */
+.sx-shelfdir {
+  padding-block: clamp(1.75rem, 4vw, 2.5rem);
+  border-bottom: var(--line) solid var(--ink);
+  background: var(--cream-shade);
+}
+.sx-shelfdir__row {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+  margin-top: 0.75rem;
+}
+@media (min-width: 620px) {
+  .sx-shelfdir__row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 980px) {
+  .sx-shelfdir__row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.sx-shelfdir__item {
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  padding: 0.85rem 1rem;
+  text-decoration: none;
+  color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+.sx-shelfdir__item:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+  text-decoration: none;
+}
+.sx-shelfdir__title {
+  display: block;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1rem;
+}
+.sx-shelfdir__desc {
+  display: block;
+  font-size: 0.83rem;
+  opacity: 0.75;
+  margin-top: 0.15rem;
+}
+
+/* ---------- Facet filters ---------- */
+.sx-filters {
+  border: var(--line) solid var(--ink);
+  background: var(--cream-shade);
+  padding: 1rem 1.1rem 1.1rem;
+  margin-bottom: 1.25rem;
+}
+.sx-filters__bar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.sx-filters__label {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ketchup);
+}
+.sx-filters__clear {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sx-filters__groups {
+  display: grid;
+  gap: 0.9rem;
+}
+.sx-filters__group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.sx-filters__legend {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  padding: 0;
+}
+.sx-filters__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.sx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 100ms ease;
+}
+.sx-chip:hover {
+  background: var(--mustard);
+  text-decoration: none;
+}
+.sx-chip.is-on {
+  background: var(--ink);
+  color: var(--cream);
+}
+.sx-chip__count {
+  font-size: 0.68rem;
+  opacity: 0.65;
+}
+.sx-filters__none {
+  margin: 0.9rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* ---------- Restocking state ---------- */
+.sx-restock {
+  text-align: center;
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+  padding: clamp(2rem, 5vw, 3.25rem) 1.5rem;
+}
+.sx-restock--panel {
+  border: var(--line) dashed var(--ink);
+  background: var(--cream-shade);
+}
+.sx-restock__mel {
+  width: 96px;
+  height: auto;
+}
+.sx-restock__title {
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  text-transform: uppercase;
+  margin: 0;
+}
+.sx-restock__body {
+  max-width: 46ch;
+  margin: 0;
+  line-height: 1.6;
+}
+.sx-restock__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+/* ---------- Membership card ---------- */
+.sx-member {
+  background: var(--mustard);
+  border-top: var(--line-thick) solid var(--ink);
+  padding-block: clamp(3rem, 7vw, 5rem);
+}
+.sx-member__card {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: var(--line-thick) solid var(--ink);
+  background: var(--cream);
+  box-shadow: var(--shadow-hard);
+  max-width: 62rem;
+  margin: 0 auto;
+}
+@media (min-width: 780px) {
+  .sx-member__card {
+    grid-template-columns: 13rem 1fr;
+  }
+}
+.sx-member__stub {
+  background: var(--ink);
+  color: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-bottom: var(--line) solid var(--ink);
+}
+@media (min-width: 780px) {
+  .sx-member__stub {
+    border-bottom: 0;
+    border-right: var(--line) dashed var(--cream);
+  }
+}
+.sx-member__badge {
+  width: 90px;
+  height: auto;
+}
+.sx-member__stub-no {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: var(--mustard);
+}
+.sx-member__body {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+.sx-member__kicker {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ketchup);
+  margin: 0;
+}
+.sx-member__title {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  margin: 0.35rem 0 0.75rem;
+}
+.sx-member__sub {
+  max-width: 48ch;
+  line-height: 1.6;
+  margin: 0 0 1.25rem;
+}
+.sx-member__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.sx-member__input {
+  flex: 1 1 16rem;
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  padding: 0.9rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+.sx-member__terms {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 1.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 2px dashed var(--ink);
+}
+.sx-member__terms dt {
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.sx-member__terms dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+@media (max-width: 520px) {
+  .sx-member__terms {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- PDP trust row ---------- */
+.sx-trustrow {
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 1.25rem 0 0;
+  border: var(--line) solid var(--ink);
+  background: var(--cream-shade);
+}
+.sx-trustrow__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+}
+.sx-trustrow__item + .sx-trustrow__item {
+  border-top: 2px solid var(--ink);
+}
+.sx-trustrow__icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.sx-trustrow__title {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.sx-trustrow__note {
+  display: block;
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+/* ---------- Cart drawer upsell ---------- */
+.sx-upsell {
+  border: var(--line) solid var(--ink);
+  background: var(--mustard);
+  padding: 1rem 1.1rem 1.1rem;
+  margin: 1rem 0;
+}
+.sx-upsell__title {
+  font-size: 1.05rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+  margin: 0 0 0.4rem;
+}
+.sx-upsell__note {
+  font-size: 0.87rem;
+  line-height: 1.5;
+  margin: 0 0 0.9rem;
+}
+.sx-upsell__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.sx-upsell__btn {
+  padding: 0.75rem 1.1rem;
+  font-size: 0.82rem;
+}
+.sx-upsell__link {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--ink);
+}
+
+/* ---------- Skeletons ---------- */
+.sx-skel {
+  background: var(--cream-shade);
+  border: 2px solid var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+.sx-skel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--cream);
+  opacity: 0;
+  animation: sx-skel-pulse 1.4s ease-in-out infinite;
+}
+@keyframes sx-skel-pulse {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.sx-skel-card {
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+}
+.sx-skel-card__media {
+  aspect-ratio: 1 / 1;
+  border: 0;
+  border-bottom: var(--line) solid var(--ink);
+}
+.sx-skel-card__body {
+  padding: 0.9rem 1rem 1.1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.sx-skel--line {
+  height: 0.85rem;
+  border-width: 0;
+  background: var(--cream-shade);
+}
+.sx-skel--short {
+  width: 55%;
+}
+.sx-skel-lines {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1rem 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-skel::after {
+    animation: none;
+  }
+}
+
+/* ---------- Card price ladder + missing art ---------- */
+.sx-card__from {
+  font-family: var(--font-body);
+  font-size: 0.62em;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.sx-card__noimg {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--cream-shade);
+}
+
+/* ---------- Size guide modal tidy-ups ---------- */
+.sx-modal__note {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.sx-modal__foot {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+}
+.sx-table-wrap--modal {
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-shelfdir__item,
+  .sx-board,
+  .sx-mega__caret {
+    transition: none;
+  }
+  .sx-shelfdir__item:hover {
+    transform: none;
+  }
+}
+
+/* Structural hooks used by the shelf components. */
+.sx-pairbanner__copy {
+  min-width: 0;
+}
+.sx-mega__list--counter {
+  margin-bottom: 0.25rem;
+}
+.sx-trustrow__text {
+  display: block;
+  min-width: 0;
+}
+
+/* The sticky buy bar is a mobile affordance — on desktop the buy box stays in
+   view beside the gallery, so the bar would just cover content. */
+@media (min-width: 900px) {
+  .sx-sticky-atc {
+    display: none;
+  }
+}
+.sx-sticky-atc {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Collection tiles for shelves the store hasn't published yet. */
+.sx-collection-tile__media {
+  position: relative;
+}
+.sx-collection-tile__blank {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--cream-shade);
+}
+.sx-collection-tile__flag {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 0.6rem;
+  background: var(--ink);
+  color: var(--mustard);
+  border: 2px solid var(--mustard);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Reserve the hero copy's line boxes.
+   Inter and the system fallback wrap this sentence differently, so without a
+   floor the CTAs jump when the webfont swaps in (measured: 0.11 CLS on mobile).
+   Both fonts now fit inside the reserved height, so nothing moves. */
+.sx-hero__sub {
+  min-height: 4.8em;
+}
+@media (min-width: 700px) {
+  .sx-hero__sub {
+    min-height: 3.2em;
+  }
+}
+.sx-hero__social {
+  min-height: 2.6em;
+}
+@media (min-width: 700px) {
+  .sx-hero__social {
+    min-height: 1.4em;
+  }
+}
+
+/* The announcement message is uppercase Inter; in the system fallback it wraps
+   to a second line at narrow widths, which pushes the whole page down when the
+   webfont swaps in. Reserve two lines' worth so the bar height never changes. */
+.sx-announce__inner {
+  min-height: 52px;
+}
+@media (min-width: 560px) {
+  .sx-announce__inner {
+    min-height: 40px;
+  }
+}
+
+/* Header rows must not re-wrap when the webfont swaps in — a header that grows
+   by a row moves the entire page, which is where the remaining CLS came from. */
+@media (max-width: 700px) {
+  .header {
+    min-height: 64px;
+  }
+  .header-ctas {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+}
+/* Generous floors for the hero copy: the fallback wraps to more lines than
+   Inter at narrow widths, so reserve the taller of the two. */
+@media (max-width: 699px) {
+  .sx-hero__sub {
+    min-height: 6.2em;
+  }
+  .sx-hero__social {
+    min-height: 4.4em;
+  }
+}
+
+/* At narrow widths the two hero buttons sit on one row in Inter and two in the
+   fallback, so the block's height changed on font swap and shoved the page.
+   Stacking them fixes the height and gives full-width tap targets. */
+@media (max-width: 699px) {
+  .sx-hero__ctas {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+  }
+  .sx-hero__ctas .sx-btn {
+    width: 100%;
+  }
+}
+
+.sx-steps__head {
+  margin-bottom: 1.5rem;
 }

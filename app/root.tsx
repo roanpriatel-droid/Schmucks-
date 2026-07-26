@@ -100,7 +100,9 @@ export async function loader(args: Route.LoaderArgs) {
       publicStorefrontId: env.PUBLIC_STOREFRONT_ID,
     }),
     consent: {
-      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
+      // Stores without a dedicated checkout domain check out on the shop
+      // domain; without this fallback Analytics.Provider logs a console error.
+      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN ?? env.PUBLIC_STORE_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
       withPrivacyBanner: false,
       // localize the privacy banner
@@ -301,7 +303,7 @@ export function ErrorBoundary() {
  */
 export function NotFound({
   title = '404',
-  message = 'Mel looked everywhere. This page isn’t here. Honestly, that tracks.',
+  message = 'This page doesn’t exist. Classic schmuck move.',
 }: {
   title?: string;
   message?: string;

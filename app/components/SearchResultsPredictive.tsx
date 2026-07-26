@@ -103,6 +103,7 @@ function SearchResultsPredictiveArticles({
               <Link onClick={closeSearch} to={articleUrl}>
                 {article.image?.url && (
                   <Image
+                    loading="lazy"
                     alt={article.image.altText ?? ''}
                     src={article.image.url}
                     width={50}
@@ -144,6 +145,7 @@ function SearchResultsPredictiveCollections({
               <Link onClick={closeSearch} to={collectionUrl}>
                 {collection.image?.url && (
                   <Image
+                    loading="lazy"
                     alt={collection.image.altText ?? ''}
                     src={collection.image.url}
                     width={50}
@@ -220,6 +222,7 @@ function SearchResultsPredictiveProducts({
               <Link to={productUrl} onClick={closeSearch}>
                 {image && (
                   <Image
+                    loading="lazy"
                     alt={image.altText ?? ''}
                     src={image.url}
                     width={50}

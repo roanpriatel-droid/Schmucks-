@@ -9,17 +9,32 @@ import type {CollectionItemFragment} from 'storefrontapi.generated';
 
 export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
-    title: 'Matching Sets',
+    title: 'The Pair Programme',
     description:
-      'Matching Schmucks for you and your favorite idiot. Pick any two tees — the Stack & Save discount applies automatically at checkout.',
+      'Two shirts, one bad idea. Pick any two Schmucks tees — the Stack & Save discount applies itself at checkout.',
     path: '/matching-sets',
   });
 
 export async function loader({context}: Route.LoaderArgs) {
-  const [{products}] = await Promise.all([
-    context.storefront.query(MATCH_PRODUCTS_QUERY),
-  ]);
-  return {products: products?.nodes ?? []};
+  // The Pair Programme shelf when it's tagged, the wider catalogue otherwise —
+  // the concept works either way, so the page never sits empty on principle.
+  const {collection} = await context.storefront.query(PAIR_COLLECTION_QUERY);
+  const shelfProducts = collection?.products?.nodes ?? [];
+
+  if (shelfProducts.length) {
+    return {
+      products: shelfProducts,
+      description: collection?.description ?? null,
+      fromShelf: true,
+    };
+  }
+
+  const {products} = await context.storefront.query(MATCH_PRODUCTS_QUERY);
+  return {
+    products: products?.nodes ?? [],
+    description: collection?.description ?? null,
+    fromShelf: false,
+  };
 }
 
 const STEPS = [
@@ -41,21 +56,19 @@ const STEPS = [
 ];
 
 export default function MatchingSets() {
-  const {products} = useLoaderData<typeof loader>();
+  const {products, description, fromShelf} = useLoaderData<typeof loader>();
   const grid = (products as CollectionItemFragment[]).slice(0, 8);
 
   return (
     <div className="sx-matching">
       <section className="sx-pagehead">
         <div className="sx-wrap">
-          <Breadcrumbs crumbs={[{label: 'Matching Sets'}]} />
+          <Breadcrumbs crumbs={[{label: 'The Pair Programme'}]} />
           <p className="sx-pagehead__eyebrow">Two Idiots, One Look</p>
-          <h1 className="sx-pagehead__title">Matching Sets</h1>
+          <h1 className="sx-pagehead__title">The Pair Programme</h1>
           <p className="sx-pagehead__desc">
-            Build your own matching set: pick any two tees for you and your
-            favorite idiot. There&rsquo;s no separate &ldquo;set&rdquo; to buy —
-            add any two shirts and Stack &amp; Save takes 10% off at checkout,
-            automatically.
+            {description?.trim() ||
+              'Build your own pair: any two tees, for you and whoever agreed to this. There’s no separate “set” to buy — add two shirts and Stack & Save takes 10% off at checkout, automatically.'}
           </p>
           <div style={{marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
             <Link className="sx-btn sx-btn--ketchup" to="/tees">
@@ -80,6 +93,7 @@ export default function MatchingSets() {
 
       <section className="sx-page">
         <div className="sx-wrap">
+          <h2 className="sx-section-title sx-steps__head">How the Programme works</h2>
           <div className="sx-steps">
             {STEPS.map((s) => (
               <div className="sx-step" key={s.n}>
@@ -100,7 +114,9 @@ export default function MatchingSets() {
               <h2 className="sx-section-title">Pick Your Two</h2>
             </div>
             <p className="sx-section-note">
-              Grab any two below. The discount sorts itself out at checkout.
+              {fromShelf
+                ? 'Straight from the Pair Programme shelf. Grab any two — the discount sorts itself out at checkout.'
+                : 'Grab any two below. The discount sorts itself out at checkout.'}
             </p>
           </div>
           {grid.length ? (
@@ -176,6 +192,24 @@ const MATCH_PRODUCTS_QUERY = `#graphql
     products(first: 8) {
       nodes {
         ...MatchItem
+      }
+    }
+  }
+  ${MATCH_ITEM_FRAGMENT}
+` as const;
+
+const PAIR_COLLECTION_QUERY = `#graphql
+  query PairProgrammeShelf($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    collection(handle: "the-pair-programme") {
+      id
+      handle
+      title
+      description
+      products(first: 8) {
+        nodes {
+          ...MatchItem
+        }
       }
     }
   }

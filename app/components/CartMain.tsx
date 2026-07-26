@@ -3,6 +3,7 @@ import {Link} from 'react-router';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem, type CartLine} from '~/components/CartLineItem';
+import {CartUpsell} from '~/components/CartUpsell';
 import {CartSummary} from './CartSummary';
 
 export type CartLayout = 'page' | 'aside';
@@ -80,6 +81,9 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
             })}
           </ul>
         </div>
+        {cartHasItems && layout === 'aside' && (
+          <CartUpsell totalQuantity={cart?.totalQuantity ?? 0} />
+        )}
         {cartHasItems && <CartSummary cart={cart} layout={layout} />}
       </div>
     </section>

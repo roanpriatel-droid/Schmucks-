@@ -21,6 +21,9 @@ import {Reveal} from '~/components/Reveal';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {CompleteThePair} from '~/components/product/CompleteThePair';
+import {TrustRow} from '~/components/product/TrustRow';
+import {pairedHandles} from '~/data/pairs';
 import {pageMeta, toDescription} from '~/lib/seo';
 
 export const meta: Route.MetaFunction = (args) => {
@@ -60,10 +63,25 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{product}, {products}] = await Promise.all([
+  // "Complete the Pair" prefers an explicit pairing from the pipeline mapping,
+  // then the Pair Programme shelf, then the wider catalogue — so the block is
+  // populated whether or not the pairs data has caught up with the catalogue.
+  const explicitPairs = pairedHandles(handle);
+
+  const [{product}, pairData, {products}] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
     }),
+    storefront
+      .query(PAIR_CANDIDATES_QUERY, {
+        variables: {
+          query: explicitPairs.length
+            ? explicitPairs.map((item) => `handle:${item}`).join(' OR ')
+            : 'handle:__none__',
+          skipExplicit: explicitPairs.length === 0,
+        },
+      })
+      .catch(() => null),
     storefront.query(RELATED_PRODUCTS_QUERY).catch(() => ({products: null})),
   ]);
 
@@ -74,13 +92,23 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   // The API handle might be localized, so redirect to the localized handle
   redirectIfHandleIsLocalized(request, {handle, data: product});
 
-  const related = (products?.nodes ?? [])
-    .filter((p: {handle: string}) => p.handle !== handle)
-    .slice(0, 4);
+  const notThisProduct = (item: {handle: string}) => item.handle !== handle;
+
+  const explicit = (pairData?.explicit?.nodes ?? []).filter(notThisProduct);
+  const shelf = (pairData?.pairShelf?.products?.nodes ?? []).filter(
+    notThisProduct,
+  );
+  const catalogue = (products?.nodes ?? []).filter(notThisProduct);
+
+  const pair = explicit.length
+    ? {source: 'pairs' as const, products: explicit.slice(0, 4)}
+    : shelf.length
+      ? {source: 'shelf' as const, products: shelf.slice(0, 4)}
+      : {source: 'related' as const, products: catalogue.slice(0, 4)};
 
   return {
     product,
-    related,
+    pair,
   };
 }
 
@@ -97,7 +125,7 @@ function loadDeferredData({context, params}: Route.LoaderArgs) {
 }
 
 export default function Product() {
-  const {product, related} = useLoaderData<typeof loader>();
+  const {product, pair} = useLoaderData<typeof loader>();
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const buyRef = useRef<HTMLDivElement | null>(null);
 
@@ -210,10 +238,11 @@ export default function Product() {
             />
           </div>
 
+          <TrustRow />
+
           <ul className="sx-product__perks">
             <li>Free US shipping over $100</li>
             <li>Stack &amp; save up to 30% when you buy more (auto at checkout)</li>
-            <li>30-day returns, no interrogation (maybe one question)</li>
             <li>Printed to order on heavyweight ringspun cotton</li>
           </ul>
 
@@ -221,23 +250,10 @@ export default function Product() {
         </div>
       </div>
 
-      {related?.length ? (
-        <section className="sx-crosssell">
-          <div className="sx-wrap">
-            <div className="sx-section-head">
-              <div>
-                <p className="sx-eyebrow">Complete the Look</p>
-                <h2 className="sx-section-title">You May Also Regret</h2>
-              </div>
-            </div>
-            <Reveal className="sx-grid">
-              {(related as CollectionItemFragment[]).map((p, i) => (
-                <ProductItem key={p.id} product={p} loading={i < 4 ? 'eager' : undefined} />
-              ))}
-            </Reveal>
-          </div>
-        </section>
-      ) : null}
+      <CompleteThePair
+        products={pair.products as CollectionItemFragment[]}
+        source={pair.source}
+      />
 
       {sizeGuideOpen && <SizeGuideModal onClose={() => setSizeGuideOpen(false)} />}
 
@@ -478,4 +494,69 @@ const RELATED_PRODUCTS_QUERY = `#graphql
       }
     }
   }
+` as const;
+
+
+const PAIR_ITEM_FRAGMENT = `#graphql
+  fragment PairItem on Product {
+    id
+    handle
+    title
+    featuredImage {
+      id
+      altText
+      url
+      width
+      height
+    }
+    images(first: 2) {
+      nodes {
+        id
+        altText
+        url
+        width
+        height
+      }
+    }
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+      maxVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+  }
+` as const;
+
+/**
+ * Candidates for "Complete the Pair": the explicitly mapped partners (skipped
+ * entirely when the product has none) plus the Pair Programme shelf as a
+ * fallback, in one round trip.
+ */
+const PAIR_CANDIDATES_QUERY = `#graphql
+  query PairCandidates(
+    $country: CountryCode
+    $language: LanguageCode
+    $query: String!
+    $skipExplicit: Boolean!
+  ) @inContext(country: $country, language: $language) {
+    explicit: products(first: 4, query: $query) @skip(if: $skipExplicit) {
+      nodes {
+        ...PairItem
+      }
+    }
+    pairShelf: collection(handle: "the-pair-programme") {
+      id
+      handle
+      products(first: 5) {
+        nodes {
+          ...PairItem
+        }
+      }
+    }
+  }
+  ${PAIR_ITEM_FRAGMENT}
 ` as const;

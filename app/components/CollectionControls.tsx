@@ -1,4 +1,5 @@
 import {Form} from 'react-router';
+import {countLine} from '~/lib/shelves';
 
 export const SORT_OPTIONS = [
   {value: 'featured', label: 'Featured'},
@@ -49,9 +50,7 @@ export function CollectionControls({
 }) {
   return (
     <div className="sx-collctl">
-      <span className="sx-collctl__count">
-        {count} {count === 1 ? 'style' : 'styles'}
-      </span>
+      <span className="sx-collctl__count">{countLine(count)}</span>
       <Form method="get" className="sx-collctl__sort">
         <label htmlFor="sort">Sort</label>
         <select

@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
 import {Link} from 'react-router';
-import {SIZES} from '~/data/sizing';
+import {BLANK_NAME, SIZES} from '~/data/sizing';
 
 export function SizeGuideModal({onClose}: {onClose: () => void}) {
   useEffect(() => {
@@ -19,18 +19,18 @@ export function SizeGuideModal({onClose}: {onClose: () => void}) {
           ✕
         </button>
         <h2 className="sx-modal__title">Size Guide</h2>
-        <p style={{marginBottom: '1rem', fontSize: '0.9rem'}}>
-          Unisex tee, measured flat in inches. Chest is pit-to-pit — measure a
+        <p className="sx-modal__note">
+          {BLANK_NAME}, measured flat in inches. Chest is pit-to-pit — measure a
           shirt you already like and match the number. True to size; size up for
-          a boxier fit.
+          a boxier fit. Allow about ±1&Prime; garment tolerance.
         </p>
-        <div className="sx-table-wrap" style={{boxShadow: '4px 4px 0 var(--ink)'}}>
+        <div className="sx-table-wrap sx-table-wrap--modal">
           <table className="sx-table">
             <thead>
               <tr>
                 <th>Size</th>
-                <th>Chest (flat)</th>
-                <th>Length</th>
+                <th>Chest (½, flat)</th>
+                <th>Body length</th>
                 <th>Sleeve</th>
               </tr>
             </thead>
@@ -46,13 +46,9 @@ export function SizeGuideModal({onClose}: {onClose: () => void}) {
             </tbody>
           </table>
         </div>
-        <p style={{marginTop: '1rem', fontSize: '0.85rem'}}>
+        <p className="sx-modal__foot">
           Want the full fit breakdown and a find-my-size helper?{' '}
-          <Link
-            to="/pages/size-guide"
-            style={{color: 'var(--ketchup)', fontWeight: 800, textDecoration: 'underline'}}
-            onClick={onClose}
-          >
+          <Link className="sx-inline-link" to="/pages/size-guide" onClick={onClose}>
             Full size &amp; fit guide →
           </Link>
         </p>

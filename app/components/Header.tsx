@@ -8,6 +8,7 @@ import {
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {WordmarkFlat} from '~/components/brand/Brand';
+import {ShelfMegaMenu, ShelfMobileTree} from '~/components/ShelfMenu';
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -18,12 +19,12 @@ interface HeaderProps {
 
 type Viewport = 'desktop' | 'mobile';
 
-// Deli menu-board nav — product lines are live.
+// Deli menu-board nav. "Tees" is the mega-dropdown (see ShelfMenu); the rest
+// are flat links. The Pair Programme is the matching-set landing page.
 const SX_NAV = [
-  {title: 'Tees', to: '/tees'},
-  {title: 'Matching Sets', to: '/matching-sets'},
+  {title: 'The Pair Programme', to: '/matching-sets'},
+  {title: 'Best Sellers', to: '/collections/best-sellers'},
   {title: 'Lookbook', to: '/lookbook'},
-  {title: 'Shop All', to: '/collections/all'},
   {title: 'Contact', to: '/pages/contact'},
 ];
 
@@ -47,13 +48,17 @@ export function HeaderMenu({viewport}: {viewport: Viewport}) {
   const className = `header-menu-${viewport}`;
   const {close} = useAside();
 
+  if (viewport === 'mobile') {
+    return (
+      <nav className={className} role="navigation">
+        <ShelfMobileTree onNavigate={close} />
+      </nav>
+    );
+  }
+
   return (
     <nav className={className} role="navigation">
-      {viewport === 'mobile' && (
-        <NavLink end onClick={close} prefetch="intent" to="/">
-          Home
-        </NavLink>
-      )}
+      <ShelfMegaMenu />
       {SX_NAV.map((item) => (
         <NavLink
           className="header-menu-item"

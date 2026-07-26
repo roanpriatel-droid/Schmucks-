@@ -73,11 +73,11 @@ export function Footer(_props: FooterProps) {
                 key={s.label}
                 className="sx-footer__social"
                 href={s.href}
-                aria-label={s.label}
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                {s.glyph}
+                <span aria-hidden="true">{s.glyph}</span>
+                <span className="sx-visually-hidden">{s.label}</span>
               </a>
             ))}
           </div>
@@ -117,7 +117,7 @@ function FooterCol({
 }) {
   return (
     <div className="sx-footer__col">
-      <h4>{heading}</h4>
+      <h3>{heading}</h3>
       {links.map((l) => (
         <NavLink key={l.title} to={l.to} prefetch="intent">
           {l.title}

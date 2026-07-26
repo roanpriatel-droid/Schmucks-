@@ -110,6 +110,33 @@ ARM64 box; verified via build + typecheck + static-render screenshots instead).
     Shopify's sitemap emits actually resolve.
   - Fixed the pre-existing lint errors (unescaped entities) — lint is clean.
 
+- **Phase 8 — wired to the live shelves.** The store's ten smart collections
+  (Best Sellers, New Arrivals, The Confessional, Terms & Conditions, Courtship,
+  Vices, Errata, Petty Crimes, The Pair Programme, Tees) are now the site's
+  taxonomy, defined once in `app/data/shelves.ts`:
+  - **Nav** — "Tees" is a mega-dropdown (six shelves + the counter, each with an
+    in-voice descriptor); Matching Sets became **The Pair Programme**; Best
+    Sellers promoted to top level. Mobile aside gets the same tree.
+  - **Homepage** — Best Sellers row (falls back to New Arrivals while there's no
+    sales history, then to a restocking notice), a full-bleed ink menu board of
+    three shelves, a ketchup Pair Programme banner, and the email capture
+    rebuilt as a **Membership Card — Community of Idiots**. The placeholder
+    "@idiot_1" UGC tiles were removed (invented handles, BRAND §8).
+  - **Collections** — description under the title (store copy first, our
+    in-voice line as fallback), size + colorway facets from the Storefront
+    filter API, sort, and a count line ("47 items of questionable judgment").
+  - **PDP** — Gildan 5000 size chart, mobile-only sticky ATC, trust row
+    (30-day returns / printed in the US / secure checkout), and **Complete The
+    Pair** reading `app/data/pairs.ts` → Pair Programme shelf → catalogue.
+  - **Empty-state contract** — a shelf that is unpublished *or* untagged renders
+    its real page with the restocking panel (and `noindex`) instead of a 404, so
+    no nav link can dead-end. Same for the boards, the featured row and /tees.
+  - **Measured** (Lighthouse 12, desktop preset, against the built worker):
+    home 95 / 100 / 96 / 100, tees 96 / 100 / 96 / 100, shelf 96 / 100 / 96 / 66
+    (SEO 66 = the deliberate noindex on an empty shelf), pair 96 / 100.
+    Accessibility fixes made along the way: cream-on-mustard and
+    ketchup-on-cream-shade contrast, heading order, social-link name mismatch.
+
 ## Route inventory (all 42 routes, post-Phase 7)
 
 Every route below renders a designed page or is a deliberate redirect/utility.
