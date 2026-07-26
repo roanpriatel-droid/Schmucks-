@@ -180,6 +180,23 @@ export function ShelfMobileTree({onNavigate}: {onNavigate: () => void}) {
       >
         <span className="sx-navtree__title">Contact</span>
       </NavLink>
+      <NavLink
+        className="sx-navtree__item"
+        to="/pages/faq"
+        prefetch="intent"
+        onClick={onNavigate}
+      >
+        <span className="sx-navtree__title">FAQ &amp; Shipping</span>
+      </NavLink>
+      <NavLink
+        className="sx-navtree__item"
+        to="/account"
+        prefetch="intent"
+        onClick={onNavigate}
+      >
+        <span className="sx-navtree__title">Account</span>
+        <span className="sx-navtree__desc">Orders, addresses, sign in.</span>
+      </NavLink>
     </div>
   );
 }

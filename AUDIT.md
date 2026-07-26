@@ -137,6 +137,43 @@ ARM64 box; verified via build + typecheck + static-render screenshots instead).
     Accessibility fixes made along the way: cream-on-mustard and
     ketchup-on-cream-shade contrast, heading order, social-link name mismatch.
 
+- **Phase 9 — launch build-out.** Verified against the live catalogue first
+  (393 products, CAD $42.00 flat, tags per shelf), then built to it:
+  - **Shelves now serve real products.** The smart collections still aren't
+    published to this sales channel, so `app/lib/shelfQuery.ts` resolves each
+    shelf as published collection → product tag query → sort key → restocking.
+    Counts are exact (26 Confessional, 20 Petty Crimes, 109 Courtship…).
+  - **Price truth.** Every "$25 flat" / "$100 free US shipping" claim was
+    fiction against this store; all removed, prices render from the API, and
+    thresholds live in one file (`app/data/commerce.ts`).
+  - **New/rebuilt pages:** The Schmucks Story (heritage lore + the true-facts
+    table), FAQ (grouped accordion, honest shipping answers, FAQPage JSON-LD),
+    Shipping & Returns (new), Contact (deli order ticket composing a real
+    mailto), Lookbook (catalogue spreads built from real product plates).
+  - **Homepage** rebuilt to ten sections: announcement bar, hero, Best Sellers
+    (New Arrivals fallback), menu-board triptych, As Worn By Idiots, Pair
+    Programme banner with a real his-and-theirs pair, Errata spotlight, brand
+    story, membership card, fat footer.
+  - **Fat footer:** Shop (all ten shelves), Help, The Brand, and a newsletter +
+    honest payment note. Only policies the shop has actually published are
+    linked, sourced from the root loader.
+  - **Conversion:** collection quick-add (size-first), cart free-shipping bar at
+    $50, drawer upsell, trust rows on PDP and cart, recently-viewed rail
+    (localStorage only), in-voice urgency, Judge.me-ready review slot.
+  - **Zero dead links, proven:** a crawler walks every in-page link from the
+    homepage — 348 URLs, 0 non-2xx/3xx. It caught two real ones: `/pages/care`
+    and the PDP both linked `/policies/refund-policy`, which this store has
+    never published; both now point at our own Shipping & Returns page.
+  - **Lighthouse (desktop, against the built worker):** home 91/100/100,
+    collection 94/100/100, PDP 93/100/100 (perf/a11y/SEO). Fixed on the way:
+    a `noindex` bug that hid every tag-driven shelf from search, 9px gallery
+    dots, an invalid `tablist`, heading order, and two contrast failures.
+  - **390px audit** across every template caught the header overflowing on
+    mobile (a side-effect of the earlier nowrap CLS fix); sign-in moved into
+    the mobile nav and search collapsed to its glyph.
+  - **OG:** a real 1200×630 share card (`public/og-default.png`) replaces the
+    touch icon; sitemap now includes the shelves and the new pages.
+
 ## Route inventory (all 42 routes, post-Phase 7)
 
 Every route below renders a designed page or is a deliberate redirect/utility.

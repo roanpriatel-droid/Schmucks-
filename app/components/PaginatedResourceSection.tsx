@@ -23,8 +23,8 @@ export function PaginatedResourceSection<NodesType>({
         );
 
         return (
-          <div>
-            <PreviousLink>
+          <div className="sx-paged">
+            <PreviousLink className="sx-pagelink">
               {isLoading ? (
                 'Loading...'
               ) : (
@@ -44,7 +44,7 @@ export function PaginatedResourceSection<NodesType>({
             ) : (
               resourcesMarkup
             )}
-            <NextLink>
+            <NextLink className="sx-pagelink">
               {isLoading ? (
                 'Loading...'
               ) : (

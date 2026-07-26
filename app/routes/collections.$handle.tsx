@@ -19,6 +19,7 @@ import {Restocking} from '~/components/Restocking';
 import {ShelfFilters, type Facet} from '~/components/ShelfFilters';
 import {SkeletonGrid} from '~/components/Skeleton';
 import {canonicalShelfHandle, getShelf} from '~/data/shelves';
+import {shelfQueryString, shelfSortArgs} from '~/lib/shelfQuery';
 import {facetKindFor, shelfDescription, toProductFilters} from '~/lib/shelves';
 import {pageMeta, toDescription} from '~/lib/seo';
 
@@ -28,14 +29,15 @@ export const meta: Route.MetaFunction = (args) => {
   return pageMeta(args, {
     title:
       collection?.seo?.title || collection?.title || shelf?.title || 'Shop',
-    // Nothing to index on a shelf with no products yet.
-    noindex: !collection?.products?.nodes?.length,
+    // Only a genuinely empty shelf is kept out of the index. Tag-driven
+    // shelves have no `collection` object but plenty of products.
+    noindex: !args.data?.products?.nodes?.length,
     description:
       toDescription(collection?.seo?.description) ??
       toDescription(collection?.description) ??
       toDescription(args.data?.description) ??
       (collection?.title
-        ? `${collection.title} from SCHMUCKS — $25 flat, unisex S–3XL, printed to order.`
+        ? `${collection.title} from SCHMUCKS — unisex S–3XL, printed to order.`
         : undefined),
     image: collection?.image?.url,
     // Sorted and filtered views are the same products in a different order.
@@ -107,18 +109,48 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   const shelf = getShelf(handle);
 
   if (!collection) {
-    // A known shelf that the store hasn't published (or tagged) yet is not an
-    // error — it's linked from the nav and will fill on the next tagging run.
-    // Render the real shelf page in its restocking state, but keep it out of
-    // the index until it has something on it.
+    // The shelves are smart collections that aren't published to this sales
+    // channel yet, but the products carry their tags — so fall back to a tag
+    // query and the shelf works today. See ~/lib/shelfQuery.
     if (shelf) {
+      const tagQuery = shelfQueryString(handle);
+      const shelfSort = shelfSortArgs(handle);
+      const [{products}, countData] = await Promise.all([
+        storefront.query(SHELF_PRODUCTS_QUERY, {
+          variables: {
+            query: tagQuery ?? '',
+            // A tag shelf keeps the shopper's chosen sort; the sort-based
+            // shelves (Best Sellers, New Arrivals) are defined by their order.
+            sortKey: tagQuery ? productSortKey(sort) : shelfSort.sortKey,
+            reverse: tagQuery ? productSortReverse(sort) : shelfSort.reverse,
+            ...paginationVariables,
+          },
+        }),
+        // No count field exists on a product search, so count ids in bulk.
+        // Cached hard — shelf membership only changes when tagging runs.
+        tagQuery
+          ? storefront
+              .query(SHELF_COUNT_QUERY, {
+                variables: {query: tagQuery},
+                cache: storefront.CacheLong(),
+              })
+              .catch(() => null)
+          : Promise.resolve(null),
+      ]);
+
+      const counted = countData?.products?.nodes?.length ?? null;
+
       return {
         collection: null,
         shelf,
+        products,
         sort,
         description: shelf.board ?? shelf.descriptor,
+        // Facets come from Collection.products, which needs the collection to
+        // be published; a tag shelf gets sort + count only.
         facets: [] as Facet[],
-        total: null,
+        total: counted,
+        countCapped: counted === SHELF_COUNT_LIMIT,
       };
     }
     throw new Response(`Collection ${handle} not found`, {
@@ -132,11 +164,32 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   return {
     collection,
     shelf: shelf ?? null,
+    products: collection.products,
+    countCapped: false,
     sort,
     description: shelfDescription(handle, collection.description),
     facets: buildFacets(collection.products.filters),
     total: totalFromFilters(collection.products.filters),
   };
+}
+
+/** Catalogue-level sort keys (ProductSortKeys differs from the collection enum). */
+function productSortKey(sort: string) {
+  switch (sort) {
+    case 'price-asc':
+    case 'price-desc':
+      return 'PRICE' as const;
+    case 'newest':
+      return 'CREATED_AT' as const;
+    case 'title':
+      return 'TITLE' as const;
+    default:
+      return 'BEST_SELLING' as const;
+  }
+}
+
+function productSortReverse(sort: string) {
+  return sort === 'price-desc' || sort === 'newest';
 }
 
 /**
@@ -203,9 +256,17 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 }
 
 export default function Collection() {
-  const {collection, shelf, sort, description, facets, total} =
-    useLoaderData<typeof loader>();
-  const loaded = collection?.products.nodes.length ?? 0;
+  const {
+    collection,
+    shelf,
+    products,
+    sort,
+    description,
+    facets,
+    total,
+    countCapped,
+  } = useLoaderData<typeof loader>();
+  const loaded = products?.nodes.length ?? 0;
   const hasProducts = loaded > 0;
   // Filter and sort links are real navigations; swap the grid for placeholders
   // while the next page of results is in flight instead of freezing the old one.
@@ -238,15 +299,19 @@ export default function Collection() {
       </section>
       <section className="sx-shop">
         <div className="sx-wrap">
-          {hasProducts && collection ? (
+          {hasProducts && products ? (
             <>
               <ShelfFilters facets={facets} count={loaded} />
-              <CollectionControls count={count} sort={sort} />
+              <CollectionControls
+                count={count}
+                sort={sort}
+                countCapped={countCapped}
+              />
               {busy ? (
                 <SkeletonGrid count={Math.min(loaded, 8)} />
               ) : (
                 <PaginatedResourceSection<ProductItemFragment>
-                  connection={collection.products}
+                  connection={products}
                   resourcesClassName="sx-grid"
                 >
                   {({node: product, index}) => (
@@ -290,6 +355,16 @@ const PRODUCT_ITEM_FRAGMENT = `#graphql
     id
     handle
     title
+    variants(first: 20) {
+      nodes {
+        id
+        availableForSale
+        selectedOptions {
+          name
+          value
+        }
+      }
+    }
     featuredImage {
       id
       altText
@@ -375,6 +450,60 @@ const COLLECTION_QUERY = `#graphql
           endCursor
           startCursor
         }
+      }
+    }
+  }
+` as const;
+
+/**
+ * Tag-driven shelf products, used while the smart collections aren't published
+ * to this sales channel. Same fields as the collection query so the page
+ * renders identically either way.
+ */
+const SHELF_PRODUCTS_QUERY = `#graphql
+  ${PRODUCT_ITEM_FRAGMENT}
+  query ShelfProducts(
+    $country: CountryCode
+    $language: LanguageCode
+    $query: String!
+    $first: Int
+    $last: Int
+    $startCursor: String
+    $endCursor: String
+    $sortKey: ProductSortKeys = BEST_SELLING
+    $reverse: Boolean = false
+  ) @inContext(country: $country, language: $language) {
+    products(
+      first: $first,
+      last: $last,
+      before: $startCursor,
+      after: $endCursor,
+      query: $query,
+      sortKey: $sortKey,
+      reverse: $reverse
+    ) {
+      nodes {
+        ...ProductItem
+      }
+      pageInfo {
+        hasPreviousPage
+        hasNextPage
+        endCursor
+        startCursor
+      }
+    }
+  }
+` as const;
+
+/** Storefront caps a page at 250; a bigger shelf reports "250+". */
+const SHELF_COUNT_LIMIT = 250;
+
+const SHELF_COUNT_QUERY = `#graphql
+  query ShelfCount($country: CountryCode, $language: LanguageCode, $query: String!)
+    @inContext(country: $country, language: $language) {
+    products(first: 250, query: $query) {
+      nodes {
+        id
       }
     }
   }

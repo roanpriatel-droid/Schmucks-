@@ -119,17 +119,29 @@ export async function loader(args: Route.LoaderArgs) {
 async function loadCriticalData({context}: Route.LoaderArgs) {
   const {storefront} = context;
 
-  const [header] = await Promise.all([
+  const [header, policyData] = await Promise.all([
     storefront.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
         headerMenuHandle: 'main-menu', // Adjust to your header menu handle
       },
     }),
-    // Add other queries here, so that they are loaded in parallel
+    // Which legal policies actually exist, so the footer only links real ones.
+    storefront
+      .query(SHOP_POLICIES_QUERY, {cache: storefront.CacheLong()})
+      .catch(() => null),
   ]);
 
-  return {header};
+  const policies = [
+    policyData?.shop?.privacyPolicy,
+    policyData?.shop?.refundPolicy,
+    policyData?.shop?.shippingPolicy,
+    policyData?.shop?.termsOfService,
+  ]
+    .filter((policy): policy is {title: string; handle: string} => Boolean(policy))
+    .map((policy) => ({title: policy.title, handle: policy.handle}));
+
+  return {header, policies};
 }
 
 /**
@@ -178,7 +190,7 @@ function orgJsonLd(origin?: string) {
       {
         '@type': 'WebSite',
         name: 'SCHMUCKS',
-        description: 'Funny graphic tees, $25 flat, printed to order.',
+        description: 'Funny graphic tees, printed to order.',
         ...(origin
           ? {
               url: origin,
@@ -196,6 +208,18 @@ function orgJsonLd(origin?: string) {
     ],
   };
 }
+
+const SHOP_POLICIES_QUERY = `#graphql
+  query ShopPolicies($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    shop {
+      privacyPolicy { title handle }
+      refundPolicy { title handle }
+      shippingPolicy { title handle }
+      termsOfService { title handle }
+    }
+  }
+` as const;
 
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();

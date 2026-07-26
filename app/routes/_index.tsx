@@ -3,18 +3,17 @@ import type {Route} from './+types/_index';
 import {Image, Money} from '@shopify/hydrogen';
 import type {HomeProductFragment} from 'storefrontapi.generated';
 import {Marquee} from '~/components/home/Marquee';
-import {StackLadder} from '~/components/home/StackLadder';
 import {ShelfBoards, type BoardCollection} from '~/components/home/ShelfBoards';
 import {MembershipCard} from '~/components/home/MembershipCard';
 import {Mel} from '~/components/brand/Brand';
 import {Reveal} from '~/components/Reveal';
-import {track} from '~/lib/analytics';
+import {STACK_TIERS} from '~/data/commerce';
 import {pageMeta} from '~/lib/seo';
 
 export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
     description:
-      'Funny, slightly inappropriate graphic tees for a proud community of idiots. $25 flat. New Schmuck drops weekly.',
+      'Funny, slightly inappropriate graphic tees for a proud community of idiots. Printed to order, new drops weekly.',
     path: '/',
   });
 
@@ -24,13 +23,33 @@ export async function loader(args: Route.LoaderArgs) {
 }
 
 async function loadCriticalData({context}: Route.LoaderArgs) {
-  const data = await context.storefront.query(HOME_SHELVES_QUERY);
+  const data = await context.storefront.query(HOME_SHELVES_QUERY, {
+    variables: {
+      confessional: "tag:'the-confessional'",
+      courtship: "tag:'courtship'",
+      pettyCrimes: "tag:'petty-crimes'",
+      pair: "tag:'the-pair-programme'",
+      errata: "tag:'errata'",
+    },
+  });
 
   // Best Sellers needs sales history to populate. Until the store has any, the
   // row falls back to New Arrivals rather than rendering an empty rail.
-  const bestSellers = data?.bestSellers?.products?.nodes ?? [];
-  const newArrivals = data?.newArrivals?.products?.nodes ?? [];
+  const bestSellers = data?.bestSellers?.nodes ?? [];
+  const newArrivals = data?.newArrivals?.nodes ?? [];
   const usingFallback = bestSellers.length === 0 && newArrivals.length > 0;
+
+  const boardFor = (
+    handle: string,
+    nodes: HomeProductFragment[] | undefined,
+  ): BoardCollection => ({
+    id: handle,
+    handle,
+    title: '',
+    description: null,
+    image: null,
+    products: {nodes: nodes ?? []},
+  });
 
   return {
     featured: {
@@ -40,16 +59,18 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
       products: usingFallback ? newArrivals : bestSellers,
     },
     boards: [
-      data?.confessional,
-      data?.courtship,
-      data?.pettyCrimes,
-    ] as BoardCollection[],
-    pair: data?.pairProgramme ?? null,
+      boardFor('the-confessional', data?.confessional?.nodes),
+      boardFor('courtship', data?.courtship?.nodes),
+      boardFor('petty-crimes', data?.pettyCrimes?.nodes),
+    ],
+    // Two real shirts, shown as a his-and-theirs pair.
+    pair: (data?.pair?.nodes ?? []).slice(0, 2),
+    errata: data?.errata?.nodes ?? [],
   };
 }
 
 export default function Homepage() {
-  const {featured, boards, pair} = useLoaderData<typeof loader>();
+  const {featured, boards, pair, errata} = useLoaderData<typeof loader>();
   return (
     <div className="sx-home">
       <Hero />
@@ -57,17 +78,16 @@ export default function Homepage() {
         items={[
           'STACK 2 SAVE 10%',
           'STACK 3 SAVE 20%',
-          'FREE US SHIPPING $100+',
+          'FREE SHIPPING OVER $50',
           'NEW SCHMUCK DROPS WEEKLY',
         ]}
       />
       <FeaturedRow featured={featured} />
       <ShelfBoards boards={boards} />
-      <PairBanner hasProducts={Boolean(pair?.products?.nodes?.length)} />
-      <Statement />
-      <StackLadder />
-      <PromiseSection />
-      <TrustBar />
+      <AsWornByIdiots />
+      <PairBanner pair={pair as HomeProductFragment[]} />
+      <ErrataStrip products={errata as HomeProductFragment[]} />
+      <BrandStory />
       <MembershipCard />
     </div>
   );
@@ -96,7 +116,9 @@ function FeaturedRow({
         <div className="sx-section-head">
           <div>
             <p className="sx-eyebrow">
-              {featured.usingFallback ? 'Straight Off the Press' : 'Bought Most'}
+              {featured.usingFallback
+                ? 'Straight Off the Press'
+                : 'Bought Most'}
             </p>
             <h2 className="sx-section-title" id="sx-featured-title">
               {featured.title}
@@ -141,8 +163,13 @@ function FeaturedRow({
   );
 }
 
-/** Sells the matching-set concept and points at The Pair Programme. */
-function PairBanner({hasProducts}: {hasProducts: boolean}) {
+/**
+ * The Pair Programme, sold with two actual shirts from the shelf rather than
+ * an illustration of the idea.
+ */
+function PairBanner({pair}: {pair: HomeProductFragment[]}) {
+  const [his, theirs] = pair;
+
   return (
     <section className="sx-pairbanner" aria-labelledby="sx-pair-title">
       <div className="sx-wrap sx-pairbanner__inner">
@@ -159,53 +186,216 @@ function PairBanner({hasProducts}: {hasProducts: boolean}) {
             shirts and the discount applies itself at checkout.
           </p>
           <ul className="sx-pairbanner__ladder">
-            <li>
-              <span className="sx-display">2</span> shirts — 10% off
-            </li>
-            <li>
-              <span className="sx-display">3</span> shirts — 20% off
-            </li>
-            <li>
-              <span className="sx-display">4+</span> shirts — 30% off
-            </li>
+            {STACK_TIERS.map((tier) => (
+              <li key={tier.quantity}>
+                <span className="sx-display">
+                  {tier.quantity}
+                  {tier.quantity === 4 ? '+' : ''}
+                </span>{' '}
+                shirts — {tier.percent}% off
+              </li>
+            ))}
           </ul>
           <div className="sx-pairbanner__ctas">
             <Link className="sx-btn sx-btn--mustard" to="/matching-sets">
               Enrol in the Programme
             </Link>
-            {hasProducts ? (
-              <Link
-                className="sx-btn sx-btn--ghost-light"
-                to="/collections/the-pair-programme"
-              >
-                Browse the pairs
-              </Link>
-            ) : null}
+            <Link
+              className="sx-btn sx-btn--ghost-light"
+              to="/collections/the-pair-programme"
+            >
+              Browse the pairs
+            </Link>
           </div>
         </div>
-        <div className="sx-pairbanner__art" aria-hidden="true">
-          <Mel />
-          <Mel />
+
+        {his && theirs ? (
+          <div className="sx-pairbanner__pair">
+            {[
+              {product: his, label: 'His'},
+              {product: theirs, label: 'Theirs'},
+            ].map(({product, label}) => (
+              <Link
+                className="sx-pairpiece"
+                key={product.id}
+                to={`/products/${product.handle}`}
+                prefetch="intent"
+              >
+                <span className="sx-pairpiece__label">{label}</span>
+                <span className="sx-pairpiece__media">
+                  {product.featuredImage ? (
+                    <Image
+                      data={product.featuredImage}
+                      alt={product.featuredImage.altText || product.title}
+                      aspectRatio="1/1"
+                      sizes="(min-width: 880px) 220px, 40vw"
+                      loading="lazy"
+                    />
+                  ) : null}
+                </span>
+                <span className="sx-pairpiece__name">{product.title}</span>
+              </Link>
+            ))}
+            <span className="sx-pairpiece__amp sx-display" aria-hidden="true">
+              &amp;
+            </span>
+          </div>
+        ) : (
+          <div className="sx-pairbanner__art" aria-hidden="true">
+            <Mel />
+            <Mel />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Social-proof band. There is no real UGC yet, so this is an open invitation
+ * with empty frames — never invented customers or fabricated captions
+ * (BRAND §8). The caption slots show what a real submission will look like.
+ */
+const UGC_SLOTS = [
+  'Wore it to a wedding. Not my wedding.',
+  'My mother has asked me to take it off.',
+  'Third one. No notes.',
+  'Bought it ironically. Wear it sincerely.',
+];
+
+function AsWornByIdiots() {
+  return (
+    <section className="sx-worn" aria-labelledby="sx-worn-title">
+      <div className="sx-wrap">
+        <div className="sx-section-head">
+          <div>
+            <p className="sx-eyebrow">As Worn By Idiots</p>
+            <h2 className="sx-section-title" id="sx-worn-title">
+              Caught in public
+            </h2>
+          </div>
+          <p className="sx-section-note">
+            These frames are empty on purpose. Send us a photo and we&rsquo;ll
+            put you in one — no staged models, no stock photography.
+          </p>
+        </div>
+
+        <ul className="sx-worn__grid">
+          {UGC_SLOTS.map((caption, index) => (
+            <li className="sx-worn__tile" key={caption}>
+              <div className="sx-worn__frame">
+                <span className="sx-worn__slot sx-display">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span className="sx-worn__await">Your photo here</span>
+              </div>
+              <p className="sx-worn__caption">&ldquo;{caption}&rdquo;</p>
+            </li>
+          ))}
+        </ul>
+
+        <div className="sx-worn__cta">
+          <Link className="sx-btn sx-btn--ghost" to="/pages/contact">
+            Send us yours
+          </Link>
         </div>
       </div>
     </section>
   );
 }
 
-function Statement() {
+/** Errata — the misprints we decided to keep. */
+function ErrataStrip({products}: {products: HomeProductFragment[]}) {
+  if (!products.length) return null;
+
   return (
-    <section className="sx-statement" aria-label="Brand statement">
+    <section className="sx-errata" aria-labelledby="sx-errata-title">
       <div className="sx-wrap">
-        <Reveal>
-          <p className="sx-statement__text sx-display">
-            Dumb on the front.
-            <br />
-            <em>Serious</em> about the shirt.
-          </p>
-          <p className="sx-statement__sub">
-            Heavyweight ringspun cotton, printed to order in the USA. The joke is
-            free; the quality isn&rsquo;t an accident.
-          </p>
+        <div className="sx-errata__head">
+          <div>
+            <p className="sx-eyebrow sx-eyebrow--mustard">Errata</p>
+            <h2 className="sx-errata__title sx-display" id="sx-errata-title">
+              Printing mistakes we stand behind
+            </h2>
+            <p className="sx-errata__body">
+              Every so often something goes to print wrong and comes back
+              better. We don&rsquo;t pulp those. We number them, sell them, and
+              refuse to correct the record.
+            </p>
+            <Link className="sx-btn sx-btn--mustard" to="/collections/errata">
+              See the misprints
+            </Link>
+          </div>
+        </div>
+
+        <div className="sx-errata__rail">
+          {products.slice(0, 6).map((product) => (
+            <Link
+              className="sx-errata__item"
+              key={product.id}
+              to={`/products/${product.handle}`}
+              prefetch="intent"
+            >
+              <span className="sx-errata__media">
+                {product.featuredImage ? (
+                  <Image
+                    data={product.featuredImage}
+                    alt={product.featuredImage.altText || product.title}
+                    aspectRatio="1/1"
+                    sizes="(min-width: 900px) 200px, 45vw"
+                    loading="lazy"
+                  />
+                ) : null}
+                <span className="sx-errata__stamp">As printed</span>
+              </span>
+              <span className="sx-errata__name">{product.title}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Brand story, three columns. */
+const STORY = [
+  {
+    head: 'Fine Apparel',
+    body: 'Heavyweight ringspun cotton, ribbed collar, double-needle hems, printed to order. The shirt is the part we refuse to cheap out on, because the joke only works if the garment survives it.',
+    to: '/pages/materials',
+    cta: 'What it’s made of',
+  },
+  {
+    head: 'For Idiots',
+    body: 'Ours is an affectionate slur. The customer is in on it — every design assumes you already know the worst thing about yourself and have made peace with wearing it in public.',
+    to: '/tees',
+    cta: 'Browse the evidence',
+  },
+  {
+    head: 'Since Recently',
+    body: 'There is a heritage story involving a deli, a mishearing, and forty accidental shirts. It is not true in any way a lawyer would recognise, but we tell it anyway.',
+    to: '/pages/about',
+    cta: 'Read the lore',
+  },
+];
+
+function BrandStory() {
+  return (
+    <section className="sx-story" aria-labelledby="sx-story-title">
+      <div className="sx-wrap">
+        <h2 className="sx-visually-hidden" id="sx-story-title">
+          About Schmucks
+        </h2>
+        <Reveal className="sx-story__cols">
+          {STORY.map((column) => (
+            <div className="sx-story__col" key={column.head}>
+              <h3 className="sx-story__head sx-display">{column.head}</h3>
+              <p className="sx-story__body">{column.body}</p>
+              <Link className="sx-story__cta" to={column.to}>
+                {column.cta} →
+              </Link>
+            </div>
+          ))}
         </Reveal>
       </div>
     </section>
@@ -223,13 +413,13 @@ function Hero() {
           <span className="sx-hero__line2">for Idiots.</span>
         </h1>
         <p className="sx-hero__sub">
-          Funny shirts for people who peaked online. $25 flat, sizes S–3XL,
-          printed on cotton that can take a joke.
+          Funny shirts for people who peaked online. Sizes S–3XL, printed on
+          cotton that can take a joke.
         </p>
         <p className="sx-hero__social">
-          <span>$25 flat</span>
+          <span>Printed to order</span>
           <span className="sx-hero__dot">·</span>
-          <span>Free US shipping over $100</span>
+          <span>Free shipping over $50</span>
           <span className="sx-hero__dot">·</span>
           <span>30-day returns</span>
         </p>
@@ -238,7 +428,7 @@ function Hero() {
             Shop the Tees
           </Link>
           <Link className="sx-btn sx-btn--ghost" to="/matching-sets">
-            Matching Sets
+            The Pair Programme
           </Link>
         </div>
       </div>
@@ -259,8 +449,14 @@ function ProductCard({
   const secondary = gallery.find((img) => img?.id && img.id !== image?.id);
   const sizes = '(min-width: 940px) 300px, (min-width: 620px) 33vw, 50vw';
   return (
-    <Link className="sx-card" to={`/products/${product.handle}`} prefetch="intent">
-      <div className={`sx-card__media ${secondary ? 'sx-card__media--swap' : ''}`}>
+    <Link
+      className="sx-card"
+      to={`/products/${product.handle}`}
+      prefetch="intent"
+    >
+      <div
+        className={`sx-card__media ${secondary ? 'sx-card__media--swap' : ''}`}
+      >
         {index === 0 && <span className="sx-card__flag">Fresh Drop</span>}
         {image && (
           <Image
@@ -295,80 +491,6 @@ function ProductCard({
   );
 }
 
-const PROMISE = [
-  {
-    title: 'Real Cotton, Real Weight',
-    body: 'Heavyweight ringspun cotton with a soft hand and a print that survives the wash. The shirt is not the punchline.',
-  },
-  {
-    title: 'Printed to Order',
-    body: 'Every shirt is made when you order it — less waste, no dusty warehouse stock, fresh prints every time.',
-  },
-  {
-    title: '30-Day Returns',
-    body: 'Wrong size or second thoughts? Send it back within 30 days. No interrogation. Maybe one gentle question.',
-  },
-];
-
-function PromiseSection() {
-  return (
-    <section className="sx-reviews" aria-labelledby="sx-promise-title">
-      <div className="sx-wrap">
-        <div className="sx-reviews__head">
-          <p className="sx-eyebrow" style={{color: 'var(--ketchup)'}}>
-            The Schmucks Promise
-          </p>
-          <h2 className="sx-section-title" id="sx-promise-title">
-            Dumb Shirt. Serious Standards.
-          </h2>
-          <p style={{maxWidth: '46ch', margin: '0.75rem auto 0'}}>
-            We don&rsquo;t do fake five-star quotes. Here&rsquo;s what we&rsquo;ll
-            actually stand behind.
-          </p>
-        </div>
-        <Reveal className="sx-review-grid">
-          {PROMISE.map((p) => (
-            <div className="sx-review" key={p.title}>
-              <div className="sx-review__stars" aria-hidden="true">
-                ★
-              </div>
-              <h3 className="sx-promise__title">{p.title}</h3>
-              <p className="sx-review__body">{p.body}</p>
-            </div>
-          ))}
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-const TRUST = [
-  {title: '30-Day Returns', note: 'Changed your mind? Fine.', icon: '↩'},
-  {title: 'Free US Shipping', note: 'On orders $100+', icon: '📦'},
-  {title: 'Secure Checkout', note: 'Powered by Shopify', icon: '🔒'},
-  {title: 'Ships in 3–5 Days', note: 'Printed to order in the US', icon: '⚡'},
-];
-
-function TrustBar() {
-  return (
-    <section className="sx-trust" aria-label="Store guarantees">
-      <div className="sx-wrap">
-        <div className="sx-trust__grid">
-          {TRUST.map((t) => (
-            <div className="sx-trust__col" key={t.title}>
-              <div className="sx-trust__icon" style={{fontSize: '1.6rem'}}>
-                {t.icon}
-              </div>
-              <div className="sx-trust__title">{t.title}</div>
-              <div className="sx-trust__note">{t.note}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 const HOME_SHELVES_QUERY = `#graphql
   fragment HomeProduct on Product {
     id
@@ -397,69 +519,48 @@ const HOME_SHELVES_QUERY = `#graphql
       }
     }
   }
-  fragment HomeBoard on Collection {
-    id
-    title
-    handle
-    description
-    image {
-      id
-      url
-      altText
-      width
-      height
-    }
-    products(first: 3) {
+  query HomeShelves(
+    $country: CountryCode
+    $language: LanguageCode
+    $confessional: String!
+    $courtship: String!
+    $pettyCrimes: String!
+    $pair: String!
+    $errata: String!
+  ) @inContext(country: $country, language: $language) {
+    bestSellers: products(first: 8, sortKey: BEST_SELLING) {
       nodes {
-        id
-        title
-        handle
-        featuredImage {
-          id
-          url
-          altText
-          width
-          height
-        }
+        ...HomeProduct
       }
     }
-  }
-  query HomeShelves($country: CountryCode, $language: LanguageCode)
-    @inContext(country: $country, language: $language) {
-    bestSellers: collection(handle: "best-sellers") {
-      id
-      handle
-      products(first: 8) {
-        nodes {
-          ...HomeProduct
-        }
+    newArrivals: products(first: 8, sortKey: CREATED_AT, reverse: true) {
+      nodes {
+        ...HomeProduct
       }
     }
-    newArrivals: collection(handle: "new-arrivals") {
-      id
-      handle
-      products(first: 8) {
-        nodes {
-          ...HomeProduct
-        }
+    confessional: products(first: 3, query: $confessional) {
+      nodes {
+        ...HomeProduct
       }
     }
-    confessional: collection(handle: "the-confessional") {
-      ...HomeBoard
+    courtship: products(first: 3, query: $courtship) {
+      nodes {
+        ...HomeProduct
+      }
     }
-    courtship: collection(handle: "courtship") {
-      ...HomeBoard
+    pettyCrimes: products(first: 3, query: $pettyCrimes) {
+      nodes {
+        ...HomeProduct
+      }
     }
-    pettyCrimes: collection(handle: "petty-crimes") {
-      ...HomeBoard
+    pair: products(first: 2, query: $pair) {
+      nodes {
+        ...HomeProduct
+      }
     }
-    pairProgramme: collection(handle: "the-pair-programme") {
-      id
-      handle
-      products(first: 1) {
-        nodes {
-          id
-        }
+    errata: products(first: 6, query: $errata) {
+      nodes {
+        ...HomeProduct
       }
     }
   }

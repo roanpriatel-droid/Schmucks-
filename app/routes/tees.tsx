@@ -21,7 +21,7 @@ export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
     title: 'Tees',
     description:
-      'Every Schmucks graphic tee. $25 flat, unisex S–3XL, printed on cotton that can take a joke.',
+      'Every Schmucks graphic tee. Unisex S–3XL, printed on cotton that can take a joke.',
     path: '/tees',
   });
 
@@ -132,7 +132,7 @@ export default function Tees() {
           <h1 className="sx-pagehead__title">Tees</h1>
           <p className="sx-pagehead__desc">
             {description?.trim() ||
-              'Every shirt we make. $25 flat, unisex S–3XL, a few colorways each. Stack 2 or more and the discount applies itself at checkout.'}
+              'Every shirt we make. Unisex S–3XL, three colorways, printed to order. Stack 2 or more and the discount applies itself at checkout.'}
           </p>
         </div>
       </section>
@@ -197,6 +197,16 @@ const TEES_ITEM_FRAGMENT = `#graphql
     id
     handle
     title
+    variants(first: 20) {
+      nodes {
+        id
+        availableForSale
+        selectedOptions {
+          name
+          value
+        }
+      }
+    }
     featuredImage {
       id
       altText

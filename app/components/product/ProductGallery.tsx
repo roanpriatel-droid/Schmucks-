@@ -84,7 +84,7 @@ export function ProductGallery({
 
       {pics.length > 1 && (
         <>
-          <div className="sx-gallery__dots" role="tablist" aria-label="Gallery position">
+          <div className="sx-gallery__dots" role="group" aria-label="Gallery position">
             {pics.map((img, i) => (
               <button
                 key={`dot-${img.id || i}`}

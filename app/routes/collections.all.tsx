@@ -16,7 +16,7 @@ export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
     title: 'Shop All',
     description:
-      'The whole menu — every SCHMUCKS design committed to cotton. $25 flat, unisex S–3XL, printed to order.',
+      'The whole menu — every SCHMUCKS design committed to cotton. Unisex S–3XL, printed to order.',
     path: '/collections/all',
   });
 
@@ -77,7 +77,7 @@ export default function Collection() {
           <h1 className="sx-pagehead__title">Shop All</h1>
           <p className="sx-pagehead__desc">
             The whole menu. Every terrible idea we&rsquo;ve committed to cotton.
-            $25 flat, sizes S–3XL.
+            Sizes S–3XL, printed to order.
           </p>
         </div>
       </section>

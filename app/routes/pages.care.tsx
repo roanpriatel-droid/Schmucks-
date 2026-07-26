@@ -60,7 +60,7 @@ export default function Care() {
             </p>
             <p>
               Something arrive not right? That&rsquo;s what the{' '}
-              <Link to="/policies/refund-policy">30-day returns</Link> are for.
+              <Link to="/pages/shipping-returns">30-day returns</Link> are for.
               Questions we didn&rsquo;t answer? <Link to="/pages/contact">Ask us</Link>.
             </p>
           </div>

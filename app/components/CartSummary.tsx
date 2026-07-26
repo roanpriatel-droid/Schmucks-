@@ -5,9 +5,10 @@ import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
 import {StackProgress} from '~/components/StackProgress';
 import {track} from '~/lib/analytics';
+import {FREE_SHIPPING_THRESHOLD} from '~/data/commerce';
+import {TrustRow} from '~/components/product/TrustRow';
 
 // Real free-shipping threshold. Confirm this value (see NEEDS_INPUT.md).
-const FREE_SHIP_THRESHOLD = 100;
 
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
@@ -52,6 +53,7 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
         giftCardInputId={giftCardInputId}
       />
       <CartCheckoutActions checkoutUrl={cart?.checkoutUrl} />
+      <TrustRow />
     </div>
   );
 }
@@ -86,8 +88,8 @@ function FreeShipProgress({
   currency: string;
 }) {
   if (subtotal <= 0) return null;
-  const remaining = Math.max(FREE_SHIP_THRESHOLD - subtotal, 0);
-  const pct = Math.min((subtotal / FREE_SHIP_THRESHOLD) * 100, 100);
+  const remaining = Math.max(FREE_SHIPPING_THRESHOLD - subtotal, 0);
+  const pct = Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
   const unlocked = remaining === 0;
   const fmt = (n: number) =>
     new Intl.NumberFormat('en-US', {style: 'currency', currency}).format(n);
@@ -97,8 +99,8 @@ function FreeShipProgress({
       <div className="sx-stackbar__msg">
         <span className="sx-stars">★</span>
         {unlocked
-          ? 'Free US shipping unlocked.'
-          : `${fmt(remaining)} away from free US shipping`}
+          ? 'Free shipping unlocked.'
+          : `${fmt(remaining)} away from free shipping`}
       </div>
       <div className="sx-stackbar__track">
         <div

@@ -5,21 +5,27 @@ import type {
   CollectionItemFragment,
 } from 'storefrontapi.generated';
 import {useVariantUrl} from '~/lib/variants';
+import {QuickAdd} from '~/components/QuickAdd';
 
 export function ProductItem({
   product,
   loading,
+  quickAdd = false,
 }: {
   product: CollectionItemFragment | ProductItemFragment;
   loading?: 'eager' | 'lazy';
+  /** Show the inline size picker + add button (listing pages). */
+  quickAdd?: boolean;
 }) {
+  const variants =
+    'variants' in product ? (product.variants?.nodes ?? []) : [];
   const variantUrl = useVariantUrl(product.handle);
   const gallery = 'images' in product ? (product.images?.nodes ?? []) : [];
   const image = product.featuredImage ?? gallery[0] ?? null;
   const secondary = gallery.find((img) => img?.id && img.id !== image?.id);
   const sizes = '(min-width: 45em) 400px, 50vw';
-  // Sizes carry a price ladder ($25/$27/$29), so a single figure would be a
-  // half-truth on any product whose variants differ.
+  // If a product's variants ever differ in price, one figure would be a
+  // half-truth — show a range instead. (Today the catalogue is flat-priced.)
   const {minVariantPrice, maxVariantPrice} = product.priceRange;
   const hasRange =
     maxVariantPrice && minVariantPrice.amount !== maxVariantPrice.amount;
@@ -55,12 +61,15 @@ export function ProductItem({
         )}
       </div>
       <div className="sx-card__body">
-        <h3 className="sx-card__title">{product.title}</h3>
+        <p className="sx-card__title">{product.title}</p>
         <div className="sx-card__meta">Unisex tee · S–3XL</div>
         <div className="sx-card__price sx-display">
           {hasRange ? <span className="sx-card__from">from </span> : null}
           <Money data={minVariantPrice} />
         </div>
+        {quickAdd && variants.length ? (
+          <QuickAdd variants={variants} productTitle={product.title} />
+        ) : null}
       </div>
     </Link>
   );

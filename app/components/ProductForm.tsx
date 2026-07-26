@@ -26,7 +26,7 @@ export function ProductForm({
 
         return (
           <div className="product-options" key={option.name}>
-            <h5>{option.name}</h5>
+            <h2 className="sx-optname">{option.name}</h2>
             <div className="product-options-grid">
               {option.optionValues.map((value) => {
                 const {

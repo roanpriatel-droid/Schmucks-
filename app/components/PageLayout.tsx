@@ -20,6 +20,7 @@ import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
 
 interface PageLayoutProps {
   cart: Promise<CartApiQueryFragment | null>;
+  policies?: Array<{title: string; handle: string}>;
   footer: Promise<FooterQuery | null>;
   header: HeaderQuery;
   isLoggedIn: Promise<boolean>;
@@ -34,6 +35,7 @@ export function PageLayout({
   header,
   isLoggedIn,
   publicStoreDomain,
+  policies,
 }: PageLayoutProps) {
   return (
     <Aside.Provider>
@@ -54,6 +56,7 @@ export function PageLayout({
         footer={footer}
         header={header}
         publicStoreDomain={publicStoreDomain}
+        policies={policies}
       />
       <EmailModal />
     </Aside.Provider>

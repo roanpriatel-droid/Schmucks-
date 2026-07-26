@@ -23,6 +23,11 @@ import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {Breadcrumbs} from '~/components/Breadcrumbs';
 import {CompleteThePair} from '~/components/product/CompleteThePair';
 import {TrustRow} from '~/components/product/TrustRow';
+import {ReviewStars} from '~/components/ReviewStars';
+import {
+  RecentlyViewed,
+  useRecordRecentlyViewed,
+} from '~/components/RecentlyViewed';
 import {pairedHandles} from '~/data/pairs';
 import {pageMeta, toDescription} from '~/lib/seo';
 
@@ -33,7 +38,7 @@ export const meta: Route.MetaFunction = (args) => {
     description:
       toDescription(p?.seo?.description) ??
       toDescription(p?.description) ??
-      `${p?.title ?? 'A Schmucks tee'} — heavyweight unisex graphic tee, $25 flat, S–3XL, printed to order.`,
+      `${p?.title ?? 'A Schmucks tee'} — heavyweight unisex graphic tee, S–3XL, printed to order.`,
     image: p?.featuredImage?.url,
     type: 'product',
     // Variant selections live in the query string; canonicalise to the product.
@@ -147,6 +152,15 @@ export default function Product() {
     track('view_item', {item_id: product.id, item_name: product.title});
   }, [product.id, product.title]);
 
+  useRecordRecentlyViewed({
+    handle: product.handle,
+    title: product.title,
+    image: product.featuredImage
+      ? {url: product.featuredImage.url, altText: product.featuredImage.altText}
+      : null,
+    price: selectedVariant?.price ?? null,
+  });
+
   // Gallery: product images, fall back to the selected variant image.
   const galleryImages = product.images?.nodes?.length
     ? product.images.nodes
@@ -204,6 +218,12 @@ export default function Product() {
           <p className="sx-product__eyebrow">Fine Apparel for Idiots</p>
           <h1 className="sx-product__title">{title}</h1>
 
+          <ReviewStars
+            productId={product.id}
+            productTitle={product.title}
+            className="sx-product__reviews"
+          />
+
           <div className="sx-product__badges">
             <span className="sx-product__badge">Unisex</span>
             <span className="sx-product__badge">S–3XL</span>
@@ -231,6 +251,14 @@ export default function Product() {
             </div>
           )}
 
+          {/* Honest urgency: printed to order, so the wait is real and the
+              queue genuinely moves. No countdown timers, no fake stock counts. */}
+          <p className="sx-urgency">
+            <span className="sx-urgency__dot" aria-hidden="true" />
+            Selling faster than we expected, frankly. Printed to order — the
+            sooner it&rsquo;s in, the sooner it&rsquo;s on you.
+          </p>
+
           <div ref={buyRef}>
             <ProductForm
               productOptions={productOptions}
@@ -241,7 +269,7 @@ export default function Product() {
           <TrustRow />
 
           <ul className="sx-product__perks">
-            <li>Free US shipping over $100</li>
+            <li>Free shipping on orders over $50</li>
             <li>Stack &amp; save up to 30% when you buy more (auto at checkout)</li>
             <li>Printed to order on heavyweight ringspun cotton</li>
           </ul>
@@ -254,6 +282,8 @@ export default function Product() {
         products={pair.products as CollectionItemFragment[]}
         source={pair.source}
       />
+
+      <RecentlyViewed exclude={product.handle} />
 
       {sizeGuideOpen && <SizeGuideModal onClose={() => setSizeGuideOpen(false)} />}
 
@@ -334,9 +364,9 @@ function ProductDetails({descriptionHtml}: {descriptionHtml?: string}) {
       <details className="sx-acc__item">
         <summary className="sx-acc__q">Shipping &amp; Returns</summary>
         <div className="sx-acc__a">
-          Printed to order and shipped from the US. Free US shipping on orders
-          over $100. 30-day returns on unworn shirts — see the{' '}
-          <Link to="/policies/refund-policy" style={{color: 'var(--ketchup)', fontWeight: 700, textDecoration: 'underline'}}>
+          Printed to order and shipped worldwide. Free shipping on orders over
+          $50. 30-day returns on unworn shirts — see the{' '}
+          <Link className="sx-inline-link" to="/pages/shipping-returns">
             refund policy
           </Link>
           .

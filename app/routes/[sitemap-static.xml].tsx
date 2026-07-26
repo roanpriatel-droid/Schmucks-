@@ -1,5 +1,6 @@
 import type {Route} from './+types/[sitemap-static.xml]';
 import {JOURNAL} from '~/data/journal';
+import {SHELVES} from '~/data/shelves';
 
 /**
  * Hydrogen's generated sitemaps only cover Shopify resources (products,
@@ -23,6 +24,7 @@ const STATIC_ROUTES: Array<{path: string; priority: string}> = [
   {path: '/pages/size-guide', priority: '0.7'},
   {path: '/pages/care', priority: '0.6'},
   {path: '/pages/faq', priority: '0.6'},
+  {path: '/pages/shipping-returns', priority: '0.7'},
   {path: '/pages/contact', priority: '0.6'},
   {path: '/policies', priority: '0.3'},
 ];
@@ -53,6 +55,15 @@ export async function loader({request}: Route.LoaderArgs) {
   const entries = [
     ...STATIC_ROUTES.map(({path, priority}) =>
       urlEntry({loc: `${origin}${path}`, priority}),
+    ),
+    // The shelves are smart collections that aren't published to this sales
+    // channel, so Shopify's generated collections sitemap doesn't list them —
+    // but the pages exist and are full of products.
+    ...SHELVES.map((shelf) =>
+      urlEntry({loc: `${origin}/collections/${shelf.handle}`, priority: '0.8'}),
+    ),
+    ...['best-sellers', 'new-arrivals', 'the-pair-programme'].map((handle) =>
+      urlEntry({loc: `${origin}/collections/${handle}`, priority: '0.7'}),
     ),
     ...JOURNAL.map((article) =>
       urlEntry({

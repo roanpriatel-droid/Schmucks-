@@ -44,13 +44,15 @@ export function catalogSortArgs(sort?: string | null) {
 export function CollectionControls({
   count,
   sort,
+  countCapped = false,
 }: {
   count: number;
   sort: string;
+  countCapped?: boolean;
 }) {
   return (
     <div className="sx-collctl">
-      <span className="sx-collctl__count">{countLine(count)}</span>
+      <span className="sx-collctl__count">{countLine(count, countCapped)}</span>
       <Form method="get" className="sx-collctl__sort">
         <label htmlFor="sort">Sort</label>
         <select

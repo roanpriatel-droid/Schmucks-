@@ -8,9 +8,9 @@
 import {getShelf} from '~/data/shelves';
 
 /** "47 items of questionable judgment" */
-export function countLine(count: number) {
+export function countLine(count: number, capped = false) {
   if (count === 1) return '1 item of questionable judgment';
-  return `${count} items of questionable judgment`;
+  return `${count}${capped ? '+' : ''} items of questionable judgment`;
 }
 
 /** Copy for a shelf that exists but currently holds nothing. */

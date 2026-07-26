@@ -19,7 +19,7 @@ export type JournalArticle = {
 export const JOURNAL: JournalArticle[] = [
   {
     slug: 'the-anatomy-of-a-25-dollar-shirt',
-    title: 'The Anatomy of a $25 Shirt',
+    title: 'The Anatomy of a Schmucks Shirt',
     dek: 'A stupid design does not require a stupid shirt. Here is where the money actually goes.',
     tag: 'Materials',
     date: '2026-06-24',
@@ -35,7 +35,7 @@ export const JOURNAL: JournalArticle[] = [
       <h2>The print is the part that has to survive you</h2>
       <p>A design is only as good as its worst wash. We print with methods matched to the design — soft-hand water-based inks where we want the graphic to sink into the fabric and feel like part of the shirt rather than a plastic sticker sitting on top of it. Done right, you should be able to run your hand across the print and barely feel the edge. Done wrong, it feels like a laminated menu.</p>
       <p>Because every shirt is <a href="/pages/materials">printed to order</a>, the graphic going onto your shirt is fresh, not a design that has been sitting boxed in a warehouse for eight months slowly fading under fluorescent light. It also means we are not landfilling unsold stock, which is a nice thing to be able to say without lying.</p>
-      <h2>Where the $25 actually goes</h2>
+      <h2>Where the money actually goes</h2>
       <p>Twenty-five dollars, flat, for every design. No "premium" tier where the same shirt costs forty because the graphic is trendier this week. That price buys the heavier blank, the ringspun yarn, the reinforced seams, and a print built to outlast the joke. What it does not buy is a fake origin story or a markup for the privilege of a logo you paid to advertise.</p>
       <p>Is it the most expensive shirt you can buy? Obviously not. Is it a genuinely good shirt that happens to say something regrettable across the chest? That is exactly the point. Buy two and the <a href="/pages/size-guide">fit</a> gets even easier to dial in — and the <a href="/matching-sets">stacking discount</a> makes the second one cheaper, which is the only responsible way to make an irresponsible decision.</p>
       <p>We are idiots about a lot of things. The shirt is not one of them.</p>

@@ -11,7 +11,7 @@ import type {MetaDescriptor} from 'react-router';
 export const SITE_NAME = 'SCHMUCKS';
 export const SITE_TAGLINE = 'Fine Apparel for Idiots';
 export const SITE_DESCRIPTION =
-  'Fine Apparel for Idiots. Funny graphic tees, $25 flat, unisex S–3XL, printed to order on cotton that can take a joke.';
+  'Fine Apparel for Idiots. Funny graphic tees, unisex S–3XL, printed to order on cotton that can take a joke.';
 
 /** Shape of the meta-function args we actually read (kept loose on purpose). */
 export type MetaArgsLike = {
@@ -81,7 +81,8 @@ export function pageMeta(
   const origin = rootOrigin(args);
   const path = input.path ?? args?.location?.pathname ?? '/';
   const canonical = absolute(origin, path);
-  const image = absolute(origin, input.image ?? '/apple-touch-icon.png');
+  // A real 1200×630 share card, not the touch icon.
+  const image = absolute(origin, input.image ?? '/og-default.png');
   const title = formatTitle(input.title);
   const description = input.description ?? SITE_DESCRIPTION;
 
@@ -103,6 +104,8 @@ export function pageMeta(
   }
   if (image) {
     descriptors.push({property: 'og:image', content: image});
+    descriptors.push({property: 'og:image:width', content: '1200'});
+    descriptors.push({property: 'og:image:height', content: '630'});
     descriptors.push({name: 'twitter:image', content: image});
   }
   if (input.noindex) {

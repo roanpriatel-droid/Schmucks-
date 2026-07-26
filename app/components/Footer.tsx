@@ -2,43 +2,44 @@ import {useState} from 'react';
 import {NavLink} from 'react-router';
 import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
 import {WordmarkFlat, Badge} from '~/components/brand/Brand';
+import {SHELVES} from '~/data/shelves';
+import {FREE_SHIPPING_THRESHOLD, RETURNS_DAYS} from '~/data/commerce';
 import {track} from '~/lib/analytics';
 
 interface FooterProps {
   footer: Promise<FooterQuery | null>;
   header: HeaderQuery;
   publicStoreDomain: string;
+  /** Policy handles the shop has actually published — see the root loader. */
+  policies?: Array<{title: string; handle: string}>;
 }
 
+/** All ten shelves, in shelf order. */
 const SHOP_LINKS = [
-  {title: 'Tees', to: '/tees'},
-  {title: 'Matching Sets', to: '/matching-sets'},
-  {title: 'Shop All', to: '/collections/all'},
-  {title: 'Lookbook', to: '/lookbook'},
-];
-
-const LEARN_LINKS = [
-  {title: 'About', to: '/pages/about'},
-  {title: 'Materials', to: '/pages/materials'},
-  {title: 'Size & Fit', to: '/pages/size-guide'},
-  {title: 'Care Guide', to: '/pages/care'},
-  {title: 'Journal', to: '/journal'},
-  // Shopify-managed blogs; the Journal is our own editorial.
-  {title: 'News', to: '/blogs'},
+  {title: 'All Tees', to: '/tees'},
+  ...SHELVES.map((shelf) => ({
+    title: shelf.title,
+    to: `/collections/${shelf.handle}`,
+  })),
+  {title: 'Best Sellers', to: '/collections/best-sellers'},
+  {title: 'New Arrivals', to: '/collections/new-arrivals'},
+  {title: 'The Pair Programme', to: '/matching-sets'},
 ];
 
 const HELP_LINKS = [
-  {title: 'Contact', to: '/pages/contact'},
   {title: 'FAQ', to: '/pages/faq'},
-  {title: 'Shipping', to: '/policies/shipping-policy'},
-  {title: 'Returns', to: '/policies/refund-policy'},
+  {title: 'Shipping & Returns', to: '/pages/shipping-returns'},
+  {title: 'Size Guide', to: '/pages/size-guide'},
+  {title: 'Care Guide', to: '/pages/care'},
+  {title: 'Contact', to: '/pages/contact'},
 ];
 
-const POLICY_LINKS = [
-  {title: 'Privacy', to: '/policies/privacy-policy'},
-  {title: 'Terms', to: '/policies/terms-of-service'},
-  {title: 'Refunds', to: '/policies/refund-policy'},
-  {title: 'All Policies', to: '/policies'},
+const BRAND_LINKS = [
+  {title: 'The Schmucks Story', to: '/pages/about'},
+  {title: 'Lookbook', to: '/lookbook'},
+  {title: 'Materials', to: '/pages/materials'},
+  {title: 'Journal', to: '/journal'},
+  {title: 'News', to: '/blogs'},
 ];
 
 const SOCIALS = [
@@ -47,64 +48,94 @@ const SOCIALS = [
   {label: 'X', glyph: 'X', href: 'https://x.com'},
 ];
 
-export function Footer(_props: FooterProps) {
+export function Footer({policies = []}: FooterProps) {
   return (
     <footer className="footer">
       <div className="sx-wrap sx-footer-news">
         <div>
           <h2 className="sx-footer-news__title">Join the Schmucks</h2>
           <p className="sx-footer-news__sub">
-            New drops, early access, and 10% off your first mistake.
+            New drops and early access, before the smart people find out.
           </p>
         </div>
         <NewsletterForm />
       </div>
 
       <div className="sx-wrap sx-footer">
+        <FooterCol heading="Shop" links={SHOP_LINKS} />
+        <FooterCol heading="Help" links={HELP_LINKS} />
+        <FooterCol heading="The Brand" links={BRAND_LINKS} />
+
         <div className="sx-footer__brand">
           <WordmarkFlat className="sx-wordmark--footer" title="Schmucks" />
           <p className="sx-footer__tag">
             Fine Apparel for Idiots. Heavyweight cotton, printed to order,
             shipped with love and mild concern.
           </p>
+          <ul className="sx-footer__perks">
+            <li>Free shipping over ${FREE_SHIPPING_THRESHOLD}</li>
+            <li>{RETURNS_DAYS}-day returns</li>
+            <li>Printed to order</li>
+          </ul>
           <div className="sx-footer__socials">
-            {SOCIALS.map((s) => (
+            {SOCIALS.map((social) => (
               <a
-                key={s.label}
+                key={social.label}
                 className="sx-footer__social"
-                href={s.href}
+                href={social.href}
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <span aria-hidden="true">{s.glyph}</span>
-                <span className="sx-visually-hidden">{s.label}</span>
+                <span aria-hidden="true">{social.glyph}</span>
+                <span className="sx-visually-hidden">{social.label}</span>
               </a>
             ))}
           </div>
-        </div>
-
-        <FooterCol heading="Shop" links={SHOP_LINKS} />
-        <FooterCol heading="Learn" links={LEARN_LINKS} />
-        <FooterCol heading="Help" links={HELP_LINKS} />
-
-        <div className="sx-footer__stamp">
-          <Badge title="Schmucks certified" />
+          <PaymentRow />
         </div>
       </div>
 
       <div className="sx-wrap sx-footer__legal">
-        <span>
-          © {new Date().getFullYear()} Schmucks. All rights reserved (barely).
+        <span className="sx-footer__copy">
+          <Badge className="sx-footer__badge" title="Schmucks certified" />©{' '}
+          {new Date().getFullYear()} Schmucks. Fine Apparel for Idiots.
         </span>
-        <span style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
-          {POLICY_LINKS.map((l) => (
-            <NavLink key={l.title} to={l.to} prefetch="intent">
-              {l.title}
+        <span className="sx-footer__legallinks">
+          {/* Only policies the shop has actually published get linked, so the
+              footer can never point at a page that doesn't exist. */}
+          {policies.map((policy) => (
+            <NavLink
+              key={policy.handle}
+              to={`/policies/${policy.handle}`}
+              prefetch="intent"
+            >
+              {policy.title}
             </NavLink>
           ))}
+          {policies.length ? (
+            <NavLink to="/policies" prefetch="intent">
+              All Policies
+            </NavLink>
+          ) : null}
         </span>
       </div>
     </footer>
+  );
+}
+
+/**
+ * The store reports no accepted card brands or digital wallets on this plan,
+ * so a row of Visa/Mastercard marks would be a claim we can't support. State
+ * what's actually true instead.
+ */
+function PaymentRow() {
+  return (
+    <div className="sx-footer__pay">
+      <span className="sx-footer__paylabel">Secure checkout</span>
+      <span className="sx-footer__paynote">
+        Payments processed by Shopify. Your card details never touch us.
+      </span>
+    </div>
   );
 }
 
@@ -118,9 +149,9 @@ function FooterCol({
   return (
     <div className="sx-footer__col">
       <h3>{heading}</h3>
-      {links.map((l) => (
-        <NavLink key={l.title} to={l.to} prefetch="intent">
-          {l.title}
+      {links.map((link) => (
+        <NavLink key={link.title} to={link.to} prefetch="intent">
+          {link.title}
         </NavLink>
       ))}
     </div>
@@ -132,15 +163,16 @@ function NewsletterForm() {
   if (done) {
     return (
       <div className="sx-footer-news__done" role="status">
-        You&rsquo;re in. Check your inbox for your code — and our condolences.
+        You&rsquo;re in. Nothing arrives until the next drop — that&rsquo;s the
+        whole arrangement.
       </div>
     );
   }
   return (
     <form
       className="sx-footer-news__form"
-      onSubmit={(e) => {
-        e.preventDefault();
+      onSubmit={(event) => {
+        event.preventDefault();
         track('newsletter_signup', {location: 'footer'});
         setDone(true);
       }}

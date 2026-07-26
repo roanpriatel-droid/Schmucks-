@@ -23,6 +23,29 @@ before it can ship as a factual claim. Until then I use honest alternatives.
   data confirms it. Confirm real fulfillment windows to hard-code copy.
 
 ## Store configuration
+- **PRICES ARE CAD $42.00, NOT $25.** The catalogue is 393 products, all one
+  price, options Color (Black / Natural, Gold on 12) and Size S–3XL. Every
+  hardcoded "$25 flat" and "free US shipping over $100" claim has been removed;
+  prices now render from the API only. If you intended a $25/$27/$29 ladder,
+  that has to change in admin — the storefront reports what the store says.
+- **The free-shipping threshold is set to $50** (`app/data/commerce.ts`) per
+  the brief. At CAD $42/shirt that's reached on the second shirt, not the
+  first — confirm this is the intended rule and that a matching Shopify
+  shipping profile exists, or the progress bar promises something checkout
+  won't honour.
+- **The ten smart collections are still unpublished to the Hydrogen channel.**
+  The storefront works anyway: every shelf falls back to a product tag query
+  (`app/lib/shelfQuery.ts`). Publishing them switches each shelf to
+  merchandiser order and turns the size/colourway facets back on, with no code
+  change. Note the Terms & Conditions tag is `terms-and-conditions` while its
+  handle is `terms-conditions`.
+- **No gift cards exist**, so no gift card page was built and nothing links to
+  one. Add gift card products and it can be added in an afternoon.
+- **Stack & Save is still UI-only** — the 2/3/4+ tiers need the matching
+  Shopify automatic discount or checkout won't apply them.
+- **`help@schmucks.example` is still a placeholder.** The contact ticket, FAQ
+  and returns page all compose real `mailto:` links to it — they'll work the
+  moment it's a real inbox. Change it in `app/data/commerce.ts` (one constant).
 - **BLOCKER — publish the collections and products to the Hydrogen sales
   channel.** As of 2026-07-26 the Storefront API returns **0 products and none
   of the ten smart collections** for this storefront token; only the default
