@@ -7,6 +7,10 @@ import {
 } from 'react-router';
 import type {Route} from './+types/account';
 import {CUSTOMER_DETAILS_QUERY} from '~/graphql/customer-account/CustomerDetailsQuery';
+import {pageMeta} from '~/lib/seo';
+
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {title: 'Your Account', noindex: true});
 
 export function shouldRevalidate() {
   return true;

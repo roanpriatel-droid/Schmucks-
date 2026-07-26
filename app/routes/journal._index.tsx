@@ -3,17 +3,15 @@ import {Link} from 'react-router';
 import {JOURNAL} from '~/data/journal';
 import {Mel} from '~/components/brand/Brand';
 import {Reveal} from '~/components/Reveal';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {pageMeta} from '~/lib/seo';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'The Journal — SCHMUCKS'},
-    {
-      name: 'description',
-      content:
-        'Styling, materials, and the occasional bad idea in long form. The Schmucks Journal.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'The Journal',
+    description:
+      'Styling, materials, and the occasional bad idea in long form. The Schmucks Journal.',
+  });
 
 function fmt(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', {
@@ -28,6 +26,7 @@ export default function JournalIndex() {
     <div className="sx-journal">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'The Journal'}]} />
           <p className="sx-pagehead__eyebrow">Words, For Some Reason</p>
           <h1 className="sx-pagehead__title">The Journal</h1>
           <p className="sx-pagehead__desc">
@@ -50,15 +49,7 @@ export default function JournalIndex() {
                   </span>
                   <h2 className="sx-jcard__title">{a.title}</h2>
                   <p className="sx-jcard__dek">{a.dek}</p>
-                  <span
-                    style={{
-                      marginTop: 'auto',
-                      fontSize: '0.75rem',
-                      opacity: 0.6,
-                    }}
-                  >
-                    {fmt(a.date)}
-                  </span>
+                  <span className="sx-jcard__date">{fmt(a.date)}</span>
                 </div>
               </Link>
             ))}

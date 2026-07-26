@@ -23,6 +23,8 @@ const LEARN_LINKS = [
   {title: 'Size & Fit', to: '/pages/size-guide'},
   {title: 'Care Guide', to: '/pages/care'},
   {title: 'Journal', to: '/journal'},
+  // Shopify-managed blogs; the Journal is our own editorial.
+  {title: 'News', to: '/blogs'},
 ];
 
 const HELP_LINKS = [
@@ -36,6 +38,7 @@ const POLICY_LINKS = [
   {title: 'Privacy', to: '/policies/privacy-policy'},
   {title: 'Terms', to: '/policies/terms-of-service'},
   {title: 'Refunds', to: '/policies/refund-policy'},
+  {title: 'All Policies', to: '/policies'},
 ];
 
 const SOCIALS = [

@@ -2918,3 +2918,487 @@ details[open] .sx-faq__q::after {
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0 var(--ink);
 }
+
+/* ============================================================
+   Interior-page completeness pass
+   Breadcrumbs, share row, article nav, policy + blog cards,
+   richer empty/404 states. Same rules as everything else:
+   flat, square, 3px outlines, hard shadows, no gradients.
+   ============================================================ */
+
+/* Screen-reader-only utility (labels on icon-only controls). */
+.sx-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Breadcrumbs ---------- */
+.sx-crumbs {
+  margin: 0 0 1rem;
+}
+.sx-crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.55rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+.sx-crumbs li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.sx-crumbs li + li::before {
+  content: '/';
+  opacity: 0.45;
+  font-weight: 900;
+}
+.sx-crumbs a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 1px;
+}
+.sx-crumbs a:hover {
+  border-bottom-color: var(--ketchup);
+}
+.sx-crumbs [aria-current='page'] {
+  opacity: 0.6;
+  /* Long product titles shouldn't push the trail onto three lines. */
+  max-width: 28ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Product pages have no pagehead band, so the trail needs its own room. */
+.sx-crumbs-bar {
+  padding-top: 1.25rem;
+}
+.sx-crumbs-bar .sx-crumbs {
+  margin-bottom: 0;
+}
+
+/* Inline link inside body copy — ketchup, underlined, no surprises. */
+.sx-inline-link {
+  color: var(--ketchup);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- Blog cards ---------- */
+.sx-blog-card__dek {
+  margin: 0;
+  padding: 0 1.1rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.sx-blog-card__meta {
+  margin: 0.6rem 0 0;
+  padding: 0 1.1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.sx-blog-card__cta {
+  display: block;
+  padding: 0.85rem 1.1rem 1.1rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ketchup);
+}
+
+/* Lead post on a blog index — image left, copy right. */
+.sx-blog-lead {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border: var(--line-thick) solid var(--ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--cream);
+  margin-bottom: 2rem;
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+@media (min-width: 900px) {
+  .sx-blog-lead {
+    grid-template-columns: 1.05fr 1fr;
+  }
+}
+.sx-blog-lead:hover {
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.sx-blog-lead__media {
+  background: var(--cream-shade);
+  border-bottom: var(--line) solid var(--ink);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+@media (min-width: 900px) {
+  .sx-blog-lead__media {
+    border-bottom: 0;
+    border-right: var(--line) solid var(--ink);
+  }
+}
+.sx-blog-lead__media img,
+.sx-blog-lead__media svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sx-blog-lead__media svg {
+  max-width: 220px;
+  padding: 2rem;
+}
+.sx-blog-lead__body {
+  padding: 1.75rem clamp(1.25rem, 3vw, 2.25rem) 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.sx-blog-lead__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  line-height: 0.95;
+  font-size: clamp(1.5rem, 3.4vw, 2.35rem);
+  margin: 0.35rem 0 0.75rem;
+}
+.sx-blog-lead__dek {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+.sx-blog-lead .sx-blog-card__meta,
+.sx-blog-lead .sx-blog-card__cta {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ---------- Policy cards ---------- */
+.sx-policy-cards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+  margin-bottom: 2.5rem;
+}
+@media (min-width: 760px) {
+  .sx-policy-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.sx-policy-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: var(--line) solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--cream);
+  padding: 1.4rem 1.35rem 1.2rem;
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+.sx-policy-card:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.sx-policy-card__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1.15rem;
+  line-height: 1.05;
+  margin: 0;
+}
+.sx-policy-card__dek {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.sx-policy-card__cta {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ketchup);
+}
+.sx-policy-help {
+  border-top: var(--line) solid var(--ink);
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  font-size: 0.95rem;
+}
+.sx-policy-help a {
+  color: var(--ketchup);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sx-policy-others {
+  margin-top: 2.5rem;
+}
+.sx-policy-others ul {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.sx-policy-others a {
+  display: inline-block;
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  padding: 0.5rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.sx-policy-others a:hover {
+  background: var(--mustard);
+}
+
+/* ---------- Collection tiles ---------- */
+.sx-collection-tile__dek {
+  margin: 0;
+  padding: 0 1.1rem 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+/* ---------- Article extras ---------- */
+.sx-article__hero {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: var(--line) solid var(--ink);
+  box-shadow: var(--shadow-hard);
+  margin-bottom: 2rem;
+  background: var(--cream-shade);
+}
+.sx-tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 2rem 0 0;
+}
+.sx-tags li {
+  border: 2px solid var(--ink);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--cream-shade);
+}
+.sx-share {
+  margin-top: 2.5rem;
+  border-top: var(--line) solid var(--ink);
+  padding-top: 1.25rem;
+}
+.sx-share__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.sx-share__link {
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  padding: 0.55rem 0.9rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+.sx-share__link:hover {
+  background: var(--mustard);
+}
+.sx-article__nav {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+@media (min-width: 760px) {
+  .sx-article__nav {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.sx-article__nav-link {
+  display: block;
+  border: var(--line) solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--cream);
+  padding: 1rem 1.15rem;
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+.sx-article__nav-link:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.sx-article__nav-link--next {
+  text-align: right;
+}
+.sx-article__nav-title {
+  display: block;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 1rem;
+  line-height: 1.1;
+  margin-top: 0.35rem;
+}
+.sx-article__more {
+  margin-top: 2.5rem;
+}
+.sx-article__more ul {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+.sx-article__more a {
+  font-weight: 800;
+  color: var(--ketchup);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sx-article__more-dek {
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  opacity: 0.75;
+  margin-top: 0.15rem;
+}
+.sx-jcard__date {
+  margin-top: auto;
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+/* ---------- 404 / error states ---------- */
+.sx-404__search {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0 auto 1.5rem;
+  max-width: 30rem;
+}
+.sx-404__search input {
+  flex: 1 1 14rem;
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  padding: 0.9rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+.sx-404__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+.sx-404__details {
+  margin-top: 2rem;
+  text-align: left;
+  max-width: 46rem;
+  font-size: 0.85rem;
+}
+.sx-404__details summary {
+  cursor: pointer;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+}
+.sx-404__details pre {
+  margin-top: 0.75rem;
+  padding: 1rem;
+  border: var(--line) solid var(--ink);
+  background: var(--cream-shade);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- Header account link ---------- */
+.sx-account-link {
+  font-family: var(--font-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.sx-account-link:hover,
+.sx-account-link.active {
+  border-bottom-color: var(--ketchup);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-blog-lead,
+  .sx-policy-card,
+  .sx-article__nav-link {
+    transition: none;
+  }
+  .sx-blog-lead:hover,
+  .sx-policy-card:hover,
+  .sx-article__nav-link:hover {
+    transform: none;
+  }
+}
+
+/* Cards in a row are now uneven (image / no image, long / short dek), so make
+   each one a full-height column and pin the CTA to the bottom edge. */
+.sx-blog-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.sx-blog-card__cta {
+  margin-top: auto;
+}
+.sx-blog-grid {
+  align-items: stretch;
+}
+@media (min-width: 1080px) {
+  .sx-blog-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

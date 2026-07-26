@@ -18,6 +18,7 @@ import appStyles from '~/styles/app.css?url';
 import schmucksStyles from '~/styles/schmucks.css?url';
 import {PageLayout} from './components/PageLayout';
 import {MelShrug} from '~/components/brand/Brand';
+import {pageMeta} from '~/lib/seo';
 
 export type RootLoader = typeof loader;
 
@@ -91,6 +92,8 @@ export async function loader(args: Route.LoaderArgs) {
   return {
     ...deferredData,
     ...criticalData,
+    // Absolute origin so meta functions can emit canonical/OG URLs.
+    origin: new URL(args.request.url).origin,
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
     shop: getShopAnalytics({
       storefront,
@@ -155,26 +158,47 @@ function loadDeferredData({context}: Route.LoaderArgs) {
   };
 }
 
-const ORG_JSONLD = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'Organization',
-      name: 'SCHMUCKS',
-      description:
-        'Fine Apparel for Idiots — funny graphic tees printed to order on heavyweight cotton.',
-      slogan: 'Fine Apparel for Idiots',
-    },
-    {
-      '@type': 'WebSite',
-      name: 'SCHMUCKS',
-      description: 'Funny graphic tees, $25 flat, printed to order.',
-    },
-  ],
-};
+/** Site-wide defaults; any route exporting `meta` replaces these entirely. */
+export const meta: Route.MetaFunction = (args) => pageMeta(args);
+
+function orgJsonLd(origin?: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        name: 'SCHMUCKS',
+        description:
+          'Fine Apparel for Idiots — funny graphic tees printed to order on heavyweight cotton.',
+        slogan: 'Fine Apparel for Idiots',
+        ...(origin ? {url: origin, logo: `${origin}/apple-touch-icon.png`} : {}),
+      },
+      {
+        '@type': 'WebSite',
+        name: 'SCHMUCKS',
+        description: 'Funny graphic tees, $25 flat, printed to order.',
+        ...(origin
+          ? {
+              url: origin,
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: {
+                  '@type': 'EntryPoint',
+                  urlTemplate: `${origin}/search?q={search_term_string}`,
+                },
+                'query-input': 'required name=search_term_string',
+              },
+            }
+          : {}),
+      },
+    ],
+  };
+}
 
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
+  // Absent while an error boundary renders — the JSON-LD just degrades.
+  const rootData = useRouteLoaderData<RootLoader>('root');
 
   return (
     <html lang="en">
@@ -182,10 +206,6 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <meta name="theme-color" content="#F2B33D" />
-        <meta property="og:site_name" content="SCHMUCKS" />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta property="og:image" content="/apple-touch-icon.png" />
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
         <link rel="stylesheet" href={schmucksStyles}></link>
@@ -194,7 +214,9 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <script
           type="application/ld+json"
           nonce={nonce}
-          dangerouslySetInnerHTML={{__html: JSON.stringify(ORG_JSONLD)}}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(orgJsonLd(rootData?.origin)),
+          }}
         />
       </head>
       <body>
@@ -242,32 +264,80 @@ export function ErrorBoundary() {
   }
 
   if (errorStatus === 404) {
-    return (
-      <div className="sx-404">
-        <div>
-          <MelShrug className="sx-404__mel" />
-          <div className="sx-404__code sx-display">404</div>
-          <p className="sx-404__msg">
-            Mel looked everywhere. This page isn&rsquo;t here. Honestly, that
-            tracks.
-          </p>
-          <a className="sx-btn" href="/">
-            Back to the good stuff
-          </a>
-        </div>
-      </div>
-    );
+    return <NotFound />;
   }
 
   return (
-    <div className="route-error">
-      <h1 className="sx-display">Well, this is embarrassing.</h1>
-      <h2>{errorStatus}</h2>
-      {errorMessage && (
-        <fieldset>
-          <pre>{errorMessage}</pre>
-        </fieldset>
-      )}
+    <div className="sx-404">
+      <div>
+        <MelShrug className="sx-404__mel" />
+        <div className="sx-404__code sx-display">{errorStatus}</div>
+        <p className="sx-404__msg">
+          Something broke on our end. Mel has been told. Nothing you did caused
+          this, which is the one comforting part.
+        </p>
+        <div className="sx-404__links">
+          <a className="sx-btn sx-btn--ketchup" href="/">
+            Back to the shop
+          </a>
+          <a className="sx-btn sx-btn--ghost" href="/pages/contact">
+            Tell us what happened
+          </a>
+        </div>
+        {errorMessage && errorMessage !== 'Unknown error' ? (
+          <details className="sx-404__details">
+            <summary>Technical bit, for the curious</summary>
+            <pre>{errorMessage}</pre>
+          </details>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Shared 404 body — used by the root error boundary and the `$` catch-all so a
+ * missing URL always lands somewhere useful instead of a dead end.
+ */
+export function NotFound({
+  title = '404',
+  message = 'Mel looked everywhere. This page isn’t here. Honestly, that tracks.',
+}: {
+  title?: string;
+  message?: string;
+}) {
+  return (
+    <div className="sx-404">
+      <div>
+        <MelShrug className="sx-404__mel" />
+        <div className="sx-404__code sx-display">{title}</div>
+        <p className="sx-404__msg">{message}</p>
+        <form className="sx-404__search" action="/search" method="get">
+          <label className="sx-visually-hidden" htmlFor="notfound-search">
+            Search the shop
+          </label>
+          <input
+            id="notfound-search"
+            name="q"
+            type="search"
+            placeholder="Search for a shirt…"
+          />
+          <button type="submit" className="sx-btn">
+            Search
+          </button>
+        </form>
+        <div className="sx-404__links">
+          <a className="sx-btn sx-btn--ketchup" href="/tees">
+            Shop all tees
+          </a>
+          <a className="sx-btn sx-btn--ghost" href="/matching-sets">
+            Matching sets
+          </a>
+          <a className="sx-btn sx-btn--ghost" href="/pages/faq">
+            FAQ
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

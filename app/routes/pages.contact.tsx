@@ -1,22 +1,22 @@
 import {useState} from 'react';
 import type {Route} from './+types/pages.contact';
+import {pageMeta} from '~/lib/seo';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'Contact — SCHMUCKS'},
-    {
-      name: 'description',
-      content:
-        'Get in touch with Schmucks. Order questions, complaints, and unsolicited jokes welcome.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Contact',
+    description:
+      'Get in touch with Schmucks. Order questions, complaints, and unsolicited jokes welcome.',
+    path: '/pages/contact',
+  });
 
 export default function ContactPage() {
   return (
     <div className="sx-contact">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'Contact'}]} />
           <p className="sx-pagehead__eyebrow">Talk to a Schmuck</p>
           <h1 className="sx-pagehead__title">Contact</h1>
           <p className="sx-pagehead__desc">

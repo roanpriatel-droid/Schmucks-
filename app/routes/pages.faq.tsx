@@ -1,15 +1,14 @@
 import type {Route} from './+types/pages.faq';
+import {pageMeta} from '~/lib/seo';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'FAQ — SCHMUCKS'},
-    {
-      name: 'description',
-      content:
-        'Frequently asked questions about Schmucks shirts: shipping, sizing, returns, and the Stack & Save discount.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'FAQ',
+    description:
+      'Frequently asked questions about Schmucks shirts: shipping, sizing, returns, and the Stack & Save discount.',
+    path: '/pages/faq',
+  });
 
 const FAQS = [
   {
@@ -60,6 +59,7 @@ export default function FAQPage() {
       />
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'FAQ'}]} />
           <p className="sx-pagehead__eyebrow">Answers, Reluctantly</p>
           <h1 className="sx-pagehead__title">FAQ</h1>
           <p className="sx-pagehead__desc">

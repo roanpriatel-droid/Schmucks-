@@ -3,10 +3,15 @@ import type {Route} from './+types/cart';
 import type {CartQueryDataReturn} from '@shopify/hydrogen';
 import {CartForm} from '@shopify/hydrogen';
 import {CartMain} from '~/components/CartMain';
+import {pageMeta} from '~/lib/seo';
 
-export const meta: Route.MetaFunction = () => {
-  return [{title: `Your Terrible Decisions — SCHMUCKS`}];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Your Terrible Decisions',
+    description: 'Everything you have decided to buy, in one regrettable list.',
+    path: '/cart',
+    noindex: true,
+  });
 
 export const headers: HeadersFunction = ({actionHeaders}) => actionHeaders;
 

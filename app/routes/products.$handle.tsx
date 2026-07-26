@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from 'react';
-import {useLoaderData, Link} from 'react-router';
+import {useLoaderData, Link, useRouteLoaderData} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {track} from '~/lib/analytics';
 import {
@@ -20,24 +20,22 @@ import {StickyAddToCart} from '~/components/product/StickyAddToCart';
 import {Reveal} from '~/components/Reveal';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {pageMeta, toDescription} from '~/lib/seo';
 
-export const meta: Route.MetaFunction = ({data}) => {
-  const p = data?.product;
-  return [
-    {title: `${p?.title ?? 'Shirt'} — SCHMUCKS`},
-    {
-      name: 'description',
-      content: p?.description
-        ? p.description.slice(0, 155)
-        : `${p?.title ?? 'A Schmucks tee'} — heavyweight unisex graphic tee, $25 flat, S–3XL, printed to order.`,
-    },
-    {rel: 'canonical', href: `/products/${p?.handle}`},
-    {property: 'og:title', content: p?.title ?? 'SCHMUCKS'},
-    {property: 'og:type', content: 'product'},
-    ...(p?.featuredImage?.url
-      ? [{property: 'og:image', content: p.featuredImage.url}]
-      : []),
-  ];
+export const meta: Route.MetaFunction = (args) => {
+  const p = args.data?.product;
+  return pageMeta(args, {
+    title: p?.seo?.title || p?.title || 'Shirt',
+    description:
+      toDescription(p?.seo?.description) ??
+      toDescription(p?.description) ??
+      `${p?.title ?? 'A Schmucks tee'} — heavyweight unisex graphic tee, $25 flat, S–3XL, printed to order.`,
+    image: p?.featuredImage?.url,
+    type: 'product',
+    // Variant selections live in the query string; canonicalise to the product.
+    path: p?.handle ? `/products/${p.handle}` : undefined,
+  });
 };
 
 export async function loader(args: Route.LoaderArgs) {
@@ -132,17 +130,26 @@ export default function Product() {
     (o) => o.name.toLowerCase() === 'size',
   );
 
+  const root = useRouteLoaderData<{origin?: string}>('root');
+  const productUrl = root?.origin
+    ? `${root.origin}/products/${product.handle}`
+    : undefined;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
-    description: product.description || `${product.title} — a Schmucks graphic tee.`,
+    description:
+      product.description || `${product.title} — a Schmucks graphic tee.`,
     image: galleryImages.map((i) => i?.url).filter(Boolean),
     brand: {'@type': 'Brand', name: 'SCHMUCKS'},
+    ...(productUrl ? {url: productUrl} : {}),
     offers: {
       '@type': 'Offer',
       price: selectedVariant?.price?.amount ?? '25.00',
       priceCurrency: selectedVariant?.price?.currencyCode ?? 'USD',
+      itemCondition: 'https://schema.org/NewCondition',
+      ...(productUrl ? {url: productUrl} : {}),
       availability: selectedVariant?.availableForSale
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
@@ -155,6 +162,11 @@ export default function Product() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{__html: JSON.stringify(jsonLd)}}
       />
+      <div className="sx-wrap sx-crumbs-bar">
+        <Breadcrumbs
+          crumbs={[{label: 'Tees', to: '/tees'}, {label: product.title}]}
+        />
+      </div>
       <div className="sx-product sx-wrap">
         <div>
           <ProductGallery images={galleryImages} title={title} />

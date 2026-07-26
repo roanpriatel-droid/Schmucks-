@@ -8,10 +8,17 @@ import {
   catalogSortArgs,
 } from '~/components/CollectionControls';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {EmptyProducts} from '~/components/EmptyProducts';
+import {pageMeta} from '~/lib/seo';
 
-export const meta: Route.MetaFunction = () => {
-  return [{title: `Shop All — SCHMUCKS`}];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Shop All',
+    description:
+      'The whole menu — every SCHMUCKS design committed to cotton. $25 flat, unisex S–3XL, printed to order.',
+    path: '/collections/all',
+  });
 
 export async function loader(args: Route.LoaderArgs) {
   // Start fetching non-critical data without blocking time to first byte
@@ -60,6 +67,12 @@ export default function Collection() {
     <div className="sx-collection">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs
+            crumbs={[
+              {label: 'Collections', to: '/collections'},
+              {label: 'Shop All'},
+            ]}
+          />
           <p className="sx-pagehead__eyebrow">Everything We Make</p>
           <h1 className="sx-pagehead__title">Shop All</h1>
           <p className="sx-pagehead__desc">
@@ -70,19 +83,25 @@ export default function Collection() {
       </section>
       <section className="sx-shop">
         <div className="sx-wrap">
-          <CollectionControls count={products.nodes.length} sort={sort} />
-          <PaginatedResourceSection<CollectionItemFragment>
-            connection={products}
-            resourcesClassName="sx-grid"
-          >
-            {({node: product, index}) => (
-              <ProductItem
-                key={product.id}
-                product={product}
-                loading={index < 8 ? 'eager' : undefined}
-              />
-            )}
-          </PaginatedResourceSection>
+          {products.nodes.length ? (
+            <>
+              <CollectionControls count={products.nodes.length} sort={sort} />
+              <PaginatedResourceSection<CollectionItemFragment>
+                connection={products}
+                resourcesClassName="sx-grid"
+              >
+                {({node: product, index}) => (
+                  <ProductItem
+                    key={product.id}
+                    product={product}
+                    loading={index < 8 ? 'eager' : undefined}
+                  />
+                )}
+              </PaginatedResourceSection>
+            </>
+          ) : (
+            <EmptyProducts message="No products are published yet. The printers are, presumably, warming up." />
+          )}
         </div>
       </section>
     </div>

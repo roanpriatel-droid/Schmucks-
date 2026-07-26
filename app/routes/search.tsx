@@ -12,10 +12,17 @@ import type {
   RegularSearchQuery,
   PredictiveSearchQuery,
 } from 'storefrontapi.generated';
+import {pageMeta} from '~/lib/seo';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
 
-export const meta: Route.MetaFunction = () => {
-  return [{title: `Search — SCHMUCKS`}];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Search',
+    description:
+      'Search every Schmucks shirt by name, joke, or vague memory of the one you saw once.',
+    path: '/search',
+    noindex: true,
+  });
 
 export async function loader({request, context}: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -44,6 +51,7 @@ export default function SearchPage() {
     <div className="sx-search">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'Search'}]} />
           <p className="sx-pagehead__eyebrow">Find Your Poison</p>
           <h1 className="sx-pagehead__title">Search</h1>
         </div>

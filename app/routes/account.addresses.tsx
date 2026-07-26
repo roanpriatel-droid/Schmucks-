@@ -17,6 +17,7 @@ import {
   DELETE_ADDRESS_MUTATION,
   CREATE_ADDRESS_MUTATION,
 } from '~/graphql/customer-account/CustomerAddressMutations';
+import {pageMeta} from '~/lib/seo';
 
 export type ActionResponse = {
   addressId?: string | null;
@@ -27,9 +28,8 @@ export type ActionResponse = {
   updatedAddress?: AddressFragment;
 };
 
-export const meta: Route.MetaFunction = () => {
-  return [{title: 'Addresses'}];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {title: 'Addresses', noindex: true});
 
 export async function loader({context}: Route.LoaderArgs) {
   await context.customerAccount.handleAuthStatus();

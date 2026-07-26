@@ -2,23 +2,23 @@ import type {Route} from './+types/pages.about';
 import {Link} from 'react-router';
 import {Mel, Badge} from '~/components/brand/Brand';
 import {Reveal} from '~/components/Reveal';
+import {pageMeta} from '~/lib/seo';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'About — SCHMUCKS'},
-    {
-      name: 'description',
-      content:
-        'SCHMUCKS makes funny graphic tees on genuinely good cotton. Fine apparel for idiots — the joke is free, the quality is not an accident.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'About',
+    description:
+      'SCHMUCKS makes funny graphic tees on genuinely good cotton. Fine apparel for idiots — the joke is free, the quality is not an accident.',
+    path: '/pages/about',
+  });
 
 export default function About() {
   return (
     <div className="sx-about">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'About'}]} />
           <p className="sx-pagehead__eyebrow">Our Whole Deal</p>
           <h1 className="sx-pagehead__title">Fine Apparel for Idiots</h1>
           <p className="sx-pagehead__desc">
@@ -102,7 +102,7 @@ export default function About() {
             </p>
             <p>
               And we do not fake things. No invented five-star reviews, no fake
-              scarcity timers, no "as seen in" logos we made up. If we claim it,
+              scarcity timers, no &ldquo;as seen in&rdquo; logos we made up. If we claim it,
               it is true. That is a low bar, and we are proud of how many brands
               trip over it.
             </p>

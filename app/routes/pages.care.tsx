@@ -1,16 +1,15 @@
 import type {Route} from './+types/pages.care';
 import {Link} from 'react-router';
+import {pageMeta} from '~/lib/seo';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'Care Guide — SCHMUCKS'},
-    {
-      name: 'description',
-      content:
-        'How to keep your Schmucks tee (and its print) looking sharp: cold wash, inside out, hang dry, no ironing the graphic.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Care Guide',
+    description:
+      'How to keep your Schmucks tee (and its print) looking sharp: cold wash, inside out, hang dry, no ironing the graphic.',
+    path: '/pages/care',
+  });
 
 const CARE = [
   {icon: '🧊', title: 'Wash Cold', note: 'Cold water, gentle cycle. Heat is what fades prints and shrinks cotton. Cold keeps both honest.'},
@@ -26,6 +25,7 @@ export default function Care() {
     <div className="sx-care-page">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'Care Guide'}]} />
           <p className="sx-pagehead__eyebrow">Care Guide</p>
           <h1 className="sx-pagehead__title">Keep It Looking Dumb</h1>
           <p className="sx-pagehead__desc">

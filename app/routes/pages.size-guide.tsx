@@ -2,17 +2,16 @@ import {useState} from 'react';
 import type {Route} from './+types/pages.size-guide';
 import {Link} from 'react-router';
 import {SIZES} from '~/data/sizing';
+import {pageMeta} from '~/lib/seo';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'Size & Fit Guide — SCHMUCKS'},
-    {
-      name: 'description',
-      content:
-        'Measurements, fit descriptions, and a find-my-size helper for Schmucks unisex tees (S–3XL). True to size — size up for an oversized drape.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Size & Fit Guide',
+    description:
+      'Measurements, fit descriptions, and a find-my-size helper for Schmucks unisex tees (S–3XL). True to size — size up for an oversized drape.',
+    path: '/pages/size-guide',
+  });
 
 const FITS = [
   {name: 'True to Size', body: 'Take your normal size for a clean, relaxed fit that skims the body without clinging. This is how we cut it.'},
@@ -25,6 +24,7 @@ export default function SizeGuide() {
     <div className="sx-sizeguide">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'Size & Fit'}]} />
           <p className="sx-pagehead__eyebrow">Size &amp; Fit</p>
           <h1 className="sx-pagehead__title">Find Your Size</h1>
           <p className="sx-pagehead__desc">
@@ -60,9 +60,9 @@ export default function SizeGuide() {
                 {SIZES.map((s) => (
                   <tr key={s.size}>
                     <td>{s.size}</td>
-                    <td>{s.chest}"</td>
-                    <td>{s.length}"</td>
-                    <td>{s.sleeve}"</td>
+                    <td>{s.chest}&Prime;</td>
+                    <td>{s.length}&Prime;</td>
+                    <td>{s.sleeve}&Prime;</td>
                   </tr>
                 ))}
               </tbody>

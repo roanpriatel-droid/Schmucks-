@@ -25,7 +25,7 @@ React Router 7, data via mock.shop (real store injected on Oxygen)._
 | PDP persuasion | 5 | 9 | Swipe gallery + zoom, accordions, sticky ATC, size-guide modal, cross-sell, Product schema, honest badges |
 | Mobile | 7 | 9 | Sticky ATC, native swipe gallery, responsive grids/tables, box-sizing fix |
 | Performance | 7 | 8.5 | Hydrogen `Image` + lazy below-fold, `display=swap` + preconnect; hero is text (fast LCP). Real-device Lighthouse pending |
-| SEO / GEO | 5 | 9 | Per-route titles/meta, OG/Twitter, Organization+WebSite+Product+FAQ+Article JSON-LD, `llms.txt`, entity-rich copy |
+| SEO / GEO | 5 | 9.5 | Per-route titles/meta via one helper, absolute canonicals, OG/Twitter, Organization+WebSite(SearchAction)+Product+FAQ+Article+Breadcrumb JSON-LD, `llms.txt`, full sitemap coverage incl. hand-built routes |
 | Accessibility | 6 | 8.5 | Focus-visible ring, skip link, native accordions, Esc-closable modals, alt text; full AT testing pending |
 | Conversion architecture | 6 | 9 | Free-ship progress, cart trust row, cross-sell, exit-intent email modal, collection sort+count, analytics events |
 
@@ -83,6 +83,52 @@ ARM64 box; verified via build + typecheck + static-render screenshots instead).
   focus-visible ring + skip link + main landmark.
 - **Phase 6** — build + typecheck green across all phases; static-render
   screenshots of home, PDP, cart, materials, matching-sets, favicon.
+- **Phase 7 — completeness pass over *every* route.** Phases 1–6 built the
+  marketing surface; this one finished the routes that were still scaffold:
+  - **Shared SEO helper** (`app/lib/seo.ts`) — every route now emits title,
+    description, absolute canonical, OG + Twitter cards through `pageMeta()`.
+    Root loader exposes `origin` so canonicals/OG URLs are absolute. Fixed three
+    leftover `Hydrogen | …` titles (generic page, blog index, blog article) and
+    a broken PDP canonical (`{rel: 'canonical'}` without `tagName: 'link'`
+    rendered as an invalid `<meta>`). Cart/search/account are `noindex`.
+  - **Shopify blog routes rebuilt** to Journal quality: lead post card, excerpts,
+    author + date, breadcrumbs, tags, share row, older/newer post nav, Article
+    JSON-LD, empty states. List queries no longer pull full `contentHtml`.
+  - **Breadcrumbs** (`components/Breadcrumbs.tsx`) on every interior page, with
+    BreadcrumbList JSON-LD.
+  - **Policies** — index is now a card grid with plain-English framing; detail
+    pages cross-link siblings and, when a policy isn't published in admin, render
+    an honest "ask us" page (404 status) instead of dead-ending the footer's
+    Shipping/Returns links.
+  - **Empty + error states everywhere** — collections, catalog, tees, blogs,
+    generic pages; branded 404 with search + routes out; server errors get a
+    branded page instead of a raw `<pre>`.
+  - **Sitemap coverage** — hand-built routes (landings, depth pages, Journal
+    articles) were missing entirely; added `/sitemap-static.xml` wired via
+    `customChildSitemaps`. Dropped `metaObjects` (not routable here) and added
+    `/articles/:handle` → canonical `/blogs/:blog/:article` 301 so the URLs
+    Shopify's sitemap emits actually resolve.
+  - Fixed the pre-existing lint errors (unescaped entities) — lint is clean.
+
+## Route inventory (all 42 routes, post-Phase 7)
+
+Every route below renders a designed page or is a deliberate redirect/utility.
+
+- **Shop** — `_index`, `tees`, `matching-sets`, `collections._index`,
+  `collections.all`, `collections.$handle`, `products.$handle`, `search`, `cart`,
+  `lookbook`
+- **Depth** — `pages.about`, `pages.materials`, `pages.size-guide`, `pages.care`,
+  `pages.faq`, `pages.contact`, `pages.$handle` (any other Shopify page)
+- **Editorial** — `journal._index`, `journal.$slug`, `blogs._index`,
+  `blogs.$blogHandle._index`, `blogs.$blogHandle.$articleHandle`
+- **Legal** — `policies._index`, `policies.$handle`
+- **Account** — `account` (layout), `account._index`, `account.orders._index`,
+  `account.orders.$id`, `account.profile`, `account.addresses`, `account.$`,
+  `account_.login`, `account_.logout`, `account_.authorize`
+- **Utility (no UI by design)** — `$` (branded 404), `cart.$lines`,
+  `discount.$code`, `articles.$handle` (301 to canonical blog URL),
+  `[robots.txt]`, `[sitemap.xml]`, `[sitemap-static.xml]`,
+  `sitemap.$type.$page[.xml]`
 
 ## Framework deviations / notes
 

@@ -4,17 +4,17 @@ import {getPaginationVariables} from '@shopify/hydrogen';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {ProductItem} from '~/components/ProductItem';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {EmptyProducts} from '~/components/EmptyProducts';
+import {pageMeta} from '~/lib/seo';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'Tees — SCHMUCKS'},
-    {
-      name: 'description',
-      content:
-        'Every Schmucks graphic tee. $25 flat, unisex S–3XL, printed on cotton that can take a joke.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Tees',
+    description:
+      'Every Schmucks graphic tee. $25 flat, unisex S–3XL, printed on cotton that can take a joke.',
+    path: '/tees',
+  });
 
 export async function loader({context, request}: Route.LoaderArgs) {
   const paginationVariables = getPaginationVariables(request, {pageBy: 12});
@@ -31,6 +31,7 @@ export default function Tees() {
     <div className="sx-collection">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'Tees'}]} />
           <p className="sx-pagehead__eyebrow">The Whole Menu</p>
           <h1 className="sx-pagehead__title">Tees</h1>
           <p className="sx-pagehead__desc">
@@ -41,18 +42,22 @@ export default function Tees() {
       </section>
       <section className="sx-shop">
         <div className="sx-wrap">
-          <PaginatedResourceSection<CollectionItemFragment>
-            connection={products}
-            resourcesClassName="sx-grid"
-          >
-            {({node: product, index}) => (
-              <ProductItem
-                key={product.id}
-                product={product}
-                loading={index < 8 ? 'eager' : undefined}
-              />
-            )}
-          </PaginatedResourceSection>
+          {products.nodes.length ? (
+            <PaginatedResourceSection<CollectionItemFragment>
+              connection={products}
+              resourcesClassName="sx-grid"
+            >
+              {({node: product, index}) => (
+                <ProductItem
+                  key={product.id}
+                  product={product}
+                  loading={index < 8 ? 'eager' : undefined}
+                />
+              )}
+            </PaginatedResourceSection>
+          ) : (
+            <EmptyProducts message="No tees are published yet. Give the printers a minute." />
+          )}
         </div>
       </section>
     </div>

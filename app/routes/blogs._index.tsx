@@ -1,14 +1,21 @@
 import {Link, useLoaderData} from 'react-router';
 import type {Route} from './+types/blogs._index';
-import {getPaginationVariables} from '@shopify/hydrogen';
+import {getPaginationVariables, Image} from '@shopify/hydrogen';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {Reveal} from '~/components/Reveal';
+import {MelShrug} from '~/components/brand/Brand';
+import {pageMeta, toDescription} from '~/lib/seo';
 import type {BlogsQuery} from 'storefrontapi.generated';
 
 type BlogNode = BlogsQuery['blogs']['nodes'][0];
 
-export const meta: Route.MetaFunction = () => {
-  return [{title: `The Deli Counter — SCHMUCKS`}];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'The Deli Counter',
+    description:
+      'Drop announcements, behind-the-scenes, and the occasional bad idea in long form. Every SCHMUCKS blog in one place.',
+  });
 
 export async function loader(args: Route.LoaderArgs) {
   // Start fetching non-critical data without blocking time to first byte
@@ -50,41 +57,103 @@ function loadDeferredData({context}: Route.LoaderArgs) {
   return {};
 }
 
+function fmt(iso?: string | null) {
+  if (!iso) return null;
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(iso));
+}
+
 export default function Blogs() {
   const {blogs} = useLoaderData<typeof loader>();
+  const hasBlogs = blogs.nodes.length > 0;
 
   return (
     <div className="sx-blogs">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'The Deli Counter'}]} />
           <p className="sx-pagehead__eyebrow">Words, For Some Reason</p>
           <h1 className="sx-pagehead__title">The Deli Counter</h1>
           <p className="sx-pagehead__desc">
             Drop announcements, behind-the-scenes, and the occasional bad idea
-            in long form.
+            in long form. Looking for styling and materials writing instead?
+            That lives in{' '}
+            <Link className="sx-inline-link" to="/journal">
+              the Journal
+            </Link>
+            .
           </p>
         </div>
       </section>
       <section className="sx-shop">
         <div className="sx-wrap">
-          <PaginatedResourceSection<BlogNode>
-            connection={blogs}
-            resourcesClassName="sx-blog-grid"
-          >
-            {({node: blog}) => (
-              <Link
-                className="sx-blog-card"
-                key={blog.handle}
-                prefetch="intent"
-                to={`/blogs/${blog.handle}`}
-              >
-                <h2 className="sx-blog-card__title">{blog.title}</h2>
-              </Link>
-            )}
-          </PaginatedResourceSection>
+          {hasBlogs ? (
+            <PaginatedResourceSection<BlogNode>
+              connection={blogs}
+              resourcesClassName="sx-blog-grid"
+            >
+              {({node: blog, index}) => (
+                <BlogCard key={blog.handle} blog={blog} index={index} />
+              )}
+            </PaginatedResourceSection>
+          ) : (
+            <div className="sx-empty-note">
+              <MelShrug className="sx-empty-note__mel" />
+              <p>
+                Nothing published here yet. Mel is still deciding what&rsquo;s
+                worth saying.
+              </p>
+              <p>
+                The <Link to="/journal">Journal</Link> has plenty to read in the
+                meantime, or go <Link to="/tees">look at the shirts</Link>.
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </div>
+  );
+}
+
+function BlogCard({blog, index}: {blog: BlogNode; index: number}) {
+  const latest = blog.articles?.nodes?.[0];
+  const description =
+    toDescription(blog.seo?.description) ??
+    toDescription(latest?.excerpt) ??
+    'Read the latest from the counter.';
+  const latestDate = fmt(latest?.publishedAt);
+
+  return (
+    <Reveal>
+      <Link
+        className="sx-blog-card"
+        prefetch="intent"
+        to={`/blogs/${blog.handle}`}
+      >
+        {latest?.image ? (
+          <div className="sx-blog-card__media">
+            <Image
+              alt={latest.image.altText || blog.title}
+              aspectRatio="3/2"
+              data={latest.image}
+              loading={index < 2 ? 'eager' : 'lazy'}
+              sizes="(min-width: 768px) 50vw, 100vw"
+            />
+          </div>
+        ) : null}
+        <h2 className="sx-blog-card__title">{blog.title}</h2>
+        <p className="sx-blog-card__dek">{description}</p>
+        <p className="sx-blog-card__meta">
+          {latest
+            ? `Latest: ${latest.title}${latestDate ? ` · ${latestDate}` : ''}`
+            : 'No posts yet'}
+        </p>
+        <span className="sx-blog-card__cta">Read the posts →</span>
+      </Link>
+    </Reveal>
   );
 }
 
@@ -116,6 +185,22 @@ const BLOGS_QUERY = `#graphql
         seo {
           title
           description
+        }
+        articles(first: 1, sortKey: PUBLISHED_AT, reverse: true) {
+          nodes {
+            id
+            title
+            handle
+            publishedAt
+            excerpt
+            image {
+              id
+              altText
+              url
+              width
+              height
+            }
+          }
         }
       }
     }

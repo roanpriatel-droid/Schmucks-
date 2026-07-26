@@ -8,17 +8,14 @@ import {StackLadder} from '~/components/home/StackLadder';
 import {Mel, Badge} from '~/components/brand/Brand';
 import {Reveal} from '~/components/Reveal';
 import {track} from '~/lib/analytics';
+import {pageMeta} from '~/lib/seo';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'SCHMUCKS — Fine Apparel for Idiots'},
-    {
-      name: 'description',
-      content:
-        'Funny, slightly inappropriate graphic tees for a proud community of idiots. $25 flat. New Schmuck drops weekly.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    description:
+      'Funny, slightly inappropriate graphic tees for a proud community of idiots. $25 flat. New Schmuck drops weekly.',
+    path: '/',
+  });
 
 export async function loader(args: Route.LoaderArgs) {
   const criticalData = await loadCriticalData(args);

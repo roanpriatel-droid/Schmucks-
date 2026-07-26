@@ -38,9 +38,9 @@ export function SizeGuideModal({onClose}: {onClose: () => void}) {
               {SIZES.map((s) => (
                 <tr key={s.size}>
                   <td>{s.size}</td>
-                  <td>{s.chest}"</td>
-                  <td>{s.length}"</td>
-                  <td>{s.sleeve}"</td>
+                  <td>{s.chest}&Prime;</td>
+                  <td>{s.length}&Prime;</td>
+                  <td>{s.sleeve}&Prime;</td>
                 </tr>
               ))}
             </tbody>

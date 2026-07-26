@@ -9,9 +9,26 @@ import {
   collectionSortArgs,
 } from '~/components/CollectionControls';
 import type {ProductItemFragment} from 'storefrontapi.generated';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {EmptyProducts} from '~/components/EmptyProducts';
+import {pageMeta, toDescription} from '~/lib/seo';
 
-export const meta: Route.MetaFunction = ({data}) => {
-  return [{title: `${data?.collection.title ?? 'Shop'} — SCHMUCKS`}];
+export const meta: Route.MetaFunction = (args) => {
+  const collection = args.data?.collection;
+  return pageMeta(args, {
+    title: collection?.seo?.title || collection?.title || 'Shop',
+    description:
+      toDescription(collection?.seo?.description) ??
+      toDescription(collection?.description) ??
+      (collection?.title
+        ? `${collection.title} from SCHMUCKS — $25 flat, unisex S–3XL, printed to order.`
+        : undefined),
+    image: collection?.image?.url,
+    // Sorted views are the same products in a different order.
+    path: args.data?.sort && args.data.sort !== 'featured'
+      ? `/collections/${collection?.handle}`
+      : undefined,
+  });
 };
 
 export async function loader(args: Route.LoaderArgs) {
@@ -74,11 +91,18 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
 export default function Collection() {
   const {collection, sort} = useLoaderData<typeof loader>();
+  const hasProducts = collection.products.nodes.length > 0;
 
   return (
     <div className="sx-collection">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs
+            crumbs={[
+              {label: 'Collections', to: '/collections'},
+              {label: collection.title},
+            ]}
+          />
           <p className="sx-pagehead__eyebrow">The Menu Board</p>
           <h1 className="sx-pagehead__title">{collection.title}</h1>
           <p className="sx-pagehead__desc">
@@ -89,22 +113,30 @@ export default function Collection() {
       </section>
       <section className="sx-shop">
         <div className="sx-wrap">
-          <CollectionControls
-            count={collection.products.nodes.length}
-            sort={sort}
-          />
-          <PaginatedResourceSection<ProductItemFragment>
-            connection={collection.products}
-            resourcesClassName="sx-grid"
-          >
-            {({node: product, index}) => (
-              <ProductItem
-                key={product.id}
-                product={product}
-                loading={index < 8 ? 'eager' : undefined}
+          {hasProducts ? (
+            <>
+              <CollectionControls
+                count={collection.products.nodes.length}
+                sort={sort}
               />
-            )}
-          </PaginatedResourceSection>
+              <PaginatedResourceSection<ProductItemFragment>
+                connection={collection.products}
+                resourcesClassName="sx-grid"
+              >
+                {({node: product, index}) => (
+                  <ProductItem
+                    key={product.id}
+                    product={product}
+                    loading={index < 8 ? 'eager' : undefined}
+                  />
+                )}
+              </PaginatedResourceSection>
+            </>
+          ) : (
+            <EmptyProducts
+              message={`Nothing is in ${collection.title} right now. Either it sold out or we got cold feet.`}
+            />
+          )}
         </div>
       </section>
       <Analytics.CollectionView
@@ -174,6 +206,17 @@ const COLLECTION_QUERY = `#graphql
       handle
       title
       description
+      seo {
+        title
+        description
+      }
+      image {
+        id
+        url
+        altText
+        width
+        height
+      }
       products(
         first: $first,
         last: $last,

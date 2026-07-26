@@ -1,17 +1,16 @@
 import type {Route} from './+types/pages.materials';
 import {Link} from 'react-router';
 import {Reveal} from '~/components/Reveal';
+import {pageMeta} from '~/lib/seo';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'Materials & Construction — SCHMUCKS'},
-    {
-      name: 'description',
-      content:
-        'What goes into a Schmucks tee: ~180 gsm heavyweight ringspun cotton, ribbed collar, double-needle hems, and soft-hand prints built to survive the wash.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Materials & Construction',
+    description:
+      'What goes into a Schmucks tee: ~180 gsm heavyweight ringspun cotton, ribbed collar, double-needle hems, and soft-hand prints built to survive the wash.',
+    path: '/pages/materials',
+  });
 
 const SPECS = [
   {num: '~180', label: 'GSM Weight', note: 'Heavyweight. Not see-through, not flimsy. Has a real hand-feel.'},
@@ -34,6 +33,7 @@ export default function Materials() {
     <div className="sx-materials">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'Materials & Construction'}]} />
           <p className="sx-pagehead__eyebrow">Materials &amp; Construction</p>
           <h1 className="sx-pagehead__title">Dumb Shirt. Serious Cotton.</h1>
           <p className="sx-pagehead__desc">

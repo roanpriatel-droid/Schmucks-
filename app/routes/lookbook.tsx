@@ -4,17 +4,16 @@ import {ProductItem} from '~/components/ProductItem';
 import {Mel, Badge} from '~/components/brand/Brand';
 import {Reveal} from '~/components/Reveal';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
+import {pageMeta} from '~/lib/seo';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'Lookbook — SCHMUCKS'},
-    {
-      name: 'description',
-      content:
-        'The Schmucks lookbook: how the shirts actually wear, styled for real life. Shop the story.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Lookbook',
+    description:
+      'The Schmucks lookbook: how the shirts actually wear, styled for real life. Shop the story.',
+    path: '/lookbook',
+  });
 
 export async function loader({context}: Route.LoaderArgs) {
   const [{products}] = await Promise.all([
@@ -52,6 +51,7 @@ export default function Lookbook() {
     <div className="sx-lookbook">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'Lookbook'}]} />
           <p className="sx-pagehead__eyebrow">Lookbook</p>
           <h1 className="sx-pagehead__title">How They Actually Wear</h1>
           <p className="sx-pagehead__desc">

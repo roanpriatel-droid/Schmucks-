@@ -3,18 +3,17 @@ import {useLoaderData, Link} from 'react-router';
 import {ProductItem} from '~/components/ProductItem';
 import {Marquee} from '~/components/home/Marquee';
 import {Mel} from '~/components/brand/Brand';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {pageMeta} from '~/lib/seo';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 
-export const meta: Route.MetaFunction = () => {
-  return [
-    {title: 'Matching Sets — SCHMUCKS'},
-    {
-      name: 'description',
-      content:
-        'Matching Schmucks for you and your favorite idiot. Pick any two tees — the Stack & Save discount applies automatically at checkout.',
-    },
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Matching Sets',
+    description:
+      'Matching Schmucks for you and your favorite idiot. Pick any two tees — the Stack & Save discount applies automatically at checkout.',
+    path: '/matching-sets',
+  });
 
 export async function loader({context}: Route.LoaderArgs) {
   const [{products}] = await Promise.all([
@@ -49,6 +48,7 @@ export default function MatchingSets() {
     <div className="sx-matching">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'Matching Sets'}]} />
           <p className="sx-pagehead__eyebrow">Two Idiots, One Look</p>
           <h1 className="sx-pagehead__title">Matching Sets</h1>
           <p className="sx-pagehead__desc">

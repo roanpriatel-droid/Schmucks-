@@ -22,6 +22,15 @@ before it can ship as a factual claim. Until then I use honest alternatives.
   data. No fabricated "ships in 3–5 days / only 2 left" unless your fulfillment
   data confirms it. Confirm real fulfillment windows to hard-code copy.
 
+## Store configuration
+- **Shop policies must be written in admin** (Settings → Policies): shipping,
+  refund, privacy, terms. The footer links Shipping/Returns directly, and
+  `/policies` lists whatever exists. Until a policy is published, that URL
+  returns 404 with an honest "not published yet, ask us" page rather than
+  invented terms — but real customers need the real text.
+- **Blogs** — `/blogs` (Shopify blogs, linked in the footer as "News") is empty
+  until a blog is created in admin. The Journal is separate and always populated.
+
 ## Content / assets
 - **Real brand SVGs** — Mel, arched wordmark, badge are placeholders. Provide the
   finals (from "Schmucks Brand Identity System.pdf") to swap in.

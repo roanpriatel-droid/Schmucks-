@@ -1,17 +1,18 @@
 import type {Route} from './+types/journal.$slug';
-import {Link, useLoaderData} from 'react-router';
+import {Link, useLoaderData, useRouteLoaderData} from 'react-router';
 import {getArticle, JOURNAL} from '~/data/journal';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {ShareRow} from '~/components/ShareRow';
+import {pageMeta} from '~/lib/seo';
 
-export const meta: Route.MetaFunction = ({data}) => {
-  if (!data?.article) return [{title: 'Journal — SCHMUCKS'}];
-  return [
-    {title: `${data.article.title} — SCHMUCKS Journal`},
-    {name: 'description', content: data.article.dek},
-    {property: 'og:title', content: data.article.title},
-    {property: 'og:description', content: data.article.dek},
-    {property: 'og:type', content: 'article'},
-  ];
-};
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: args.data?.article
+      ? `${args.data.article.title} — SCHMUCKS Journal`
+      : 'Journal',
+    description: args.data?.article?.dek,
+    type: 'article',
+  });
 
 export async function loader({params}: Route.LoaderArgs) {
   const article = getArticle(params.slug!);
@@ -32,6 +33,10 @@ function fmt(iso: string) {
 
 export default function JournalArticlePage() {
   const {article, more} = useLoaderData<typeof loader>();
+  const root = useRouteLoaderData<{origin?: string}>('root');
+  const url = root?.origin
+    ? `${root.origin}/journal/${article.slug}`
+    : undefined;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -51,6 +56,12 @@ export default function JournalArticlePage() {
       />
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs
+            crumbs={[
+              {label: 'The Journal', to: '/journal'},
+              {label: article.title},
+            ]}
+          />
           <p className="sx-article__meta">
             {article.tag} · {fmt(article.date)} · {article.readingTime}
           </p>
@@ -64,21 +75,17 @@ export default function JournalArticlePage() {
             className="sx-prose"
             dangerouslySetInnerHTML={{__html: article.bodyHtml}}
           />
-          <div className="sx-article__more" style={{marginTop: '2.5rem'}}>
+          <ShareRow url={url} title={article.title} />
+
+          <div className="sx-article__more">
             <p className="sx-eyebrow">Keep Reading</p>
-            <ul style={{marginTop: '0.75rem'}}>
+            <ul>
               {more.map((m) => (
-                <li key={m.slug} style={{marginBottom: '0.5rem'}}>
-                  <Link
-                    to={`/journal/${m.slug}`}
-                    style={{
-                      fontWeight: 800,
-                      color: 'var(--ketchup)',
-                      textDecoration: 'underline',
-                    }}
-                  >
+                <li key={m.slug}>
+                  <Link to={`/journal/${m.slug}`} prefetch="intent">
                     {m.title}
                   </Link>
+                  <span className="sx-article__more-dek">{m.dek}</span>
                 </li>
               ))}
             </ul>

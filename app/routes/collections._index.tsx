@@ -3,6 +3,16 @@ import type {Route} from './+types/collections._index';
 import {getPaginationVariables, Image} from '@shopify/hydrogen';
 import type {CollectionFragment} from 'storefrontapi.generated';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {MelShrug} from '~/components/brand/Brand';
+import {pageMeta, toDescription} from '~/lib/seo';
+
+export const meta: Route.MetaFunction = (args) =>
+  pageMeta(args, {
+    title: 'Collections',
+    description:
+      'Every SCHMUCKS collection — tees, matching sets and whatever else made it past the group chat.',
+  });
 
 export async function loader(args: Route.LoaderArgs) {
   // Start fetching non-critical data without blocking time to first byte
@@ -20,7 +30,7 @@ export async function loader(args: Route.LoaderArgs) {
  */
 async function loadCriticalData({context, request}: Route.LoaderArgs) {
   const paginationVariables = getPaginationVariables(request, {
-    pageBy: 4,
+    pageBy: 12,
   });
 
   const [{collections}] = await Promise.all([
@@ -44,32 +54,52 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 
 export default function Collections() {
   const {collections} = useLoaderData<typeof loader>();
+  const hasCollections = collections.nodes.length > 0;
 
   return (
     <div className="sx-collection">
       <section className="sx-pagehead">
         <div className="sx-wrap">
+          <Breadcrumbs crumbs={[{label: 'Collections'}]} />
           <p className="sx-pagehead__eyebrow">Browse the Categories</p>
           <h1 className="sx-pagehead__title">New Drops &amp; Collections</h1>
           <p className="sx-pagehead__desc">
-            Pick a lane. They all lead somewhere embarrassing.
+            Pick a lane. They all lead somewhere embarrassing. Want the whole
+            menu instead?{' '}
+            <Link className="sx-inline-link" to="/tees">
+              Every tee lives here
+            </Link>
+            .
           </p>
         </div>
       </section>
       <section className="sx-shop">
         <div className="sx-wrap">
-          <PaginatedResourceSection<CollectionFragment>
-            connection={collections}
-            resourcesClassName="sx-collections-grid"
-          >
-            {({node: collection, index}) => (
-              <CollectionItem
-                key={collection.id}
-                collection={collection}
-                index={index}
-              />
-            )}
-          </PaginatedResourceSection>
+          {hasCollections ? (
+            <PaginatedResourceSection<CollectionFragment>
+              connection={collections}
+              resourcesClassName="sx-collections-grid"
+            >
+              {({node: collection, index}) => (
+                <CollectionItem
+                  key={collection.id}
+                  collection={collection}
+                  index={index}
+                />
+              )}
+            </PaginatedResourceSection>
+          ) : (
+            <div className="sx-empty-note">
+              <MelShrug className="sx-empty-note__mel" />
+              <p>
+                No collections are published yet — the shirts are still filed
+                under &ldquo;everything&rdquo;.
+              </p>
+              <p>
+                <Link to="/tees">Go look at all of them</Link> instead.
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </div>
@@ -83,6 +113,8 @@ function CollectionItem({
   collection: CollectionFragment;
   index: number;
 }) {
+  const dek = toDescription(collection.description, 90);
+
   return (
     <Link
       className="sx-collection-tile"
@@ -91,7 +123,7 @@ function CollectionItem({
       prefetch="intent"
     >
       <div className="sx-collection-tile__media">
-        {collection?.image && (
+        {collection?.image ? (
           <Image
             alt={collection.image.altText || collection.title}
             aspectRatio="4/3"
@@ -99,9 +131,12 @@ function CollectionItem({
             loading={index < 3 ? 'eager' : undefined}
             sizes="(min-width: 45em) 400px, 100vw"
           />
+        ) : (
+          <MelShrug />
         )}
       </div>
       <h2 className="sx-collection-tile__title">{collection.title}</h2>
+      {dek ? <p className="sx-collection-tile__dek">{dek}</p> : null}
     </Link>
   );
 }
@@ -111,6 +146,7 @@ const COLLECTIONS_QUERY = `#graphql
     id
     title
     handle
+    description
     image {
       id
       url
