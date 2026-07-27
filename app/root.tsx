@@ -13,7 +13,6 @@ import {
 import type {Route} from './+types/root';
 import favicon from '~/assets/favicon.svg';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
-import fontStyles from '~/styles/fonts.css?url';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import schmucksStyles from '~/styles/schmucks.css?url';
@@ -181,6 +180,12 @@ function loadDeferredData({context}: Route.LoaderArgs) {
   };
 }
 
+/**
+ * The two brand faces, inlined. Kept in sync with app/styles/fonts.css, which
+ * documents why they're self-hosted.
+ */
+const FONT_FACE_CSS = "@font-face{font-family:'Alfa Slab One';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/alfa-slab-one-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}@font-face{font-family:'Alfa Slab One';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/alfa-slab-one-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'Inter';font-style:normal;font-weight:400 900;font-display:swap;src:url('/fonts/inter-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}@font-face{font-family:'Inter';font-style:normal;font-weight:400 900;font-display:swap;src:url('/fonts/inter-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}";
+
 /** Site-wide defaults; any route exporting `meta` replaces these entirely. */
 export const meta: Route.MetaFunction = (args) => pageMeta(args);
 
@@ -241,7 +246,13 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <meta name="theme-color" content="#F2B33D" />
-        <link rel="stylesheet" href={fontStyles}></link>
+        {/* @font-face inlined rather than linked: as a separate stylesheet it
+            sat in the critical chain and measured 807ms of render-blocking
+            delay in production for under a kilobyte of CSS. */}
+        <style
+          nonce={nonce}
+          dangerouslySetInnerHTML={{__html: FONT_FACE_CSS}}
+        />
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
         <link rel="stylesheet" href={schmucksStyles}></link>

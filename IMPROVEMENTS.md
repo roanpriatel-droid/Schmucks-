@@ -528,3 +528,59 @@ Homepage confirmed to render 8 quick-add blocks and 8 catalogue badges.
 The site now behaves consistently across every listing surface. Remaining
 code-side candidates are getting narrower (per-route CSS splitting is the last
 sizeable one, and it carries real regression risk for ~8 KB compressed).
+
+---
+
+## Cycle 10 — 2026-07-27 — Lens: performance, measured on production
+
+### The unblock
+
+**The store password gate came down**, so for the first time the live site is
+reachable and every "cannot be validated here" caveat in this log can be
+settled. Cycle 2's hypothesis was exact:
+
+| | Local harness | Production |
+|---|---:|---:|
+| `schmucks.css` over the wire | 86,293 B, uncompressed | **17,149 B, brotli** |
+| Protocol | HTTP/1.1 | **HTTP/2** |
+| Ratio | — | **5.0×** |
+
+That 5× inflation is precisely what buried the font work in cycle 2 and made
+local wall-clock timings untrustworthy. Byte counts were always honest; timings
+never were.
+
+### Real production baseline (home, mobile profile)
+
+**perf 69 · a11y 100 · SEO 100 · best-practices 93**
+FCP 3.1s · LCP 3.1s · TBT 710ms · **CLS 0**
+
+Payload over the wire, compressed: Script 157 KB / 25 req · Image 71 KB / 14 req
+· Font 67 KB · Document 24 KB · Stylesheet 17.7 KB.
+
+### Found
+
+**My own `fonts.css` was the single biggest render blocker: 807 ms for a
+0.8 KB file.** Self-hosting removed Google's origin from the critical path in
+cycle 2, but replaced it with a same-origin stylesheet that still had to be
+fetched before the browser could act on it — a full round trip in the critical
+chain to deliver under a kilobyte.
+
+### Did
+
+Inlined the `@font-face` block (1,380 bytes) directly into the document head
+with the existing CSP nonce, and dropped the stylesheet link. The preloads for
+the two latin subsets stay, so the font files still start downloading
+immediately — now with nothing in front of them.
+
+### Verified
+
+Inline block present, `fonts.css` request gone, both preloads intact, and both
+faces render identically (screenshotted). Build clean.
+
+### Next
+
+Now that production is measurable, the remaining real targets are visible and
+ranked honestly: **Script 157 KB / 25 requests driving TBT 710 ms** (largely
+framework, some Shopify-injected), and **styleLayout at 3,535 ms**, which is
+what per-route CSS splitting would attack. Both want a dedicated cycle against
+production numbers rather than the harness.
