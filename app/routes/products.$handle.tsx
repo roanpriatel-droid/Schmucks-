@@ -1,65 +1,94 @@
 import {useEffect, useRef, useState} from 'react';
 import {useLoaderData, Link, useRouteLoaderData} from 'react-router';
 import type {Route} from './+types/products.$handle';
-import {track} from '~/lib/analytics';
 import {
   getSelectedProductOptions,
   Analytics,
-  Money,
   useOptimisticVariant,
   getProductOptions,
   getAdjacentAndFirstAvailableVariants,
-  useSelectedOptionInUrlParam,
 } from '@shopify/hydrogen';
-import {ProductPrice} from '~/components/ProductPrice';
-import {ProductForm} from '~/components/ProductForm';
-import {ProductItem} from '~/components/ProductItem';
 import {ProductGallery} from '~/components/product/ProductGallery';
+import {BuyBox} from '~/components/product/BuyBox';
+import {StickyBuyBar} from '~/components/product/StickyBuyBar';
 import {SizeGuideModal} from '~/components/product/SizeGuideModal';
-import {StickyAddToCart} from '~/components/product/StickyAddToCart';
-import {Reveal} from '~/components/Reveal';
-import {redirectIfHandleIsLocalized} from '~/lib/redirect';
-import type {CollectionItemFragment} from 'storefrontapi.generated';
-import {Breadcrumbs} from '~/components/Breadcrumbs';
-import {CompleteThePair} from '~/components/product/CompleteThePair';
 import {TrustRow} from '~/components/product/TrustRow';
+import {
+  CompleteThePair,
+  PairSuggestions,
+  type PairPartner,
+} from '~/components/product/CompleteThePair';
+import {MoreFromShelf} from '~/components/product/MoreFromShelf';
+import {ReviewsSection} from '~/components/product/ReviewsSection';
 import {ReviewStars} from '~/components/ReviewStars';
 import {
   RecentlyViewed,
   useRecordRecentlyViewed,
 } from '~/components/RecentlyViewed';
-import {pairedHandles} from '~/data/pairs';
-import {pageMeta, toDescription} from '~/lib/seo';
+import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {buildProductCopy} from '~/lib/productCopy';
+import {SHELVES, COUNTER} from '~/data/shelves';
+import {RETURNS_DAYS, SIZE_RUN} from '~/data/commerce';
+import {track} from '~/lib/analytics';
+import {pageMeta} from '~/lib/seo';
+import type {CollectionItemFragment} from 'storefrontapi.generated';
 
 export const meta: Route.MetaFunction = (args) => {
-  const p = args.data?.product;
+  const product = args.data?.product;
+  const copy = args.data?.copy;
   return pageMeta(args, {
-    title: p?.seo?.title || p?.title || 'Shirt',
-    description:
-      toDescription(p?.seo?.description) ??
-      toDescription(p?.description) ??
-      `${p?.title ?? 'A Schmucks tee'} — heavyweight unisex graphic tee, S–3XL, printed to order.`,
-    image: p?.featuredImage?.url,
+    // The joke is the title; the catalogue suffix is noise in a browser tab.
+    title: copy?.displayTitle || product?.title || 'Shirt',
+    description: copy
+      ? `${copy.sell} ${copy.meta}`
+      : product?.seo?.description || undefined,
+    // OG image is the product mockup, not the generic site card.
+    image: product?.featuredImage?.url,
     type: 'product',
-    // Variant selections live in the query string; canonicalise to the product.
-    path: p?.handle ? `/products/${p.handle}` : undefined,
+    path: product?.handle ? `/products/${product.handle}` : undefined,
   });
 };
 
-export async function loader(args: Route.LoaderArgs) {
-  // Start fetching non-critical data without blocking time to first byte
-  const deferredData = loadDeferredData(args);
+/**
+ * LCP: the gallery's first slide carries fetchpriority="high" + eager, which is
+ * the modern hint. A <link rel="preload"> is deliberately NOT emitted — <Image>
+ * serves a srcset, and a preload that doesn't match the chosen candidate makes
+ * mobile download the mockup twice.
+ */
 
-  // Await the critical data required to render initial state of the page
+export async function loader(args: Route.LoaderArgs) {
+  const deferredData = loadDeferredData(args);
   const criticalData = await loadCriticalData(args);
 
   return {...deferredData, ...criticalData};
 }
 
-/**
- * Load data necessary for rendering content above the fold. This is the critical data
- * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
- */
+/** Catalogue number from a title like "SANWICH — Schmucks · N°. 012". */
+function catalogueNumber(title: string) {
+  const match = title.match(/N°\.\s*(\d+)/);
+  return match ? Number(match[1]) : null;
+}
+
+/** Word overlap, used to decide which neighbour is the real other half. */
+function titleAffinity(a: string, b: string) {
+  const words = (value: string) =>
+    new Set(
+      value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter((word) => word.length > 2),
+    );
+  const left = words(a);
+  const right = words(b);
+  let shared = 0;
+  left.forEach((word) => {
+    if (right.has(word)) shared += 1;
+  });
+  return shared;
+}
+
 async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
   const {handle} = params;
   const {storefront} = context;
@@ -68,85 +97,165 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  // "Complete the Pair" prefers an explicit pairing from the pipeline mapping,
-  // then the Pair Programme shelf, then the wider catalogue — so the block is
-  // populated whether or not the pairs data has caught up with the catalogue.
-  const explicitPairs = pairedHandles(handle);
+  const url = new URL(request.url);
+  const selectedOptions = getSelectedProductOptions(request).filter(
+    // `variant` is our own shareable param, not a product option.
+    (option) => option.name.toLowerCase() !== 'variant',
+  );
 
-  const [{product}, pairData, {products}] = await Promise.all([
+  const [{product}] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
-      variables: {handle, selectedOptions: getSelectedProductOptions(request)},
+      variables: {handle, selectedOptions},
     }),
-    storefront
-      .query(PAIR_CANDIDATES_QUERY, {
-        variables: {
-          query: explicitPairs.length
-            ? explicitPairs.map((item) => `handle:${item}`).join(' OR ')
-            : 'handle:__none__',
-          skipExplicit: explicitPairs.length === 0,
-        },
-      })
-      .catch(() => null),
-    storefront.query(RELATED_PRODUCTS_QUERY).catch(() => ({products: null})),
   ]);
 
   if (!product?.id) {
     throw new Response(null, {status: 404});
   }
 
-  // The API handle might be localized, so redirect to the localized handle
   redirectIfHandleIsLocalized(request, {handle, data: product});
 
-  const notThisProduct = (item: {handle: string}) => item.handle !== handle;
+  // ?variant=<id> wins over option params so a shared link lands exactly.
+  const requestedVariant = url.searchParams.get('variant');
+  const variantFromUrl = requestedVariant
+    ? (product.variants?.nodes.find(
+        (node) =>
+          node.id === requestedVariant ||
+          node.id.split('/').pop() === requestedVariant,
+      ) ?? null)
+    : null;
 
-  const explicit = (pairData?.explicit?.nodes ?? []).filter(notThisProduct);
-  const shelf = (pairData?.pairShelf?.products?.nodes ?? []).filter(
-    notThisProduct,
-  );
-  const catalogue = (products?.nodes ?? []).filter(notThisProduct);
+  // The product's own shelf drives the breadcrumb and "More From This Shelf".
+  const tags = product.tags ?? [];
+  // Thematic shelves win; The Pair Programme is the fallback home for a shirt
+  // that only carries the pair tag, so it still gets a breadcrumb and a rail.
+  const shelfPool = [
+    ...SHELVES,
+    ...COUNTER.filter((item) => item.handle === 'the-pair-programme'),
+  ];
+  const shelf =
+    shelfPool.find(
+      (item) =>
+        tags.includes(item.handle) ||
+        (item.handleAliases ?? []).some((alias) => tags.includes(alias)),
+    ) ?? null;
 
-  const pair = explicit.length
-    ? {source: 'pairs' as const, products: explicit.slice(0, 4)}
-    : shelf.length
-      ? {source: 'shelf' as const, products: shelf.slice(0, 4)}
-      : {source: 'related' as const, products: catalogue.slice(0, 4)};
+  const isPairMember = tags.includes('the-pair-programme');
+  const number = catalogueNumber(product.title);
+
+  const [shelfProducts, pairCandidates] = await Promise.all([
+    shelf
+      ? storefront
+          .query(SHELF_PEERS_QUERY, {
+            variables: {query: `tag:'${shelf.handle}'`},
+            cache: storefront.CacheShort(),
+          })
+          .then((data) => data?.products?.nodes ?? [])
+          .catch(() => [])
+      : Promise.resolve([]),
+    isPairMember
+      ? storefront
+          .query(PAIR_CANDIDATES_QUERY, {
+            variables: {query: "tag:'the-pair-programme'"},
+            cache: storefront.CacheLong(),
+          })
+          .then((data) => data?.products?.nodes ?? [])
+          .catch(() => [])
+      : Promise.resolve([]),
+  ]);
+
+  // Pairs are consecutive catalogue numbers. Where both neighbours exist, the
+  // one sharing more words with this title is the real other half.
+  let partner: PairPartner | null = null;
+  if (isPairMember && number != null) {
+    const neighbours = pairCandidates.filter((candidate) => {
+      const candidateNumber = catalogueNumber(candidate.title);
+      return candidateNumber != null && Math.abs(candidateNumber - number) === 1;
+    });
+    partner =
+      (neighbours
+        .slice()
+        .sort(
+          (a, b) =>
+            titleAffinity(product.title, b.title) -
+            titleAffinity(product.title, a.title),
+        )[0] as PairPartner | undefined) ?? null;
+  }
+
+  const pairFallback = isPairMember
+    ? pairCandidates
+        .filter((candidate) => candidate.handle !== handle)
+        .filter((candidate) => candidate.handle !== partner?.handle)
+        .slice(0, 4)
+    : [];
+
+  const copy = buildProductCopy({
+    title: product.title,
+    descriptionHtml: product.descriptionHtml,
+    isPairMember,
+  });
 
   return {
     product,
-    pair,
+    variantFromUrl,
+    copy,
+    shelf: shelf ? {handle: shelf.handle, title: shelf.title} : null,
+    shelfProducts: shelfProducts.filter(
+      (item: {handle: string}) => item.handle !== handle,
+    ),
+    partner,
+    pairFallback,
+    storeDomain: context.env.PUBLIC_STORE_DOMAIN,
   };
 }
 
-/**
- * Load data for rendering content below the fold. This data is deferred and will be
- * fetched after the initial page load. If it's unavailable, the page should still 200.
- * Make sure to not throw any errors here, as it will cause the page to 500.
- */
-function loadDeferredData({context, params}: Route.LoaderArgs) {
-  // Put any API calls that is not critical to be available on first page render
-  // For example: product reviews, product recommendations, social feeds.
-
+function loadDeferredData({context}: Route.LoaderArgs) {
   return {};
 }
 
 export default function Product() {
-  const {product, pair} = useLoaderData<typeof loader>();
+  const {
+    product,
+    variantFromUrl,
+    copy,
+    shelf,
+    shelfProducts,
+    partner,
+    pairFallback,
+    storeDomain,
+  } = useLoaderData<typeof loader>();
+
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [sizeChosen, setSizeChosen] = useState(false);
   const buyRef = useRef<HTMLDivElement | null>(null);
+  const root = useRouteLoaderData<{origin?: string}>('root');
 
   const selectedVariant = useOptimisticVariant(
-    product.selectedOrFirstAvailableVariant,
+    variantFromUrl ?? product.selectedOrFirstAvailableVariant,
     getAdjacentAndFirstAvailableVariants(product),
   );
-
-  useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
 
   const productOptions = getProductOptions({
     ...product,
     selectedOrFirstAvailableVariant: selectedVariant,
   });
 
-  const {title, descriptionHtml} = product;
+  const selectedColor = selectedVariant?.selectedOptions?.find(
+    (option) => option.name.toLowerCase() === 'color',
+  )?.value;
+  const selectedSize = selectedVariant?.selectedOptions?.find(
+    (option) => option.name.toLowerCase() === 'size',
+  )?.value;
+
+  // Keep ?variant= in the URL so any state of this page is shareable.
+  useEffect(() => {
+    if (!selectedVariant?.id || typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    const numeric = selectedVariant.id.split('/').pop() ?? '';
+    if (url.searchParams.get('variant') === numeric) return;
+    url.searchParams.set('variant', numeric);
+    window.history.replaceState({}, '', url.toString());
+  }, [selectedVariant?.id]);
 
   useEffect(() => {
     track('view_item', {item_id: product.id, item_name: product.title});
@@ -154,49 +263,48 @@ export default function Product() {
 
   useRecordRecentlyViewed({
     handle: product.handle,
-    title: product.title,
+    title: copy.displayTitle,
     image: product.featuredImage
       ? {url: product.featuredImage.url, altText: product.featuredImage.altText}
       : null,
     price: selectedVariant?.price ?? null,
   });
 
-  // Gallery: product images, fall back to the selected variant image.
-  const galleryImages = product.images?.nodes?.length
-    ? product.images.nodes
-    : selectedVariant?.image
-      ? [selectedVariant.image]
-      : [];
-
-  const hasSizeOption = productOptions.some(
-    (o) => o.name.toLowerCase() === 'size',
-  );
-
-  const root = useRouteLoaderData<{origin?: string}>('root');
   const productUrl = root?.origin
     ? `${root.origin}/products/${product.handle}`
     : undefined;
 
+  // One Offer per variant, so rich results can show the real range and stock.
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: product.title,
-    description:
-      product.description || `${product.title} — a Schmucks graphic tee.`,
-    image: galleryImages.map((i) => i?.url).filter(Boolean),
+    name: copy.displayTitle,
+    description: `${copy.sell} ${copy.meta}`,
+    image: (product.images?.nodes ?? []).slice(0, 6).map((image) => image.url),
     brand: {'@type': 'Brand', name: 'SCHMUCKS'},
+    ...(product.vendor ? {manufacturer: product.vendor} : {}),
     ...(productUrl ? {url: productUrl} : {}),
-    offers: {
+    offers: (product.variants?.nodes ?? []).map((variant) => ({
       '@type': 'Offer',
-      price: selectedVariant?.price?.amount ?? '25.00',
-      priceCurrency: selectedVariant?.price?.currencyCode ?? 'USD',
-      itemCondition: 'https://schema.org/NewCondition',
-      ...(productUrl ? {url: productUrl} : {}),
-      availability: selectedVariant?.availableForSale
+      name: variant.title,
+      ...(variant.sku ? {sku: variant.sku} : {}),
+      price: variant.price.amount,
+      priceCurrency: variant.price.currencyCode,
+      availability: variant.availableForSale
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
-    },
+      itemCondition: 'https://schema.org/NewCondition',
+      ...(productUrl
+        ? {url: `${productUrl}?variant=${variant.id.split('/').pop()}`}
+        : {}),
+    })),
   };
+
+  function nudgeToSize() {
+    const sizes = document.querySelector('.sx-sizes');
+    sizes?.scrollIntoView({block: 'center', behavior: 'smooth'});
+    (sizes?.querySelector('button') as HTMLButtonElement | null)?.focus();
+  }
 
   return (
     <div className="sx-product-page">
@@ -204,94 +312,124 @@ export default function Product() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{__html: JSON.stringify(jsonLd)}}
       />
+
       <div className="sx-wrap sx-crumbs-bar">
         <Breadcrumbs
-          crumbs={[{label: 'Tees', to: '/tees'}, {label: product.title}]}
+          crumbs={[
+            shelf
+              ? {label: shelf.title, to: `/collections/${shelf.handle}`}
+              : {label: 'Tees', to: '/tees'},
+            {label: copy.displayTitle},
+          ]}
         />
       </div>
+
       <div className="sx-product sx-wrap">
-        <div>
-          <ProductGallery images={galleryImages} title={title} />
+        <div className="sx-product__gallery">
+          <ProductGallery
+            images={product.images?.nodes ?? []}
+            title={copy.displayTitle}
+            colorName={selectedColor}
+            colorImageUrl={selectedVariant?.image?.url}
+          />
         </div>
 
         <div className="sx-product__main">
-          <p className="sx-product__eyebrow">Fine Apparel for Idiots</p>
-          <h1 className="sx-product__title">{title}</h1>
+          <p className="sx-product__eyebrow">
+            {shelf ? shelf.title : 'Fine Apparel for Idiots'}
+            {copy.catalogueNumber ? ` · N°. ${copy.catalogueNumber}` : ''}
+          </p>
+
+          {/* The title IS the joke, so it's the hero. The modifiers step the
+              scale down for the long confessions without changing the face. */}
+          <h1
+            className={`sx-product__title ${
+              copy.displayTitle.length > 55 ? 'sx-product__title--long' : ''
+            } ${copy.displayTitle.length > 105 ? 'sx-product__title--epic' : ''}`}
+          >
+            {copy.displayTitle}
+          </h1>
 
           <ReviewStars
             productId={product.id}
-            productTitle={product.title}
+            productTitle={copy.displayTitle}
             className="sx-product__reviews"
           />
 
-          <div className="sx-product__badges">
-            <span className="sx-product__badge">Unisex</span>
-            <span className="sx-product__badge">S–3XL</span>
-            <span className="sx-product__badge">Heavyweight Cotton</span>
-            <span className="sx-product__badge">Printed to Order</span>
-          </div>
-
-          <div className="sx-product__price">
-            <ProductPrice
-              price={selectedVariant?.price}
-              compareAtPrice={selectedVariant?.compareAtPrice}
-            />
-          </div>
-
-          {hasSizeOption && (
-            <div className="sx-sizerow">
-              <span />
-              <button
-                type="button"
-                className="sx-sizeguide-btn"
-                onClick={() => setSizeGuideOpen(true)}
-              >
-                📏 Size guide
-              </button>
-            </div>
-          )}
-
-          {/* Honest urgency: printed to order, so the wait is real and the
-              queue genuinely moves. No countdown timers, no fake stock counts. */}
-          <p className="sx-urgency">
-            <span className="sx-urgency__dot" aria-hidden="true" />
-            Selling faster than we expected, frankly. Printed to order — the
-            sooner it&rsquo;s in, the sooner it&rsquo;s on you.
-          </p>
+          <p className="sx-product__sell">{copy.sell}</p>
 
           <div ref={buyRef}>
-            <ProductForm
+            <BuyBox
               productOptions={productOptions}
               selectedVariant={selectedVariant}
+              productTitle={copy.displayTitle}
+              productId={product.id}
+              storeDomain={storeDomain}
+              // The shop reports no digital wallets on this plan, so express
+              // checkout stays hidden rather than rendering a dead button.
+              walletsEnabled={false}
+              onOpenSizeGuide={() => setSizeGuideOpen(true)}
+              onSizeChosen={() => setSizeChosen(true)}
             />
           </div>
 
           <TrustRow />
 
-          <ul className="sx-product__perks">
-            <li>Free shipping on orders over $50</li>
-            <li>Stack &amp; save up to 30% when you buy more (auto at checkout)</li>
-            <li>Printed to order on heavyweight ringspun cotton</li>
-          </ul>
-
-          <ProductDetails descriptionHtml={descriptionHtml} />
+          <ProductDetails copy={copy} />
         </div>
       </div>
 
-      <CompleteThePair
-        products={pair.products as CollectionItemFragment[]}
-        source={pair.source}
-      />
+      {partner ? (
+        <CompleteThePair
+          thisProduct={{
+            id: product.id,
+            handle: product.handle,
+            title: product.title,
+            featuredImage: product.featuredImage,
+            selectedOrFirstAvailableVariant: selectedVariant
+              ? {
+                  id: selectedVariant.id,
+                  availableForSale: selectedVariant.availableForSale,
+                  price: selectedVariant.price,
+                }
+              : null,
+          }}
+          partner={partner}
+        />
+      ) : (
+        <PairSuggestions products={pairFallback as CollectionItemFragment[]} />
+      )}
+
+      {shelf ? (
+        <MoreFromShelf
+          products={shelfProducts as CollectionItemFragment[]}
+          shelfTitle={shelf.title}
+          shelfHandle={shelf.handle}
+        />
+      ) : null}
 
       <RecentlyViewed exclude={product.handle} />
 
-      {sizeGuideOpen && <SizeGuideModal onClose={() => setSizeGuideOpen(false)} />}
+      <ReviewsSection productId={product.id} productTitle={copy.displayTitle} />
 
-      <StickyAddToCart
-        title={title}
-        price={selectedVariant?.price ? <Money data={selectedVariant.price} /> : null}
+      <FinalCta
+        title={copy.displayTitle}
+        onBuy={() => {
+          buyRef.current?.scrollIntoView({block: 'center', behavior: 'smooth'});
+          nudgeToSize();
+        }}
+      />
+
+      {sizeGuideOpen ? (
+        <SizeGuideModal onClose={() => setSizeGuideOpen(false)} />
+      ) : null}
+
+      <StickyBuyBar
         selectedVariant={selectedVariant}
+        sizeLabel={selectedSize}
+        sizeChosen={sizeChosen}
         watchRef={buyRef}
+        onNeedSize={nudgeToSize}
       />
 
       <Analytics.ProductView
@@ -313,66 +451,89 @@ export default function Product() {
   );
 }
 
-function ProductDetails({descriptionHtml}: {descriptionHtml?: string}) {
+/** Details / Size & fit / Shipping, as native accordions. */
+function ProductDetails({copy}: {copy: ReturnType<typeof buildProductCopy>}) {
   return (
     <div className="sx-acc">
       <details className="sx-acc__item" open>
-        <summary className="sx-acc__q">Details &amp; Fit</summary>
+        <summary className="sx-acc__q">
+          <span>Details</span>
+          <span className="sx-faq__mark" aria-hidden="true" />
+        </summary>
         <div className="sx-acc__a">
-          {descriptionHtml ? (
-            <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-          ) : (
-            <p>
-              A genuinely comfortable unisex heavyweight tee with a design your
-              group chat will respect and your relatives won&rsquo;t. Relaxed,
-              true-to-size fit — size up for a boxier drape.
-            </p>
-          )}
-          <p style={{marginTop: '0.5rem'}}>
-            <Link to="/pages/size-guide" style={{color: 'var(--ketchup)', fontWeight: 700, textDecoration: 'underline'}}>
-              Full size &amp; fit guide →
+          <dl className="sx-specs">
+            {copy.specs.map((spec) => (
+              <div key={spec.label}>
+                <dt>{spec.label}</dt>
+                <dd>{spec.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="sx-specs__care">{copy.care}</p>
+        </div>
+      </details>
+
+      <details className="sx-acc__item">
+        <summary className="sx-acc__q">
+          <span>Size &amp; fit</span>
+          <span className="sx-faq__mark" aria-hidden="true" />
+        </summary>
+        <div className="sx-acc__a">
+          <p>
+            Unisex {SIZE_RUN}, cut boxy and true to size. Between sizes, or
+            after a roomier drape? Size up — the length comes with it.
+          </p>
+          <p>
+            Measure a shirt you already like flat across the chest, double it,
+            and match that number on the{' '}
+            <Link className="sx-inline-link" to="/pages/size-guide">
+              full size guide
             </Link>
+            .
           </p>
         </div>
       </details>
+
       <details className="sx-acc__item">
-        <summary className="sx-acc__q">Materials</summary>
+        <summary className="sx-acc__q">
+          <span>Shipping &amp; returns</span>
+          <span className="sx-faq__mark" aria-hidden="true" />
+        </summary>
         <div className="sx-acc__a">
-          <ul>
-            <li>~180 gsm heavyweight ringspun cotton</li>
-            <li>Ribbed crew collar, shoulder-to-shoulder taping</li>
-            <li>Double-needle sleeve &amp; bottom hems</li>
-            <li>Soft-hand print that sinks into the fabric</li>
-          </ul>
-          <p style={{marginTop: '0.5rem'}}>
-            <Link to="/pages/materials" style={{color: 'var(--ketchup)', fontWeight: 700, textDecoration: 'underline'}}>
-              How it&rsquo;s made →
-            </Link>
+          <p>
+            Printed after you order it, then shipped with tracking. That
+            production step is the trade for never warehousing shirts nobody
+            wanted.
           </p>
-        </div>
-      </details>
-      <details className="sx-acc__item">
-        <summary className="sx-acc__q">Care</summary>
-        <div className="sx-acc__a">
-          Wash cold, inside out. Hang dry. Skip the fabric softener and
-          don&rsquo;t iron the print.{' '}
-          <Link to="/pages/care" style={{color: 'var(--ketchup)', fontWeight: 700, textDecoration: 'underline'}}>
-            Full care guide →
-          </Link>
-        </div>
-      </details>
-      <details className="sx-acc__item">
-        <summary className="sx-acc__q">Shipping &amp; Returns</summary>
-        <div className="sx-acc__a">
-          Printed to order and shipped worldwide. Free shipping on orders over
-          $50. 30-day returns on unworn shirts — see the{' '}
-          <Link className="sx-inline-link" to="/pages/shipping-returns">
-            refund policy
-          </Link>
-          .
+          <p>
+            {RETURNS_DAYS}-day returns on unworn shirts.{' '}
+            <Link className="sx-inline-link" to="/pages/shipping-returns">
+              How returns work
+            </Link>
+            .
+          </p>
         </div>
       </details>
     </div>
+  );
+}
+
+/** Centered closing band for anyone who read the whole page. */
+function FinalCta({title, onBuy}: {title: string; onBuy: () => void}) {
+  return (
+    <section className="sx-finalcta" aria-label="Buy this shirt">
+      <div className="sx-wrap">
+        <p className="sx-finalcta__kicker">Still here?</p>
+        <p className="sx-finalcta__title sx-display">{title}</p>
+        <p className="sx-finalcta__body">
+          You&rsquo;ve read the whole page. At this point buying it is the
+          efficient outcome.
+        </p>
+        <button type="button" className="sx-btn sx-btn--ketchup" onClick={onBuy}>
+          Take me back to the buttons
+        </button>
+      </div>
+    </section>
   );
 }
 
@@ -419,6 +580,7 @@ const PRODUCT_FRAGMENT = `#graphql
     title
     vendor
     handle
+    tags
     descriptionHtml
     description
     featuredImage {
@@ -428,13 +590,18 @@ const PRODUCT_FRAGMENT = `#graphql
       width
       height
     }
-    images(first: 8) {
+    images(first: 12) {
       nodes {
         id
         url
         altText
         width
         height
+      }
+    }
+    variants(first: 60) {
+      nodes {
+        ...ProductVariant
       }
     }
     encodedVariantExistence
@@ -484,8 +651,8 @@ const PRODUCT_QUERY = `#graphql
   ${PRODUCT_FRAGMENT}
 ` as const;
 
-const RELATED_PRODUCTS_QUERY = `#graphql
-  fragment RelatedItem on Product {
+const PEER_ITEM_FRAGMENT = `#graphql
+  fragment PeerItem on Product {
     id
     handle
     title
@@ -513,80 +680,44 @@ const RELATED_PRODUCTS_QUERY = `#graphql
       maxVariantPrice {
         amount
         currencyCode
-      }
-    }
-  }
-  query RelatedProducts($country: CountryCode, $language: LanguageCode)
-    @inContext(country: $country, language: $language) {
-    products(first: 5) {
-      nodes {
-        ...RelatedItem
       }
     }
   }
 ` as const;
 
-
-const PAIR_ITEM_FRAGMENT = `#graphql
-  fragment PairItem on Product {
-    id
-    handle
-    title
-    featuredImage {
-      id
-      altText
-      url
-      width
-      height
-    }
-    images(first: 2) {
+const SHELF_PEERS_QUERY = `#graphql
+  query ShelfPeers($country: CountryCode, $language: LanguageCode, $query: String!)
+    @inContext(country: $country, language: $language) {
+    products(first: 5, query: $query, sortKey: BEST_SELLING) {
       nodes {
-        id
-        altText
-        url
-        width
-        height
-      }
-    }
-    priceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-      maxVariantPrice {
-        amount
-        currencyCode
+        ...PeerItem
       }
     }
   }
+  ${PEER_ITEM_FRAGMENT}
 ` as const;
 
 /**
- * Candidates for "Complete the Pair": the explicitly mapped partners (skipped
- * entirely when the product has none) plus the Pair Programme shelf as a
- * fallback, in one round trip.
+ * All Pair Programme members. Small enough to fetch whole (54 today) and cached
+ * hard, which lets the loader match the exact other half by catalogue number
+ * without a second round trip.
  */
 const PAIR_CANDIDATES_QUERY = `#graphql
-  query PairCandidates(
-    $country: CountryCode
-    $language: LanguageCode
-    $query: String!
-    $skipExplicit: Boolean!
-  ) @inContext(country: $country, language: $language) {
-    explicit: products(first: 4, query: $query) @skip(if: $skipExplicit) {
+  query PairCandidates($country: CountryCode, $language: LanguageCode, $query: String!)
+    @inContext(country: $country, language: $language) {
+    products(first: 100, query: $query) {
       nodes {
-        ...PairItem
-      }
-    }
-    pairShelf: collection(handle: "the-pair-programme") {
-      id
-      handle
-      products(first: 5) {
-        nodes {
-          ...PairItem
+        ...PeerItem
+        selectedOrFirstAvailableVariant {
+          id
+          availableForSale
+          price {
+            amount
+            currencyCode
+          }
         }
       }
     }
   }
-  ${PAIR_ITEM_FRAGMENT}
+  ${PEER_ITEM_FRAGMENT}
 ` as const;

@@ -27,10 +27,9 @@ export function ReviewStars({
       data-id={numericId}
       data-product-title={productTitle}
     >
-      {/* Replaced by the Judge.me badge when the app is installed. */}
-      <span className="sx-reviews-slot__empty">
-        No reviews yet — be the first to say something regrettable.
-      </span>
+      {/* Intentionally empty: Judge.me injects the badge here once installed.
+          With no reviews the slot collapses instead of advertising "0 reviews",
+          which reads worse than saying nothing. */}
     </div>
   );
 }

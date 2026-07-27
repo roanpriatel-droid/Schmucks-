@@ -174,6 +174,34 @@ ARM64 box; verified via build + typecheck + static-render screenshots instead).
   - **OG:** a real 1200×630 share card (`public/og-default.png`) replaces the
     touch icon; sitemap now includes the shelves and the new pages.
 
+- **Phase 10 — the PDP rebuild.** Developed against three real products chosen
+  for shape, not convenience: `SANWICH` (1 word), the 24-word confession
+  `N°. 154`, and pair half `I'M WITH THE SCHMUCK →` (N°. 018).
+  - **Layout:** two-column desktop with a sticky buy column, single flow on
+    mobile. Gallery → title → (hidden-when-empty) review slot → price →
+    fabric-chip colourways → size buttons → add-to-cart → trust row →
+    accordions.
+  - **Title as hero:** three type steps by character count, so a one-word
+    slogan and a 24-word confession both read as the headline. This was the
+    named failure mode and it's the reason the long product is a test case.
+  - **Copy system** (`app/lib/productCopy.ts`): sell line generated from title
+    shape (word count, arrows, question marks, pair membership); spec block and
+    care line *parsed from the real Shopify description*, so no garment fact is
+    invented. Three hand-tuned reference outputs are documented in the file.
+  - **Printify quirks absorbed:** one distinct mockup per colourway (the other
+    6–10 images are unattributed), null altText on every image, 8–12 mockups
+    varying per product, no inventory counts, no compare-at prices.
+  - **Pairs are real:** consecutive catalogue numbers inside The Pair
+    Programme, disambiguated by title-word affinity when both neighbours
+    exist. 018 correctly resolves to 019, with a combined-price add-both.
+  - **Technical:** `?variant=` sync both directions, Product schema with one
+    Offer per variant (12/12/18), OG image = product mockup, optimistic
+    add-to-cart opening the drawer, out-of-stock → "Gone. Like our dignity." +
+    restock capture, aspect-ratio gallery boxes (CLS 0.002).
+  - **Measured:** schema.org validator 0 errors / 0 warnings on all three;
+    Lighthouse desktop 93/100/100/96 (perf/a11y/SEO/best-practices),
+    LCP 1.2s, CLS 0.002, TBT 0ms.
+
 ## Route inventory (all 42 routes, post-Phase 7)
 
 Every route below renders a designed page or is a deliberate redirect/utility.

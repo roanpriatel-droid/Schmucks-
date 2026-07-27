@@ -11,7 +11,8 @@ type EventName =
   | 'view_item'
   | 'add_to_cart'
   | 'begin_checkout'
-  | 'newsletter_signup';
+  | 'newsletter_signup'
+  | 'notify_me';
 
 declare global {
   interface Window {
