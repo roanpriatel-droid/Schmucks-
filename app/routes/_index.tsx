@@ -7,7 +7,11 @@ import {ShelfBoards, type BoardCollection} from '~/components/home/ShelfBoards';
 import {MembershipCard} from '~/components/home/MembershipCard';
 import {Mel} from '~/components/brand/Brand';
 import {Reveal} from '~/components/Reveal';
-import {STACK_TIERS} from '~/data/commerce';
+import {
+  MULTI_BUY_LINE,
+  STACK_DISCOUNT_LIVE,
+  STACK_TIERS,
+} from '~/data/commerce';
 import {pageMeta} from '~/lib/seo';
 
 export const meta: Route.MetaFunction = (args) =>
@@ -76,9 +80,9 @@ export default function Homepage() {
       <Hero />
       <Marquee
         items={[
-          'STACK 2 SAVE 10%',
-          'STACK 3 SAVE 20%',
           'FREE SHIPPING OVER $50',
+          'PRINTED TO ORDER',
+          '30-DAY RETURNS',
           'NEW SCHMUCK DROPS WEEKLY',
         ]}
       />
@@ -181,21 +185,25 @@ function PairBanner({pair}: {pair: HomeProductFragment[]}) {
             One bad idea.
           </h2>
           <p className="sx-pairbanner__body">
-            Pick any two designs — for you and whoever agreed to this. No
-            separate &ldquo;set&rdquo; to buy and no code to remember: add two
-            shirts and the discount applies itself at checkout.
+            Pick any two designs — for you and whoever agreed to this.
+            There&rsquo;s no separate &ldquo;set&rdquo; to buy and nothing to
+            configure: two shirts, two people, one shared lapse in judgement.
           </p>
-          <ul className="sx-pairbanner__ladder">
-            {STACK_TIERS.map((tier) => (
-              <li key={tier.quantity}>
-                <span className="sx-display">
-                  {tier.quantity}
-                  {tier.quantity === 4 ? '+' : ''}
-                </span>{' '}
-                shirts — {tier.percent}% off
-              </li>
-            ))}
-          </ul>
+          {STACK_DISCOUNT_LIVE ? (
+            <ul className="sx-pairbanner__ladder">
+              {STACK_TIERS.map((tier) => (
+                <li key={tier.quantity}>
+                  <span className="sx-display">
+                    {tier.quantity}
+                    {tier.quantity === 4 ? '+' : ''}
+                  </span>{' '}
+                  shirts — {tier.percent}% off
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="sx-pairbanner__ship">{MULTI_BUY_LINE}</p>
+          )}
           <div className="sx-pairbanner__ctas">
             <Link className="sx-btn sx-btn--mustard" to="/matching-sets">
               Enrol in the Programme

@@ -1,3 +1,4 @@
+import {STACK_DISCOUNT_LIVE} from '~/data/commerce';
 const TIERS = [
   {qty: 1, label: 'One Shirt', note: 'A cry for help', save: 'Full Price'},
   {qty: 2, label: 'Two Shirts', note: 'Now we’re talking', save: 'SAVE 10%'},
@@ -12,6 +13,8 @@ const TIERS = [
 ];
 
 export function StackLadder() {
+  // Never advertise a tier the checkout does not honour.
+  if (!STACK_DISCOUNT_LIVE) return null;
   return (
     <section className="sx-stack" aria-labelledby="sx-stack-title">
       <div className="sx-wrap">

@@ -1,11 +1,12 @@
 /**
  * Live Stack & Save progress meter for the cart.
  *
- * NOTE: this is motivational UI only. The actual discount must be configured as
- * a Shopify *automatic discount* (2+ = 10%, 3 = 20%, 4+ = 30%) so it applies at
- * checkout. Until that's set up in the Shopify admin, this shows the unlock
- * progress but the subtotal won't change on its own.
+ * Renders ONLY when the discount is actually live at checkout
+ * (STACK_DISCOUNT_LIVE). A meter that counts up to a saving the customer never
+ * receives is worse than no meter at all — see app/data/commerce.ts.
  */
+import {STACK_DISCOUNT_LIVE} from '~/data/commerce';
+
 const TIERS = [
   {qty: 2, pct: 10},
   {qty: 3, pct: 20},
@@ -14,6 +15,7 @@ const TIERS = [
 const MAX_QTY = 4;
 
 export function StackProgress({quantity}: {quantity: number}) {
+  if (!STACK_DISCOUNT_LIVE) return null;
   if (!quantity) return null;
 
   const current = [...TIERS].reverse().find((t) => quantity >= t.qty);

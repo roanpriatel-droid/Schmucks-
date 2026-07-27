@@ -89,7 +89,7 @@ export const COUNTER: Shelf[] = [
     title: 'The Pair Programme',
     descriptor: 'Two shirts, one bad idea.',
     board:
-      'Pick two. Wear them with someone you can tolerate in public. The discount applies itself.',
+      'Pick two. Wear them with someone you can tolerate in public.',
   },
   {
     handle: 'tees',

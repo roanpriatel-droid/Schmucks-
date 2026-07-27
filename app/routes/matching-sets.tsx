@@ -11,7 +11,7 @@ export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
     title: 'The Pair Programme',
     description:
-      'Two shirts, one bad idea. Pick any two Schmucks tees — the Stack & Save discount applies itself at checkout.',
+      'Two shirts, one bad idea. Pick any two Schmucks tees for you and whoever agreed to this.',
     path: '/matching-sets',
   });
 
@@ -46,7 +46,7 @@ const STEPS = [
   {
     n: '2',
     title: 'Add Both to Cart',
-    body: 'Two shirts unlocks 10% off automatically. Three unlocks 20%. Keep going.',
+    body: 'Two shirts clears the free-shipping threshold. It also commits you both to the bit in public.',
   },
   {
     n: '3',
@@ -68,7 +68,7 @@ export default function MatchingSets() {
           <h1 className="sx-pagehead__title">The Pair Programme</h1>
           <p className="sx-pagehead__desc">
             {description?.trim() ||
-              'Build your own pair: any two tees, for you and whoever agreed to this. There’s no separate “set” to buy — add two shirts and Stack & Save takes 10% off at checkout, automatically.'}
+              'Build your own pair: any two tees, for you and whoever agreed to this. There’s no separate “set” to buy and nothing to configure — pick two designs that argue with each other and wear them at the same time.'}
           </p>
           <div style={{marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
             <Link className="sx-btn sx-btn--ketchup" to="/tees">
@@ -84,10 +84,10 @@ export default function MatchingSets() {
       <Marquee
         variant="ink"
         items={[
-          'ANY 2 TEES = 10% OFF',
-          'ANY 3 = 20% OFF',
-          'ANY 4+ = 30% OFF',
           'MIX & MATCH ANY DESIGNS',
+          'TWO SHIRTS, ONE BAD IDEA',
+          'FREE SHIPPING OVER $50',
+          'PRINTED TO ORDER',
         ]}
       />
 
@@ -115,8 +115,8 @@ export default function MatchingSets() {
             </div>
             <p className="sx-section-note">
               {fromShelf
-                ? 'Straight from the Pair Programme shelf. Grab any two — the discount sorts itself out at checkout.'
-                : 'Grab any two below. The discount sorts itself out at checkout.'}
+                ? 'Straight from the Pair Programme shelf. Grab any two that argue with each other.'
+                : 'Grab any two below. They don’t have to match — they have to disagree well.'}
             </p>
           </div>
           {grid.length ? (

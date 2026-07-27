@@ -15,8 +15,29 @@
 export const FREE_SHIPPING_THRESHOLD = 50;
 
 /**
- * Stack & Save tiers. These are UI only until the matching Shopify automatic
- * discount exists in admin — see NEEDS_INPUT.md.
+ * Is the Stack & Save multi-buy discount actually live at checkout?
+ *
+ * VERIFIED FALSE on 2026-07-27 by building real carts through the Storefront
+ * API: 2 shirts = $84.00 and 4 shirts = $168.00, with `discountAllocations`
+ * empty at every quantity, and six candidate codes (STACK10, STACK2, STACK,
+ * PAIR10, SCHMUCKS10, WELCOME10) all reporting `applicable: false`.
+ *
+ * A storefront must never promise a price the checkout won't honour, so while
+ * this is false every Stack & Save claim on the site is suppressed and the
+ * honest free-shipping threshold does the multi-buy work instead.
+ *
+ * TO TURN IT ON: create the automatic discount in Shopify admin (Discounts →
+ * Automatic → 2+ = 10%, 3 = 20%, 4+ = 30%), re-run the cart test below, then
+ * flip this to `true`. Every claim across the site comes back at once.
+ *
+ *   cartCreate(input:{lines:[{merchandiseId:"<variant>", quantity:2}]}) {
+ *     cart { cost { totalAmount { amount } } discountAllocations { ... } }
+ *   }
+ */
+export const STACK_DISCOUNT_LIVE = false;
+
+/**
+ * Stack & Save tiers. Only rendered when STACK_DISCOUNT_LIVE is true.
  */
 export const STACK_TIERS = [
   {quantity: 2, percent: 10},
@@ -35,6 +56,13 @@ export const RETURNS_DAYS = 30;
 
 /** Contact address. Placeholder until a real inbox exists (NEEDS_INPUT.md). */
 export const CONTACT_EMAIL = 'help@schmucks.example';
+
+/**
+ * The honest multi-buy reason while Stack & Save is off: one shirt sits under
+ * the free-shipping threshold and two clear it. That's a real incentive the
+ * checkout actually honours.
+ */
+export const MULTI_BUY_LINE = `Free shipping kicks in over $${FREE_SHIPPING_THRESHOLD} — one shirt doesn't get you there, two do.`;
 
 export function stackTierFor(quantity: number) {
   return [...STACK_TIERS].reverse().find((tier) => quantity >= tier.quantity);

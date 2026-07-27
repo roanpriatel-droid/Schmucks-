@@ -41,8 +41,14 @@ before it can ship as a factual claim. Until then I use honest alternatives.
   handle is `terms-conditions`.
 - **No gift cards exist**, so no gift card page was built and nothing links to
   one. Add gift card products and it can be added in an afternoon.
-- **Stack & Save is still UI-only** — the 2/3/4+ tiers need the matching
-  Shopify automatic discount or checkout won't apply them.
+- **Stack & Save is OFF sitewide as of 2026-07-27, and this is the single
+  highest-value thing you can fix.** Cart tests proved no discount applies at
+  any quantity (2 shirts = $84.00, 4 = $168.00, no allocations, no working
+  code), so every claim is suppressed behind `STACK_DISCOUNT_LIVE` in
+  `app/data/commerce.ts`. Create the automatic discount in admin (Discounts →
+  Automatic → 2+ = 10%, 3 = 20%, 4+ = 30%), re-run the cart test documented in
+  that file, then flip the flag — the whole merchandising layer switches back
+  on at once. See IMPROVEMENTS.md cycle 1.
 - **`help@schmucks.example` is still a placeholder.** The contact ticket, FAQ
   and returns page all compose real `mailto:` links to it — they'll work the
   moment it's a real inbox. Change it in `app/data/commerce.ts` (one constant).

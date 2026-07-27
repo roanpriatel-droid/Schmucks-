@@ -8,6 +8,7 @@ import {
   FREE_SHIPPING_THRESHOLD,
   RETURNS_DAYS,
   SIZE_RUN,
+  STACK_DISCOUNT_LIVE,
   STACK_TIERS,
 } from '~/data/commerce';
 import {pageMeta} from '~/lib/seo';
@@ -16,7 +17,7 @@ export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
     title: 'FAQ',
     description:
-      'Sizing, shipping, returns, colourways and the Stack & Save discount — the questions you were about to email us, answered first.',
+      'Sizing, shipping, returns and colourways — the questions you were about to email us, answered first.',
     path: '/pages/faq',
   });
 
@@ -174,21 +175,38 @@ const GROUPS: Array<{
   {
     group: 'Discounts',
     items: [
-      {
-        q: 'How does Stack & Save work?',
-        plain: `Buy more, save more, automatically: ${ladder}. Mix and match any designs and sizes; the discount applies itself at checkout with no code.`,
-        a: (
-          <>
-            Buy more, save more, automatically: {ladder}. Mix and match any
-            designs and any sizes — the discount applies itself at checkout.
-            There’s no code to remember and no minimum spend.{' '}
-            <Link className="sx-inline-link" to="/matching-sets">
-              The Pair Programme
-            </Link>{' '}
-            is the same idea, aimed at two people.
-          </>
-        ),
-      },
+      STACK_DISCOUNT_LIVE
+        ? {
+            q: 'How does Stack & Save work?',
+            plain: `Buy more, save more, automatically: ${ladder}. Mix and match any designs and sizes; the discount applies itself at checkout with no code.`,
+            a: (
+              <>
+                Buy more, save more, automatically: {ladder}. Mix and match any
+                designs and any sizes — the discount applies itself at checkout.
+                There’s no code to remember and no minimum spend.
+              </>
+            ),
+          }
+        : {
+            q: 'Do you do multi-buy discounts?',
+            plain: `Not at the moment. The one saving that is real is free shipping on orders over $${FREE_SHIPPING_THRESHOLD}, which a single shirt doesn't reach and two do. We would rather tell you that than advertise a discount the checkout doesn't apply.`,
+            a: (
+              <>
+                Not at the moment. The one saving that&rsquo;s real is{' '}
+                <strong>
+                  free shipping on orders over ${FREE_SHIPPING_THRESHOLD}
+                </strong>
+                , which one shirt doesn&rsquo;t reach and two do. If we ever run
+                a proper multi-buy deal it&rsquo;ll apply itself at checkout and
+                say so here — we&rsquo;d rather admit this than advertise a
+                discount your basket never gets.{' '}
+                <Link className="sx-inline-link" to="/matching-sets">
+                  The Pair Programme
+                </Link>{' '}
+                is about two people, not two prices.
+              </>
+            ),
+          },
       {
         q: 'Do you do bulk or team orders?',
         plain:

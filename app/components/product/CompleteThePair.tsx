@@ -4,7 +4,11 @@ import {AddToCartButton} from '~/components/AddToCartButton';
 import {useAside} from '~/components/Aside';
 import {ProductItem} from '~/components/ProductItem';
 import {Reveal} from '~/components/Reveal';
-import {STACK_TIERS} from '~/data/commerce';
+import {
+  MULTI_BUY_LINE,
+  STACK_DISCOUNT_LIVE,
+  STACK_TIERS,
+} from '~/data/commerce';
 import {splitTitle} from '~/lib/productCopy';
 import {track} from '~/lib/analytics';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
@@ -66,8 +70,9 @@ export function CompleteThePair({
             </h2>
           </div>
           <p className="sx-section-note">
-            Add both and Stack &amp; Save takes {firstTier.percent}% off at
-            checkout, on its own.
+            {STACK_DISCOUNT_LIVE
+              ? `Add both and Stack & Save takes ${firstTier.percent}% off at checkout, on its own.`
+              : MULTI_BUY_LINE}
           </p>
         </div>
 
@@ -155,8 +160,9 @@ export function PairSuggestions({
             </h2>
           </div>
           <p className="sx-section-note">
-            Any two shirts unlock {STACK_TIERS[0].percent}% off — the discount
-            applies itself at checkout.
+            {STACK_DISCOUNT_LIVE
+              ? `Any two shirts unlock ${STACK_TIERS[0].percent}% off — the discount applies itself at checkout.`
+              : MULTI_BUY_LINE}
           </p>
         </div>
         <Reveal className="sx-grid">

@@ -6206,3 +6206,16 @@ details[open] .sx-faq__q::after {
   background: var(--ink);
   box-shadow: 2px 2px 0 var(--ketchup);
 }
+
+/* Honest multi-buy line where the discount ladder used to sit. */
+.sx-pairbanner__ship {
+  display: inline-block;
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  padding: 0.65rem 0.9rem;
+  margin: 0 0 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  max-width: 46ch;
+}

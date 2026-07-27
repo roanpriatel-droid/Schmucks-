@@ -132,7 +132,7 @@ export default function Tees() {
           <h1 className="sx-pagehead__title">Tees</h1>
           <p className="sx-pagehead__desc">
             {description?.trim() ||
-              'Every shirt we make. Unisex S–3XL, three colorways, printed to order. Stack 2 or more and the discount applies itself at checkout.'}
+              'Every shirt we make. Unisex S–3XL, three colourways, printed to order — nothing here sat in a warehouse waiting for you.'}
           </p>
         </div>
       </section>
