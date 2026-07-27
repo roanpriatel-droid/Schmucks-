@@ -348,3 +348,50 @@ Next lens: **browse at scale.** A 97-product shelf currently offers sort and
 on *published* collections, which this store has none of, so every shelf is
 unfilterable. That is the biggest remaining functional gap for a 393-product
 catalogue and it deserves a full cycle.
+
+---
+
+## Cycle 6 — 2026-07-27 — Lens: browse at scale
+
+### Found
+
+1. **End-to-end purchase flow verified for the first time.** Never actually
+   tested before this cycle. Driving the real `CartForm` endpoint: add → cart
+   cookie set → line item renders → subtotal $42.00 → free-shipping bar counts
+   → second item → $84.00 → "Free shipping unlocked" → upsell correctly
+   disappears at two → live Shopify checkout URL issued. **It works.**
+   *Caveat worth recording:* my first run reported "no cart cookie" and looked
+   like a critical bug. It was my own test harness — `Headers.forEach()`
+   collapses multiple `Set-Cookie` values into one string, so the adapter was
+   dropping the cart cookie. Fixed the harness with `getSetCookie()`. I nearly
+   filed a false P0 against working code.
+
+2. **Two of five sort options were inert controls.** All 393 products are
+   42.00, so "Price: low to high" and "Price: high to low" reload the page and
+   change nothing.
+
+3. **Filters would have been inert too — so I did not build them.** The plan
+   coming into this cycle was faceted size/colourway filtering for the ~100-item
+   shelves. The data killed it: **every product carries every size S–3XL**, and
+   colourways are near-uniform (all 97 Vices products come in both Black and
+   Natural; Gold exists on 12 of 393 catalogue-wide). A size filter would narrow
+   nothing on any shelf, and a colour filter would narrow nothing on almost all
+   of them. Building them would have shipped controls that imply choice where
+   none exists — the same defect as the price sorts, dressed up as a feature.
+
+### Did
+
+- Recorded `MULTI_PRICE_CATALOGUE = false` in `commerce.ts` with its
+  verification, and made the sort list filter on it. Price sorts return
+  automatically if a second price point ever appears.
+- Raised shelf page size 12 → 24, halving the "load more" presses on a
+  97-product shelf from 8 to 4.
+- Fixed the audit harness so cookie-dependent flows can be tested honestly.
+
+### Verified
+
+Sort list now reads Featured / Newest / A–Z; 24 cards per page; build clean.
+
+### Next
+
+See the diminishing-returns assessment below.

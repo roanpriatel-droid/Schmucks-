@@ -61,7 +61,7 @@ function totalFromFilters(apiFilters: ApiFilters): number | null {
 }
 
 export async function loader({context, request}: Route.LoaderArgs) {
-  const paginationVariables = getPaginationVariables(request, {pageBy: 12});
+  const paginationVariables = getPaginationVariables(request, {pageBy: 24});
   const searchParams = new URL(request.url).searchParams;
   const sort = searchParams.get('sort') || 'featured';
   const filters = toProductFilters(searchParams, {

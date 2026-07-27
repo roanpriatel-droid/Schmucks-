@@ -45,6 +45,17 @@ export const STACK_TIERS = [
   {quantity: 4, percent: 30},
 ] as const;
 
+/**
+ * Does the catalogue contain more than one price?
+ *
+ * VERIFIED FALSE on 2026-07-27: all 393 products return 42.00 in the shop's
+ * currency. While this is false, "Price: low to high" and "Price: high to low"
+ * are controls that cannot change anything — a shopper picks one, the page
+ * reloads, and the order is identical — so they are removed from the sort list.
+ * Add a second price point and flip this back to `true`.
+ */
+export const MULTI_PRICE_CATALOGUE = false;
+
 /** The blank every design is printed on. */
 export const BLANK = 'Gildan 5000 Heavy Cotton';
 

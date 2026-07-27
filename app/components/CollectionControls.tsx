@@ -1,13 +1,22 @@
 import {Form} from 'react-router';
 import {countLine} from '~/lib/shelves';
+import {MULTI_PRICE_CATALOGUE} from '~/data/commerce';
 
-export const SORT_OPTIONS = [
+const ALL_SORT_OPTIONS = [
   {value: 'featured', label: 'Featured'},
   {value: 'newest', label: 'Newest'},
-  {value: 'price-asc', label: 'Price: Low to High'},
-  {value: 'price-desc', label: 'Price: High to Low'},
+  {value: 'price-asc', label: 'Price: Low to High', needsPrices: true},
+  {value: 'price-desc', label: 'Price: High to Low', needsPrices: true},
   {value: 'title', label: 'A–Z'},
 ];
+
+/**
+ * Price sorts only appear if sorting by price can actually reorder anything.
+ * With one price across the whole catalogue they were inert controls.
+ */
+export const SORT_OPTIONS = ALL_SORT_OPTIONS.filter(
+  (option) => !option.needsPrices || MULTI_PRICE_CATALOGUE,
+);
 
 /** Maps a sort param to Storefront collection.products sort args. */
 export function collectionSortArgs(sort?: string | null) {
