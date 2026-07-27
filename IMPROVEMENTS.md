@@ -310,3 +310,41 @@ remembering that a new element is a new audit surface.
   away from being fixed. Escalated in NEEDS_INPUT.md.
 - Next lens: **mobile UX** (never audited on its own; the sticky buy bar, the
   mega-menu on touch, and the cart drawer all deserve a dedicated pass).
+
+---
+
+## Cycle 5 — 2026-07-27 — Lens: mobile UX
+
+### Found
+
+1. **Two controls would zoom the page on iOS.** Safari zooms whenever a focused
+   form control is under 16px. The collection **sort `<select>` measured
+   13.1px** — on the most-used control on every listing page — and the restock
+   capture measured 15.2px. Auditing this by computing rendered px from the
+   stylesheet rather than by eye, because it is invisible on desktop.
+2. **Card titles destroyed the mobile grid.** This catalogue runs to 106
+   characters; at a ~170px column that wrapped to six-plus lines, so no two
+   cards in a row were the same height and the grid lost its rhythm entirely.
+3. **The cart drawer was 400px on a 390px viewport** — it covered the screen
+   edge to edge with nothing left to tap to dismiss.
+
+### Did
+
+- Both sub-16px controls raised to 1rem.
+- Card titles clamped to three lines. The full line always lives on the product
+  page; the card's job is to get you there.
+- Drawer capped at 92vw below 480px so a strip of the page stays visible and
+  tappable.
+
+### Verified
+
+- Build clean; 390px screenshot shows uniform card heights and restored grid
+  rhythm.
+
+### Next
+
+Next lens: **browse at scale.** A 97-product shelf currently offers sort and
+12-per-page "load more" and nothing else — the size/colourway facets only work
+on *published* collections, which this store has none of, so every shelf is
+unfilterable. That is the biggest remaining functional gap for a 393-product
+catalogue and it deserves a full cycle.

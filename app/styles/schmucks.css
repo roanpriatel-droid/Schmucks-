@@ -5667,3 +5667,35 @@ details[open] .sx-faq__q::after {
   text-transform: uppercase;
   opacity: 0.7;
 }
+
+/* ============================================================
+   Mobile UX pass (cycle 5)
+   ============================================================ */
+
+/* iOS Safari zooms the whole page when a focused control is under 16px.
+   Two controls were: the collection sort <select> (13.1px) and the restock
+   capture (15.2px). Both are primary mobile interactions. */
+.sx-collctl__sort select,
+.sx-notify__input {
+  font-size: 1rem;
+}
+
+/* Card titles: this catalogue has titles up to 106 characters, which at a
+   170px mobile column wrapped to six or more lines and destroyed the grid
+   rhythm. Clamp to three lines — the full line always lives on the product
+   page, and the card's job is to get you there. */
+.sx-card__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* The cart drawer was 400px on a 390px viewport, so it covered the screen with
+   no visible edge to tap back to. Leave a strip of the page showing. */
+@media (max-width: 480px) {
+  aside {
+    width: min(var(--aside-width), 92vw);
+    right: calc(-1 * min(var(--aside-width), 92vw));
+  }
+}
