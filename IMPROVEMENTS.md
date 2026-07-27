@@ -577,10 +577,31 @@ immediately — now with nothing in front of them.
 Inline block present, `fonts.css` request gone, both preloads intact, and both
 faces render identically (screenshotted). Build clean.
 
+### Verified on production after deploy
+
+Three runs on a settled box (a first run of 52 was box noise — the same
+contention signature as before, on a change that touched zero JavaScript):
+
+| | perf | FCP | LCP | TBT | CLS |
+|---|---:|---:|---:|---:|---:|
+| Home, before | 69 | 3.1s | 3.1s | 710ms | 0 |
+| **Home, after** | **84 / 84 / 83** | **2.76s** | **2.78s** | **308ms** | **0** |
+| **PDP** | **85** | — | **2.7s** | **300ms** | **0** |
+
+PDP also holds a11y 100 and SEO 100. Caveat kept honest: the "before" figure is
+a single run and the box was noisier then, so the delta is directional rather
+than a clean A/B — but the post-change medians are stable and better than any
+measurement taken before it.
+
+Note the render-blocking chain simply *moved*: with `fonts.css` gone, Lighthouse
+now attributes ~922ms to `reset.css`. The chain itself is the cost, not any one
+file — which is the argument for consolidating the three remaining stylesheets,
+and the next thing worth doing.
+
 ### Next
 
-Now that production is measurable, the remaining real targets are visible and
-ranked honestly: **Script 157 KB / 25 requests driving TBT 710 ms** (largely
-framework, some Shopify-injected), and **styleLayout at 3,535 ms**, which is
-what per-route CSS splitting would attack. Both want a dedicated cycle against
-production numbers rather than the harness.
+With production measurable, the ranked targets are now real: **Script 157 KB
+across 25 requests** (largely framework and Shopify-injected, so limited
+headroom), and the **stylesheet chain** — three separate render-blocking CSS
+requests where one would do. LCP 2.78s sits just above Google's 2.5s "good"
+threshold, and the stylesheet chain is the most likely way to cross it.
