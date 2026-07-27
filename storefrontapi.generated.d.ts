@@ -413,6 +413,16 @@ export type HomeProductFragment = Pick<
   };
   priceRange: {
     minVariantPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+    maxVariantPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+  };
+  variants: {
+    nodes: Array<
+      Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+        selectedOptions: Array<
+          Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+        >;
+      }
+    >;
   };
 };
 
@@ -449,6 +459,19 @@ export type HomeShelvesQuery = {
             StorefrontAPI.MoneyV2,
             'amount' | 'currencyCode'
           >;
+          maxVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        variants: {
+          nodes: Array<
+            Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+              selectedOptions: Array<
+                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+              >;
+            }
+          >;
         };
       }
     >;
@@ -474,6 +497,19 @@ export type HomeShelvesQuery = {
           minVariantPrice: Pick<
             StorefrontAPI.MoneyV2,
             'amount' | 'currencyCode'
+          >;
+          maxVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        variants: {
+          nodes: Array<
+            Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+              selectedOptions: Array<
+                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+              >;
+            }
           >;
         };
       }
@@ -501,6 +537,19 @@ export type HomeShelvesQuery = {
             StorefrontAPI.MoneyV2,
             'amount' | 'currencyCode'
           >;
+          maxVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        variants: {
+          nodes: Array<
+            Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+              selectedOptions: Array<
+                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+              >;
+            }
+          >;
         };
       }
     >;
@@ -526,6 +575,19 @@ export type HomeShelvesQuery = {
           minVariantPrice: Pick<
             StorefrontAPI.MoneyV2,
             'amount' | 'currencyCode'
+          >;
+          maxVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        variants: {
+          nodes: Array<
+            Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+              selectedOptions: Array<
+                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+              >;
+            }
           >;
         };
       }
@@ -553,6 +615,19 @@ export type HomeShelvesQuery = {
             StorefrontAPI.MoneyV2,
             'amount' | 'currencyCode'
           >;
+          maxVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        variants: {
+          nodes: Array<
+            Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+              selectedOptions: Array<
+                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+              >;
+            }
+          >;
         };
       }
     >;
@@ -579,6 +654,19 @@ export type HomeShelvesQuery = {
             StorefrontAPI.MoneyV2,
             'amount' | 'currencyCode'
           >;
+          maxVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        variants: {
+          nodes: Array<
+            Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+              selectedOptions: Array<
+                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+              >;
+            }
+          >;
         };
       }
     >;
@@ -604,6 +692,19 @@ export type HomeShelvesQuery = {
           minVariantPrice: Pick<
             StorefrontAPI.MoneyV2,
             'amount' | 'currencyCode'
+          >;
+          maxVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        variants: {
+          nodes: Array<
+            Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+              selectedOptions: Array<
+                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+              >;
+            }
           >;
         };
       }
@@ -2305,7 +2406,7 @@ interface GeneratedQueryTypes {
     return: ShopPoliciesQuery;
     variables: ShopPoliciesQueryVariables;
   };
-  '#graphql\n  fragment HomeProduct on Product {\n    id\n    title\n    handle\n    featuredImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n  }\n  query HomeShelves(\n    $country: CountryCode\n    $language: LanguageCode\n    $confessional: String!\n    $courtship: String!\n    $pettyCrimes: String!\n    $pair: String!\n    $errata: String!\n  ) @inContext(country: $country, language: $language) {\n    bestSellers: products(first: 8, sortKey: BEST_SELLING) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    newArrivals: products(first: 8, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    confessional: products(first: 3, query: $confessional) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    courtship: products(first: 3, query: $courtship) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    pettyCrimes: products(first: 3, query: $pettyCrimes) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    pair: products(first: 2, query: $pair) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    errata: products(first: 6, query: $errata) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n  }\n': {
+  '#graphql\n  fragment HomeProduct on Product {\n    id\n    title\n    handle\n    featuredImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    variants(first: 20) {\n      nodes {\n        id\n        availableForSale\n        selectedOptions {\n          name\n          value\n        }\n      }\n    }\n  }\n  query HomeShelves(\n    $country: CountryCode\n    $language: LanguageCode\n    $confessional: String!\n    $courtship: String!\n    $pettyCrimes: String!\n    $pair: String!\n    $errata: String!\n  ) @inContext(country: $country, language: $language) {\n    bestSellers: products(first: 8, sortKey: BEST_SELLING) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    newArrivals: products(first: 8, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    confessional: products(first: 3, query: $confessional) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    courtship: products(first: 3, query: $courtship) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    pettyCrimes: products(first: 3, query: $pettyCrimes) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    pair: products(first: 2, query: $pair) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    errata: products(first: 6, query: $errata) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n  }\n': {
     return: HomeShelvesQuery;
     variables: HomeShelvesQueryVariables;
   };

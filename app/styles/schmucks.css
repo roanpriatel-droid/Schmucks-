@@ -3798,11 +3798,14 @@ details[open] .sx-faq__q::after {
 /* Generous floors for the hero copy: the fallback wraps to more lines than
    Inter at narrow widths, so reserve the taller of the two. */
 @media (max-width: 699px) {
+  /* Sized when Inter arrived from a third-party origin and reflowed the hero.
+     Fonts are self-hosted and preloaded now, so the swap window is far
+     smaller — reclaim the dead space above the fold. */
   .sx-hero__sub {
-    min-height: 6.2em;
+    min-height: 4.6em;
   }
   .sx-hero__social {
-    min-height: 4.4em;
+    min-height: 2.8em;
   }
 }
 

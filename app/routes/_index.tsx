@@ -2,6 +2,7 @@ import {useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/_index';
 import {Image, Money} from '@shopify/hydrogen';
 import type {HomeProductFragment} from 'storefrontapi.generated';
+import {ProductItem} from '~/components/ProductItem';
 import {Marquee} from '~/components/home/Marquee';
 import {ShelfBoards, type BoardCollection} from '~/components/home/ShelfBoards';
 import {MembershipCard} from '~/components/home/MembershipCard';
@@ -142,7 +143,12 @@ function FeaturedRow({
           <>
             <Reveal className="sx-grid">
               {featured.products.slice(0, 8).map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} />
+                <ProductItem
+                  key={product.id}
+                  product={product as never}
+                  loading={i < 4 ? 'eager' : 'lazy'}
+                  quickAdd
+                />
               ))}
             </Reveal>
             <div className="sx-specials__cta">
@@ -450,60 +456,6 @@ function Hero() {
   );
 }
 
-function ProductCard({
-  product,
-  index,
-}: {
-  product: HomeProductFragment;
-  index: number;
-}) {
-  const gallery = product.images?.nodes ?? [];
-  const image = product.featuredImage ?? gallery[0] ?? null;
-  const secondary = gallery.find((img) => img?.id && img.id !== image?.id);
-  const sizes = '(min-width: 940px) 300px, (min-width: 620px) 33vw, 50vw';
-  return (
-    <Link
-      className="sx-card"
-      to={`/products/${product.handle}`}
-      prefetch="intent"
-    >
-      <div
-        className={`sx-card__media ${secondary ? 'sx-card__media--swap' : ''}`}
-      >
-        {index === 0 && <span className="sx-card__flag">Fresh Drop</span>}
-        {image && (
-          <Image
-            data={image}
-            alt={image.altText || product.title}
-            aspectRatio="1/1"
-            sizes={sizes}
-            loading={index < 4 ? 'eager' : 'lazy'}
-            className="sx-card__img--primary"
-          />
-        )}
-        {secondary && (
-          <Image
-            data={secondary}
-            alt=""
-            aria-hidden="true"
-            aspectRatio="1/1"
-            sizes={sizes}
-            loading="lazy"
-            className="sx-card__img--secondary"
-          />
-        )}
-      </div>
-      <div className="sx-card__body">
-        <h3 className="sx-card__title">{splitTitle(product.title).displayTitle}</h3>
-        <div className="sx-card__meta">Unisex tee · S–3XL</div>
-        <div className="sx-card__price sx-display">
-          <Money data={product.priceRange.minVariantPrice} />
-        </div>
-      </div>
-    </Link>
-  );
-}
-
 const HOME_SHELVES_QUERY = `#graphql
   fragment HomeProduct on Product {
     id
@@ -529,6 +481,20 @@ const HOME_SHELVES_QUERY = `#graphql
       minVariantPrice {
         amount
         currencyCode
+      }
+      maxVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    variants(first: 20) {
+      nodes {
+        id
+        availableForSale
+        selectedOptions {
+          name
+          value
+        }
       }
     }
   }

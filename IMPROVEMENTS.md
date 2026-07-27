@@ -490,3 +490,41 @@ product listing it actually is, alongside the existing BreadcrumbList.
 
 See the diminishing-returns assessment below — this cycle is where the
 code-side work stops paying like it did.
+
+---
+
+## Cycle 9 — 2026-07-27 — Lens: visual polish
+
+### Found
+
+Looked at the full-length mobile homepage as a first-time visitor would.
+
+1. **The homepage shipped a weaker product card than every other page.** It used
+   its own bespoke `ProductCard` rather than the shared `ProductItem`, so the
+   highest-traffic page on the site had **no catalogue badge and no quick-add**
+   — a shopper could add a size straight from a shelf, but not from Best
+   Sellers on the front page.
+2. **Dead space above the fold.** The hero carried generous `min-height`
+   reservations (6.2em + 4.4em) added in an earlier session to absorb the
+   reflow when Inter arrived from a third-party origin. Cycle 2 self-hosted and
+   preloaded the fonts, which made those reservations mostly obsolete — but
+   they were still pushing product content down the page on every mobile visit.
+
+### Did
+
+- Homepage Best Sellers now renders the shared `ProductItem` with `quickAdd`;
+  deleted the bespoke card and added `variants` to the home query to feed it.
+- Trimmed the hero reservations to 4.6em / 2.8em.
+
+### Verified
+
+**CLS 0.000, with zero recorded layout shifts** on mobile — the trim did not
+reintroduce the reflow those reservations existed to prevent, which is the
+measurement that makes cycle 2's font work pay off twice. Accessibility 100.
+Homepage confirmed to render 8 quick-add blocks and 8 catalogue badges.
+
+### Next
+
+The site now behaves consistently across every listing surface. Remaining
+code-side candidates are getting narrower (per-route CSS splitting is the last
+sizeable one, and it carries real regression risk for ~8 KB compressed).
