@@ -1,6 +1,7 @@
 import {Link} from 'react-router';
 import {Image, Money, Pagination} from '@shopify/hydrogen';
 import {urlWithTrackingParams, type RegularSearchReturn} from '~/lib/search';
+import {splitTitle} from '~/lib/productCopy';
 
 type SearchItems = RegularSearchReturn['result']['items'];
 type PartialSearchResult<ItemType extends keyof SearchItems> = Pick<
@@ -123,7 +124,7 @@ function SearchResultsProducts({
                     <Image data={image} alt={product.title} width={50} loading="lazy" />
                   )}
                   <div>
-                    <p>{product.title}</p>
+                    <p>{splitTitle(product.title).displayTitle}</p>
                     <small>{price && <Money data={price} />}</small>
                   </div>
                 </Link>

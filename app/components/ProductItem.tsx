@@ -6,6 +6,7 @@ import type {
 } from 'storefrontapi.generated';
 import {useVariantUrl} from '~/lib/variants';
 import {QuickAdd} from '~/components/QuickAdd';
+import {splitTitle} from '~/lib/productCopy';
 
 export function ProductItem({
   product,
@@ -19,6 +20,10 @@ export function ProductItem({
 }) {
   const variants =
     'variants' in product ? (product.variants?.nodes ?? []) : [];
+  // The "— Schmucks · N°. 359" suffix is 21 characters of boilerplate against a
+  // 24-character median title. On a card it buries the joke, so the number
+  // becomes a badge and the line itself gets the space.
+  const {displayTitle, catalogueNumber} = splitTitle(product.title);
   const variantUrl = useVariantUrl(product.handle);
   const gallery = 'images' in product ? (product.images?.nodes ?? []) : [];
   const image = product.featuredImage ?? gallery[0] ?? null;
@@ -40,7 +45,7 @@ export function ProductItem({
         {!image && <span className="sx-card__noimg" aria-hidden="true" />}
         {image && (
           <Image
-            alt={image.altText || product.title}
+            alt={image.altText || displayTitle}
             aspectRatio="1/1"
             data={image}
             loading={loading ?? 'lazy'}
@@ -61,14 +66,17 @@ export function ProductItem({
         )}
       </div>
       <div className="sx-card__body">
-        <p className="sx-card__title">{product.title}</p>
+        <p className="sx-card__title">{displayTitle}</p>
+        {catalogueNumber ? (
+          <span className="sx-card__no">N°. {catalogueNumber}</span>
+        ) : null}
         <div className="sx-card__meta">Unisex tee · S–3XL</div>
         <div className="sx-card__price sx-display">
           {hasRange ? <span className="sx-card__from">from </span> : null}
           <Money data={minVariantPrice} />
         </div>
         {quickAdd && variants.length ? (
-          <QuickAdd variants={variants} productTitle={product.title} />
+          <QuickAdd variants={variants} productTitle={displayTitle} />
         ) : null}
       </div>
     </Link>

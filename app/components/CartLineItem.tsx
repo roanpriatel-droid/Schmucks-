@@ -9,6 +9,7 @@ import type {
   CartApiQueryFragment,
   CartLineFragment,
 } from 'storefrontapi.generated';
+import {splitTitle} from '~/lib/productCopy';
 
 export type CartLine = OptimisticCartLine<CartApiQueryFragment>;
 
@@ -59,7 +60,7 @@ export function CartLineItem({
             }}
           >
             <p>
-              <strong>{product.title}</strong>
+              <strong>{splitTitle(product.title).displayTitle}</strong>
             </p>
           </Link>
           <ProductPrice price={line?.cost?.totalAmount} />

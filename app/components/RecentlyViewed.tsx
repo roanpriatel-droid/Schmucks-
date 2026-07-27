@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {Link} from 'react-router';
 import {Image, Money} from '@shopify/hydrogen';
 import type {CurrencyCode} from '@shopify/hydrogen/storefront-api-types';
+import {splitTitle} from '~/lib/productCopy';
 
 const KEY = 'sx:recently-viewed';
 const LIMIT = 8;
@@ -81,7 +82,7 @@ export function RecentlyViewed({exclude}: {exclude?: string}) {
                     />
                   ) : null}
                 </span>
-                <span className="sx-recent__name">{item.title}</span>
+                <span className="sx-recent__name">{splitTitle(item.title).displayTitle}</span>
                 {item.price ? (
                   <span className="sx-recent__price sx-display">
                     <Money data={item.price} />

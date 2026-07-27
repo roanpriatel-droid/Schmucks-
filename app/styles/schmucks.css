@@ -5634,3 +5634,15 @@ details[open] .sx-faq__q::after {
   font-weight: 700;
   max-width: 46ch;
 }
+
+/* Catalogue number as a quiet badge, so the card title is just the joke. */
+.sx-card__no {
+  display: block;
+  padding: 0 1.1rem;
+  margin-top: 0.15rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}

@@ -13,6 +13,7 @@ import {
   STACK_TIERS,
 } from '~/data/commerce';
 import {pageMeta} from '~/lib/seo';
+import {splitTitle} from '~/lib/productCopy';
 
 export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
@@ -241,7 +242,9 @@ function PairBanner({pair}: {pair: HomeProductFragment[]}) {
                     />
                   ) : null}
                 </span>
-                <span className="sx-pairpiece__name">{product.title}</span>
+                <span className="sx-pairpiece__name">
+                  {splitTitle(product.title).displayTitle}
+                </span>
               </Link>
             ))}
             <span className="sx-pairpiece__amp sx-display" aria-hidden="true">
@@ -356,7 +359,9 @@ function ErrataStrip({products}: {products: HomeProductFragment[]}) {
                 ) : null}
                 <span className="sx-errata__stamp">As printed</span>
               </span>
-              <span className="sx-errata__name">{product.title}</span>
+              <span className="sx-errata__name">
+                {splitTitle(product.title).displayTitle}
+              </span>
             </Link>
           ))}
         </div>
@@ -489,7 +494,7 @@ function ProductCard({
         )}
       </div>
       <div className="sx-card__body">
-        <h3 className="sx-card__title">{product.title}</h3>
+        <h3 className="sx-card__title">{splitTitle(product.title).displayTitle}</h3>
         <div className="sx-card__meta">Unisex tee · S–3XL</div>
         <div className="sx-card__price sx-display">
           <Money data={product.priceRange.minVariantPrice} />

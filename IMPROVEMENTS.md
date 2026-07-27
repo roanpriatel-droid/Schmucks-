@@ -180,3 +180,75 @@ wall-clock timings are not.
   regression risk, so it wants a dedicated cycle.
 - Next lens: **copy quality** (never audited; 393 generated sell lines currently
   come from 8 branches, and the long-tail titles deserve a look).
+
+---
+
+## Cycle 3 — 2026-07-27 — Lens: copy quality
+
+### Found
+
+Measured against all 393 real product titles, not sampled by eye:
+
+1. **The catalogue suffix was eating the joke.** Every title carries
+   "— Schmucks · N°. 359". That suffix is **21 characters against a 24-character
+   median display title** — nearly half of every card's title text was repeated
+   boilerplate. `splitTitle()` existed and stripped it, but was only wired into
+   the PDP and the pair block. Cards, search results, the cart line items,
+   recently-viewed, the errata rail, the pair banner and the lookbook plates all
+   rendered it raw. The cart is the worst place for it: the moment of purchase,
+   read as noise.
+
+2. **65% of the catalogue shared one identical sell line.** The generator had 7
+   branches for 393 products; 256 of them landed on
+   *"A one-liner with nowhere to hide…"*. For a brand whose entire value is the
+   writing, opening two products in a row exposed it.
+
+### Did
+
+**Titles.** Wired `splitTitle()` through every remaining surface — cards,
+search, cart line items, recently-viewed, homepage cards, errata rail, pair
+pieces, lookbook plates — and promoted the catalogue number to a quiet
+`N°. 359` badge so the brand device survives without competing with the joke.
+Also cleaned the card `alt` text, which previously read the suffix aloud to
+screen-reader users on every product image.
+
+**Sell lines.** Rewrote the generator around registers that actually recur in
+this catalogue, discovered by reading 40 random real titles rather than
+guessing: retail-label parody ("OUT OF STOCK (EMOTIONALLY)", "FRAGILE: HANDLE
+NEVER"), the "I ❤ X" declaration, "I'm X" self-identification, parenthetical
+twists, self-issued credentials, third-person description, imperatives, and
+specific numbers. Branches with wide coverage hold several lines and pick one
+deterministically from the title, so a product always reads the same way but
+its neighbours don't.
+
+Result, measured across the full catalogue:
+
+| | Before | After |
+|---|---:|---:|
+| Distinct sell lines | 7 | **29** |
+| Largest single share | 65% (256 products) | **13% (51 products)** |
+
+**Bug caught in my own new code:** the "I ❤ X" branch used `\b` after the heart
+character, and `\b` can never match between two non-word characters — so the
+branch fired on 2 products instead of 45. Found by sampling rendered PDPs
+rather than trusting the code. Fixed; 43 products moved from a generic line to
+the apt one.
+
+### Verified
+
+- `tsc` clean, build clean, lint 0 errors.
+- Rendered scan: **0 visible catalogue suffixes** across home, collection, tees,
+  lookbook and search (remaining occurrences are in JSON-LD and alt text, where
+  the canonical title belongs).
+- Random sample of 8 live PDPs: 7 distinct sell lines.
+- 390px card screenshot confirms the title is now the joke and the number is a
+  badge.
+
+### Next
+
+- The three "reference outputs" documented in `productCopy.ts` should be
+  re-tuned by a human who owns the voice — they were written before the
+  register analysis and the generator has moved past them.
+- Next lens: **trust / edge cases** (never audited: what a shopper sees when a
+  variant is genuinely unavailable, when search returns nothing, and whether the
+  free-shipping claim can be substantiated).

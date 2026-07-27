@@ -15,9 +15,9 @@
  * ── Three hand-tuned reference outputs ──────────────────────────────────
  *
  * "SANWICH" (N°. 012, one word)
- *   Sell: "One word, spelled the way it's actually said. The rest of the
- *          shirt stays out of its way."
- *   Care: "Machine wash cold. Reflect warm."
+ *   Sell: "One word, set large and left alone. The rest of the shirt stays
+ *          out of its way."
+ *   Care: "Machine wash cold with like colors... Reflect warm."
  *
  * "My Wife Left Me After I Sat On My Gun Weird And Blew My Entire Dick And
  *  Balls Off At The Old Country Store" (N°. 154, 24 words)
@@ -107,37 +107,182 @@ function looksLikePairHalf(title: string) {
 }
 
 /**
- * The sell line. Branches on the shape of the joke, because a one-word title
- * and a 24-word confession need different framing to read as premium rather
- * than as filler.
+ * Deterministic pick — same product always gets the same line, so the page
+ * doesn't reword itself between visits or between server and client.
+ */
+function pick<T>(options: readonly T[], seed: string): T {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return options[hash % options.length];
+}
+
+/**
+ * The sell line, chosen by what the joke actually *is*.
+ *
+ * Measured against the live catalogue (393 titles) before writing these: the
+ * previous version had 7 branches and put 65% of the shop on one identical
+ * sentence, which for a brand whose whole value is the writing is a failure
+ * you can see by opening two products in a row.
+ *
+ * These branches are ordered most-specific first and keyed to registers that
+ * genuinely recur here: retail-label parody ("OUT OF STOCK (EMOTIONALLY)",
+ * "FRAGILE: HANDLE NEVER"), the "I ❤ X" declaration, "I'm X" self-ID,
+ * parenthetical twists, credentials, third-person descriptions, imperatives.
+ * Where a branch still covers a lot of ground it holds several lines and picks
+ * one deterministically from the title.
  */
 function sellLine(displayTitle: string, isPairMember: boolean) {
-  const words = displayTitle.split(/\s+/).filter(Boolean).length;
-  const shouts = displayTitle === displayTitle.toUpperCase() && words <= 6;
-  const asksAQuestion = displayTitle.trim().endsWith('?');
+  const title = displayTitle.trim();
+  const low = title.toLowerCase();
+  const words = title.split(/\s+/).filter(Boolean).length;
+  const shouts = title === title.toUpperCase() && words <= 6;
 
-  if (looksLikePairHalf(displayTitle)) {
+  if (looksLikePairHalf(title)) {
     return 'Half of a two-shirt argument. Useless alone, unbearable in a pair — which is the recommended configuration.';
   }
-  if (isPairMember) {
-    return 'Built to be worn next to somebody wearing the other half. Works alone; works better as evidence of a shared lapse in judgement.';
+
+  // Retail / packaging language repurposed as a personality disclosure.
+  if (
+    /^(warning|caution|notice|attention|disclaimer|fragile|clearance|out of stock|item not as pictured|no refunds|some assembly required|final sale|contents)/i.test(
+      title,
+    )
+  ) {
+    return pick(
+      [
+        'Packaging language, repurposed as a personality disclosure. Reads as a warning because it is one.',
+        'Shelf-label grammar applied to a person. Nobody has ever taken the hint.',
+        'The tone of a compliance sticker, the content of a confession.',
+      ],
+      title,
+    );
   }
-  if (asksAQuestion) {
+
+  // "I ❤ X" — the declaration format.
+  if (/^i\s*(?:❤|♥|<3|love)(?:\s|$)/i.test(title)) {
+    return pick(
+      [
+        'A public declaration of affection for something that should probably have stayed private.',
+        'The souvenir-shirt format, aimed at something no gift shop would stock.',
+        'Says the quiet part in the friendliest possible typeface.',
+      ],
+      title,
+    );
+  }
+
+  // "I'm X" — self-identification.
+  if (/^(i'm|im|i am)\b/i.test(title)) {
+    return pick(
+      [
+        'Self-identification, printed at chest height so nobody has to ask.',
+        'Introduces you before you get the chance to do it badly yourself.',
+        'A statement of fact, worn as an early warning.',
+      ],
+      title,
+    );
+  }
+
+  // The twist lives in the brackets.
+  if (/\([^)]{2,}\)\s*$/.test(title)) {
+    return pick(
+      [
+        'The joke is in the brackets. People read the first half out loud and then go quiet.',
+        'Sets up in the open, lands in the parenthesis. Timing done entirely by punctuation.',
+      ],
+      title,
+    );
+  }
+
+  // A credential nobody issued.
+  if (/\b(certified|professional|licensed|official|award.winning)\b/i.test(low)) {
+    return pick(
+      [
+        'A credential nobody issued and nobody can revoke.',
+        'Qualifications, self-awarded, printed for the doubters.',
+      ],
+      title,
+    );
+  }
+
+  if (title.endsWith('?')) {
     return 'A question you will now be asked, repeatedly, by strangers who think they are the first.';
   }
+
+  // Written about you, from the outside.
+  if (/^(known to|somebody's|someone's|statistically|allegedly|reportedly|locally)/i.test(title)) {
+    return pick(
+      [
+        'Written about you in the third person, which somehow makes it worse.',
+        'Reads like a case file entry. Wear it before somebody else says it.',
+      ],
+      title,
+    );
+  }
+
+  // Instructions and direct address.
+  if (/^(legalize|kiss|dear|please|stop|don't|do not|ask me|tell me|let me)\b/i.test(low)) {
+    return pick(
+      [
+        'An instruction. Compliance optional, eye contact unavoidable.',
+        'Addressed to whoever is standing in front of you, whether they volunteered or not.',
+      ],
+      title,
+    );
+  }
+
+  // A specific number is harder to argue with than a vague claim.
+  if (/\d/.test(title)) {
+    return 'A specific number, which is exactly what makes it impossible to argue with.';
+  }
+
   if (words === 1) {
-    return 'One word, set large and left alone. The rest of the shirt stays out of its way.';
+    return pick(
+      [
+        'One word, set large and left alone. The rest of the shirt stays out of its way.',
+        'A single word doing the work of a whole conversation you would rather not have.',
+      ],
+      title,
+    );
   }
+
   if (shouts) {
-    return 'Short, loud, and legible across a room. Says the thing before you have to.';
+    return pick(
+      [
+        'Short, loud, and legible across a room. Says the thing before you have to.',
+        'All capitals, no hedging. Readable from the far side of a bar.',
+      ],
+      title,
+    );
   }
+
   if (words >= 16) {
     return 'A full confession, set at chest height. Long enough that people finish reading it in front of you, which is the point.';
   }
+
   if (words >= 9) {
-    return 'A complete thought, printed at a size that commits you to it. No follow-up question survives it.';
+    return pick(
+      [
+        'A complete thought, printed at a size that commits you to it. No follow-up question survives it.',
+        'Long enough to be a position rather than a joke. You will be asked to defend it.',
+      ],
+      title,
+    );
   }
-  return 'A one-liner with nowhere to hide. Front only, chest height, no explanation offered.';
+
+  if (isPairMember) {
+    return 'Built to be worn next to somebody wearing the other half. Works alone; works better as evidence of a shared lapse in judgement.';
+  }
+
+  return pick(
+    [
+      'A one-liner with nowhere to hide. Front only, chest height, no explanation offered.',
+      'Short, deadpan, and delivered without a setup. The shirt does not build to it.',
+      'Says one thing plainly and then stops, which is the hardest version to write.',
+      'No preamble, no punchline scaffolding. Just the line and whatever it costs you.',
+    ],
+    title,
+  );
 }
 
 const FALLBACK_SPECS = {

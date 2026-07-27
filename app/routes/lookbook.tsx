@@ -8,6 +8,7 @@ import {Badge} from '~/components/brand/Brand';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {SIZE_RUN} from '~/data/commerce';
 import {pageMeta} from '~/lib/seo';
+import {splitTitle} from '~/lib/productCopy';
 import {Breadcrumbs} from '~/components/Breadcrumbs';
 
 export const meta: Route.MetaFunction = (args) =>
@@ -137,7 +138,9 @@ export default function Lookbook() {
                     </div>
                     <figcaption className="sx-plate__cap">
                       <span className="sx-plate__fig">Fig. {index + 1}a</span>
-                      <span className="sx-plate__name">{hero.title}</span>
+                      <span className="sx-plate__name">
+                        {splitTitle(hero.title).displayTitle}
+                      </span>
                       <span className="sx-plate__price">
                         <Money data={hero.priceRange.minVariantPrice} />
                       </span>
