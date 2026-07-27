@@ -16,6 +16,7 @@ import {
 import {SHELVES} from '~/data/shelves';
 import {facetKindFor, toProductFilters} from '~/lib/shelves';
 import {pageMeta} from '~/lib/seo';
+import {isPaginatedRequest} from './collections.$handle';
 
 export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
@@ -23,6 +24,8 @@ export const meta: Route.MetaFunction = (args) =>
     description:
       'Every Schmucks graphic tee. Unisex S–3XL, printed on cotton that can take a joke.',
     path: '/tees',
+    // Cursor-paginated views stay crawlable but out of the index.
+    noindex: Boolean(args.data?.paginated),
   });
 
 type ApiFilters = Array<{
@@ -85,6 +88,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
   if (collection?.products?.nodes?.length) {
     return {
       products: collection.products,
+      paginated: isPaginatedRequest(new URL(request.url)),
       source: 'collection' as const,
       description: collection.description,
       facets: buildFacets(collection.products.filters),
@@ -104,6 +108,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
 
   return {
     products,
+    paginated: isPaginatedRequest(new URL(request.url)),
     source: 'catalog' as const,
     description: collection?.description ?? null,
     facets: [] as Facet[],

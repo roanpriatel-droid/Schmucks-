@@ -445,3 +445,48 @@ I kept the change because the trade is a measured 51% mobile image cut against
 an unverifiable decorative desktop effect. If the swap turns out to be broken on
 a real desktop, the honest fix is to delete the feature rather than restore the
 waste.
+
+---
+
+## Cycle 8 — 2026-07-27 — Lens: SEO
+
+### Found
+
+**Every paginated shelf page declared itself a duplicate of page one.** The
+canonical on `/collections/vices?direction=next&cursor=…` pointed at
+`/collections/vices`. At 24 products per page that means:
+
+| Shelf | Products | Reachable only on page 2+ |
+|---|---:|---:|
+| Courtship | 109 | 85 |
+| Vices | 97 | 73 |
+| The Pair Programme | 54 | 30 |
+| Terms & Conditions | 35 | 11 |
+
+Those products were still in the XML sitemap, so they were discoverable — but
+their only listing-page appearance was being handed to Google as duplicate
+content, which suppresses the internal links pointing at them.
+
+### Did
+
+Cursor pagination has no stable page-2 URL worth canonicalising to, so the
+correct treatment is **`noindex, follow`** on paginated views: the page itself
+stays out of the index, and every product link on it stays crawlable. Applied
+to `/collections/:handle`, `/tees` and `/collections/all` via a shared
+`isPaginatedRequest()` helper.
+
+Also added **ItemList structured data** to collection pages — position, name
+and URL for each product — so a shelf is legible to search engines as the
+product listing it actually is, alongside the existing BreadcrumbList.
+
+### Verified
+
+- Page 1 indexable, page 2 `noindex, follow` (confirmed on the live build).
+- ItemList emits 24 positioned items; **schema.org validator: 0 errors,
+  0 warnings** on the collection page's combined structured data.
+- Build clean.
+
+### Next
+
+See the diminishing-returns assessment below — this cycle is where the
+code-side work stops paying like it did.

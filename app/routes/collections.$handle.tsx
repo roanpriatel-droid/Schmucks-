@@ -22,6 +22,7 @@ import {canonicalShelfHandle, getShelf} from '~/data/shelves';
 import {shelfQueryString, shelfSortArgs} from '~/lib/shelfQuery';
 import {facetKindFor, shelfDescription, toProductFilters} from '~/lib/shelves';
 import {pageMeta, toDescription} from '~/lib/seo';
+import {splitTitle} from '~/lib/productCopy';
 
 export const meta: Route.MetaFunction = (args) => {
   const collection = args.data?.collection;
@@ -29,9 +30,10 @@ export const meta: Route.MetaFunction = (args) => {
   return pageMeta(args, {
     title:
       collection?.seo?.title || collection?.title || shelf?.title || 'Shop',
-    // Only a genuinely empty shelf is kept out of the index. Tag-driven
-    // shelves have no `collection` object but plenty of products.
-    noindex: !args.data?.products?.nodes?.length,
+    // Kept out of the index: a genuinely empty shelf, and any cursor-paginated
+    // view. Pages 2+ still say `follow`, so every product on them stays
+    // crawlable — they just don't compete with page one as duplicates.
+    noindex: !args.data?.products?.nodes?.length || Boolean(args.data?.paginated),
     description:
       toDescription(collection?.seo?.description) ??
       toDescription(collection?.description) ??
@@ -144,6 +146,7 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
         collection: null,
         shelf,
         products,
+        paginated: isPaginatedRequest(url),
         sort,
         description: shelf.board ?? shelf.descriptor,
         // Facets come from Collection.products, which needs the collection to
@@ -166,11 +169,21 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
     shelf: shelf ?? null,
     products: collection.products,
     countCapped: false,
+    paginated: isPaginatedRequest(url),
     sort,
     description: shelfDescription(handle, collection.description),
     facets: buildFacets(collection.products.filters),
     total: totalFromFilters(collection.products.filters),
   };
+}
+
+/**
+ * Cursor pagination has no stable page-2 URL to canonicalise to, so paginated
+ * views are marked `noindex, follow` rather than declared duplicates of page
+ * one — which previously hid 73 of Vices' 97 products from the index.
+ */
+export function isPaginatedRequest(url: URL) {
+  return url.searchParams.has('cursor') || url.searchParams.has('direction');
 }
 
 /** Catalogue-level sort keys (ProductSortKeys differs from the collection enum). */
@@ -278,8 +291,27 @@ export default function Collection() {
   const title = collection?.title ?? shelf?.title ?? 'Shop';
   const count = total ?? loaded;
 
+  // ItemList tells search engines this page is a product listing and in what
+  // order, which is what a collection page actually is.
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: title,
+    numberOfItems: loaded,
+    itemListElement: (products?.nodes ?? []).slice(0, 24).map((node, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `/products/${node.handle}`,
+      name: splitTitle(node.title).displayTitle,
+    })),
+  };
+
   return (
     <div className="sx-collection">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{__html: JSON.stringify(itemListJsonLd)}}
+      />
       <section className="sx-pagehead">
         <div className="sx-wrap">
           <Breadcrumbs

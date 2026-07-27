@@ -11,6 +11,7 @@ import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {Breadcrumbs} from '~/components/Breadcrumbs';
 import {EmptyProducts} from '~/components/EmptyProducts';
 import {pageMeta} from '~/lib/seo';
+import {isPaginatedRequest} from './collections.$handle';
 
 export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
@@ -18,6 +19,7 @@ export const meta: Route.MetaFunction = (args) =>
     description:
       'The whole menu — every SCHMUCKS design committed to cotton. Unisex S–3XL, printed to order.',
     path: '/collections/all',
+    noindex: Boolean(args.data?.paginated),
   });
 
 export async function loader(args: Route.LoaderArgs) {
@@ -48,7 +50,7 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     }),
     // Add other queries here, so that they are loaded in parallel
   ]);
-  return {products, sort};
+  return {products, sort, paginated: isPaginatedRequest(new URL(request.url))};
 }
 
 /**
