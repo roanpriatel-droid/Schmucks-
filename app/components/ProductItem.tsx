@@ -6,6 +6,7 @@ import type {
 } from 'storefrontapi.generated';
 import {useVariantUrl} from '~/lib/variants';
 import {QuickAdd} from '~/components/QuickAdd';
+import {useCanHover} from '~/lib/useCanHover';
 import {splitTitle} from '~/lib/productCopy';
 
 export function ProductItem({
@@ -20,6 +21,8 @@ export function ProductItem({
 }) {
   const variants =
     'variants' in product ? (product.variants?.nodes ?? []) : [];
+  // Touch devices can never trigger the hover swap, so they never fetch it.
+  const canHover = useCanHover();
   // The "— Schmucks · N°. 359" suffix is 21 characters of boilerplate against a
   // 24-character median title. On a card it buries the joke, so the number
   // becomes a badge and the line itself gets the space.
@@ -53,7 +56,7 @@ export function ProductItem({
             className="sx-card__img--primary"
           />
         )}
-        {secondary && (
+        {secondary && canHover && (
           <Image
             alt=""
             aria-hidden="true"

@@ -395,3 +395,53 @@ Sort list now reads Featured / Newest / A–Z; 24 cards per page; build clean.
 ### Next
 
 See the diminishing-returns assessment below.
+
+---
+
+## Cycle 7 — 2026-07-27 — Lens: performance (image delivery)
+
+### Found
+
+Cycle 6 doubled the shelf page size to 24, which also doubled a waste I had
+already noticed and not acted on: product cards layer a **second mockup**
+behind the first and cross-fade it on hover. A touch device can never trigger
+that hover, but the browser downloads the image anyway — one wasted request per
+card, now 24 per shelf page.
+
+Measured on the collection page, mobile profile: **28 image requests,
+131.7 KB**.
+
+### Did
+
+Added `useCanHover()` (`app/lib/useCanHover.ts`) — `(hover: hover) and
+(pointer: fine)`, defaulting to false so the server-rendered HTML carries only
+the primary image. Pointer devices add the swap after hydration; the swap image
+is absolutely-positioned decoration, so adding it later shifts nothing.
+
+### Verified
+
+| Collection page | Image requests | Image bytes |
+|---|---:|---:|
+| Mobile, before | 28 | 131.7 KB |
+| Mobile, after | **14** | **64.0 KB** |
+
+**51% fewer image requests and half the image bytes** on the device class that
+matters most, on every listing page. Server-rendered HTML confirmed to contain
+24 primary images and zero secondaries. Desktop card layout unchanged
+(screenshotted).
+
+### Honest limitation
+
+**I could not verify the desktop hover swap still works.** Chasing it produced a
+useful discovery: a probe page shows this headless Chrome reports
+`hover: hover = false` and `pointer: fine = false` — the harness cannot
+emulate a hovering pointer at all, so every "desktop" measurement I took of
+this feature was meaningless, including the identical DOM counts that first
+looked like evidence of breakage. The implementation is the canonical media
+query plus a conditional render, so the risk is low, but it is unverified here
+and should be eyeballed on a real desktop browser once the site is reachable.
+
+I kept the change because the trade is a measured 51% mobile image cut against
+an unverifiable decorative desktop effect. If the swap turns out to be broken on
+a real desktop, the honest fix is to delete the feature rather than restore the
+waste.
