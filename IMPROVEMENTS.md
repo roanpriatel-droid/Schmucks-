@@ -252,3 +252,61 @@ the apt one.
 - Next lens: **trust / edge cases** (never audited: what a shopper sees when a
   variant is genuinely unavailable, when search returns nothing, and whether the
   free-shipping claim can be substantiated).
+
+---
+
+## Cycle 4 — 2026-07-27 — Lens: trust & edge cases
+
+### Found
+
+Walked the paths that aren't the happy path.
+
+1. **Search results were still raw Hydrogen scaffold.** (top finding)
+   Every other listing surface on the site uses the branded card — image, joke
+   as the title, price in slab, size-first quick add. Search rendered a plain
+   list with 50px thumbnails and no styling at all. For a **393-product**
+   catalogue, search is a primary way in, and on mobile it is often the first
+   thing a shopper touches. It read as an unfinished corner of an otherwise
+   finished shop, which is a trust signal before it is a conversion one.
+2. The empty-search state was already good and in voice ("Nothing. Nada. Zip.")
+   — no change needed. Worth recording that the failure path was better built
+   than the success path.
+3. 404, empty cart and restocking states all still behave.
+
+### Did
+
+Rebuilt search results on the site's own card system: enriched the search
+fragment with `featuredImage`, `images`, `priceRange` and `variants`, then
+rendered `ProductItem` in the standard `sx-grid` with quick-add enabled, a
+proper "N items of questionable judgment" count, and real pagination controls.
+
+### Caught a regression I shipped in cycle 3
+
+The `sx-card__no` catalogue badge introduced last cycle measured **3.31:1**
+against cream at opacity 0.5 — below AA for 10px text — and it went out on
+every listing page. Search's a11y audit surfaced it at 96. Raised to opacity
+0.72 (**6.81:1**, computed rather than eyeballed); still visually secondary.
+Search and collection are back to **a11y 100**.
+
+That is the loop doing its job: cycle 3's change was verified for what it
+changed (titles) and not for what it introduced (a new element). Worth
+remembering that a new element is a new audit surface.
+
+### Verified
+
+- `tsc`, build clean.
+- Search renders real cards with quick-add; count line correct.
+- Contrast ratio computed for three candidate opacities before picking one.
+- Search a11y back to **100**, collection unaffected.
+- 390px screenshot of results.
+
+### Next
+
+- **Trust gap I cannot close from here:** every contact path — the order
+  ticket, the FAQ, the returns page, the notify-me capture — composes a
+  `mailto:` to `help@schmucks.example`, which is a placeholder domain and will
+  bounce. A dead support channel on a store taking money is a real trust
+  failure, and it is one constant (`CONTACT_EMAIL` in `app/data/commerce.ts`)
+  away from being fixed. Escalated in NEEDS_INPUT.md.
+- Next lens: **mobile UX** (never audited on its own; the sticky buy bar, the
+  mega-menu on touch, and the cart drawer all deserve a dedicated pass).

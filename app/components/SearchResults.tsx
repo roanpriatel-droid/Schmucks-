@@ -1,7 +1,8 @@
 import {Link} from 'react-router';
 import {Image, Money, Pagination} from '@shopify/hydrogen';
 import {urlWithTrackingParams, type RegularSearchReturn} from '~/lib/search';
-import {splitTitle} from '~/lib/productCopy';
+import {ProductItem} from '~/components/ProductItem';
+import {countLine} from '~/lib/shelves';
 
 type SearchItems = RegularSearchReturn['result']['items'];
 type PartialSearchResult<ItemType extends keyof SearchItems> = Pick<
@@ -104,55 +105,40 @@ function SearchResultsProducts({
 
   return (
     <div className="search-result">
-      <h2>Products</h2>
       <Pagination connection={products}>
-        {({nodes, isLoading, NextLink, PreviousLink}) => {
-          const ItemsMarkup = nodes.map((product) => {
-            const productUrl = urlWithTrackingParams({
-              baseUrl: `/products/${product.handle}`,
-              trackingParams: product.trackingParameters,
-              term,
-            });
+        {({nodes, isLoading, NextLink, PreviousLink}) => (
+          <div className="sx-paged">
+            <PreviousLink className="sx-pagelink">
+              {isLoading ? 'Loading…' : <span>↑ Load previous</span>}
+            </PreviousLink>
 
-            const price = product?.selectedOrFirstAvailableVariant?.price;
-            const image = product?.selectedOrFirstAvailableVariant?.image;
-
-            return (
-              <div className="search-results-item" key={product.id}>
-                <Link prefetch="intent" to={productUrl}>
-                  {image && (
-                    <Image data={image} alt={product.title} width={50} loading="lazy" />
-                  )}
-                  <div>
-                    <p>{splitTitle(product.title).displayTitle}</p>
-                    <small>{price && <Money data={price} />}</small>
-                  </div>
-                </Link>
-              </div>
-            );
-          });
-
-          return (
-            <div>
-              <div>
-                <PreviousLink>
-                  {isLoading ? 'Loading...' : <span>↑ Load previous</span>}
-                </PreviousLink>
-              </div>
-              <div>
-                {ItemsMarkup}
-                <br />
-              </div>
-              <div>
-                <NextLink>
-                  {isLoading ? 'Loading...' : <span>Load more ↓</span>}
-                </NextLink>
-              </div>
+            <div className="sx-searchhead">
+              <h2 className="sx-section-title">Shirts</h2>
+              <span className="sx-searchhead__count">
+                {countLine(nodes.length)}
+              </span>
             </div>
-          );
-        }}
+
+            {/* Search is a primary way into a 393-product catalogue, so results
+                use the same card as every other listing surface — image, joke
+                as the title, price, and size-first quick add. */}
+            <div className="sx-grid">
+              {nodes.map((product, index) => (
+                <ProductItem
+                  key={product.id}
+                  product={product as never}
+                  loading={index < 4 ? 'eager' : 'lazy'}
+                  quickAdd
+                />
+              ))}
+            </div>
+
+            <NextLink className="sx-pagelink">
+              {isLoading ? 'Loading…' : <span>Load more ↓</span>}
+            </NextLink>
+          </div>
+        )}
       </Pagination>
-      <br />
     </div>
   );
 }

@@ -5635,7 +5635,9 @@ details[open] .sx-faq__q::after {
   max-width: 46ch;
 }
 
-/* Catalogue number as a quiet badge, so the card title is just the joke. */
+/* Catalogue number as a quiet badge, so the card title is just the joke.
+   Opacity 0.5 measured 3.31:1 against cream — under AA for 10px text — so it
+   sits at 0.72, which keeps it visually secondary while staying legible. */
 .sx-card__no {
   display: block;
   padding: 0 1.1rem;
@@ -5644,5 +5646,24 @@ details[open] .sx-faq__q::after {
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  opacity: 0.5;
+  opacity: 0.72;
+}
+
+/* Search results header row. */
+.sx-searchhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: var(--line) solid var(--ink);
+}
+.sx-searchhead__count {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.7;
 }
