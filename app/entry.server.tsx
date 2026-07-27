@@ -20,8 +20,9 @@ export default async function handleRequest(
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
     // Allow Google Fonts (Alfa Slab One + Inter) used by the Schmucks system.
-    styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-    fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
+    // Fonts are self-hosted, so Google's origins are no longer needed.
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    fontSrc: ["'self'", 'data:'],
   });
 
   const body = await renderToReadableStream(

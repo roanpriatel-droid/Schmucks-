@@ -1,0 +1,55 @@
+/**
+ * Self-hosted brand faces.
+ *
+ * These are the same two typefaces BRAND.md locks — Alfa Slab One for display,
+ * Inter for body — served from our own origin instead of fonts.googleapis.com.
+ *
+ * WHY: the Google Fonts stylesheet was a render-blocking third-party request
+ * costing ~891ms on a throttled mobile profile, and it sat in front of the
+ * font files themselves (CSS round trip, then font round trip, on a separate
+ * origin needing its own DNS + TLS). First paint could not happen until all of
+ * that resolved. Self-hosting removes an entire origin from the critical path
+ * and lets the two latin files be preloaded directly.
+ *
+ * Inter is the variable file (400–900 in one download), replacing five static
+ * weight files. `unicode-range` means the -ext subsets are only fetched if a
+ * page actually contains those characters, so they cost nothing by default.
+ *
+ * Both faces are SIL Open Font License, which permits self-hosting.
+ */
+
+/* ---------- Alfa Slab One (display) ---------- */
+@font-face {
+  font-family: 'Alfa Slab One';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/alfa-slab-one-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Alfa Slab One';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/alfa-slab-one-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------- Inter (body, variable 400–900) ---------- */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}

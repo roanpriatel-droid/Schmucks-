@@ -13,6 +13,7 @@ import {
 import type {Route} from './+types/root';
 import favicon from '~/assets/favicon.svg';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
+import fontStyles from '~/styles/fonts.css?url';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import schmucksStyles from '~/styles/schmucks.css?url';
@@ -64,15 +65,23 @@ export function links() {
       rel: 'preconnect',
       href: 'https://shop.app',
     },
-    {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
+    // Fonts are self-hosted (see app/styles/fonts.css). Preload the two latin
+    // subsets so they start downloading with the stylesheet rather than after
+    // it. Font preloads need crossorigin even same-origin — font requests are
+    // made in CORS mode.
     {
-      rel: 'preconnect',
-      href: 'https://fonts.gstatic.com',
+      rel: 'preload',
+      as: 'font',
+      type: 'font/woff2',
+      href: '/fonts/alfa-slab-one-latin.woff2',
       crossOrigin: 'anonymous',
     },
     {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@400;500;600;700;800;900&display=swap',
+      rel: 'preload',
+      as: 'font',
+      type: 'font/woff2',
+      href: '/fonts/inter-latin.woff2',
+      crossOrigin: 'anonymous',
     },
     {rel: 'icon', type: 'image/svg+xml', href: favicon},
     {rel: 'alternate icon', type: 'image/png', href: '/favicon.png'},
@@ -232,6 +241,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <meta name="theme-color" content="#F2B33D" />
+        <link rel="stylesheet" href={fontStyles}></link>
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
         <link rel="stylesheet" href={schmucksStyles}></link>
