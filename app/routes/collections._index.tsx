@@ -33,14 +33,49 @@ async function loadCriticalData({context, request}: Route.LoaderArgs) {
     pageBy: 12,
   });
 
-  const [{collections}] = await Promise.all([
+  const [{collections}, shelfPreviews] = await Promise.all([
     context.storefront.query(COLLECTIONS_QUERY, {
       variables: paginationVariables,
     }),
-    // Add other queries here, so that they are loaded in parallel
+    // A shelf tile must reflect the shelf, not whether a Shopify collection
+    // happens to be published to this sales channel. These are the same tag
+    // and sort sources the shelf pages themselves use.
+    context.storefront
+      .query(SHELF_PREVIEWS_QUERY, {
+        variables: {
+          confessional: "tag:'the-confessional'",
+          terms: "tag:'terms-and-conditions'",
+          courtship: "tag:'courtship'",
+          vices: "tag:'vices'",
+          errata: "tag:'errata'",
+          pettyCrimes: "tag:'petty-crimes'",
+          pair: "tag:'the-pair-programme'",
+        },
+        cache: context.storefront.CacheShort(),
+      })
+      .catch(() => null),
   ]);
 
-  return {collections};
+  // handle -> first product image, so a tile can show what's actually on it.
+  const previews: Record<string, {url: string; altText?: string | null} | null> =
+    {};
+  const map: Array<[string, {nodes?: Array<{featuredImage?: any}>} | null | undefined]> = [
+    ['the-confessional', shelfPreviews?.confessional],
+    ['terms-conditions', shelfPreviews?.terms],
+    ['courtship', shelfPreviews?.courtship],
+    ['vices', shelfPreviews?.vices],
+    ['errata', shelfPreviews?.errata],
+    ['petty-crimes', shelfPreviews?.pettyCrimes],
+    ['the-pair-programme', shelfPreviews?.pair],
+    ['best-sellers', shelfPreviews?.bestSellers],
+    ['new-arrivals', shelfPreviews?.newArrivals],
+  ];
+  for (const [handle, node] of map) {
+    const image = node?.nodes?.[0]?.featuredImage ?? null;
+    previews[handle] = image ? {url: image.url, altText: image.altText} : null;
+  }
+
+  return {collections, previews};
 }
 
 /**
@@ -53,7 +88,7 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 }
 
 export default function Collections() {
-  const {collections} = useLoaderData<typeof loader>();
+  const {collections, previews} = useLoaderData<typeof loader>();
 
   // The shelves are the storefront's own taxonomy, so they're always listed —
   // in their own order, with the store's copy when it exists and ours when it
@@ -64,13 +99,17 @@ export default function Collections() {
   const shelfTiles = ALL_SHELVES.filter((shelf) => shelf.handle !== 'tees').map(
     (shelf) => {
       const node = published.get(shelf.handle);
+      const preview = previews[shelf.handle];
       return {
         key: shelf.handle,
         handle: shelf.handle,
         title: node?.title ?? shelf.title,
         description: node?.description || shelf.descriptor,
-        image: node?.image ?? null,
-        live: Boolean(node),
+        // Prefer the merchandiser's collection image; otherwise show a real
+        // product off the shelf rather than an empty box.
+        image: node?.image ?? (preview ? (preview as never) : null),
+        // "Restocking" means no products — not "no published collection".
+        live: Boolean(node) || Boolean(preview),
       };
     },
   );
@@ -203,5 +242,43 @@ const COLLECTIONS_QUERY = `#graphql
         endCursor
       }
     }
+  }
+` as const;
+
+/**
+ * One product per shelf, purely for the tile artwork. Best Sellers and New
+ * Arrivals are catalogue-order shelves, so they use sort keys like their pages.
+ */
+const SHELF_PREVIEWS_QUERY = `#graphql
+  fragment ShelfPreview on Product {
+    id
+    featuredImage {
+      id
+      url
+      altText
+      width
+      height
+    }
+  }
+  query ShelfPreviews(
+    $country: CountryCode
+    $language: LanguageCode
+    $confessional: String!
+    $terms: String!
+    $courtship: String!
+    $vices: String!
+    $errata: String!
+    $pettyCrimes: String!
+    $pair: String!
+  ) @inContext(country: $country, language: $language) {
+    confessional: products(first: 1, query: $confessional) { nodes { ...ShelfPreview } }
+    terms: products(first: 1, query: $terms) { nodes { ...ShelfPreview } }
+    courtship: products(first: 1, query: $courtship) { nodes { ...ShelfPreview } }
+    vices: products(first: 1, query: $vices) { nodes { ...ShelfPreview } }
+    errata: products(first: 1, query: $errata) { nodes { ...ShelfPreview } }
+    pettyCrimes: products(first: 1, query: $pettyCrimes) { nodes { ...ShelfPreview } }
+    pair: products(first: 1, query: $pair) { nodes { ...ShelfPreview } }
+    bestSellers: products(first: 1, sortKey: BEST_SELLING) { nodes { ...ShelfPreview } }
+    newArrivals: products(first: 1, sortKey: CREATED_AT, reverse: true) { nodes { ...ShelfPreview } }
   }
 ` as const;

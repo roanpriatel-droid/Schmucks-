@@ -93,32 +93,44 @@ export async function loader({context, request}: Route.LoaderArgs) {
       description: collection.description,
       facets: buildFacets(collection.products.filters),
       total: totalFromFilters(collection.products.filters),
+      countCapped: false,
       sort,
     };
   }
 
   const catalogSort = catalogSortArgs(sort);
-  const {products} = await context.storefront.query(TEES_CATALOG_QUERY, {
-    variables: {
-      sortKey: catalogSort.sortKey,
-      reverse: catalogSort.reverse,
-      ...paginationVariables,
-    },
-  });
+  const [{products}, countData] = await Promise.all([
+    context.storefront.query(TEES_CATALOG_QUERY, {
+      variables: {
+        sortKey: catalogSort.sortKey,
+        reverse: catalogSort.reverse,
+        ...paginationVariables,
+      },
+    }),
+    // Without this the page reported its own page size as the shelf total.
+    context.storefront
+      .query(TEES_COUNT_QUERY, {
+        variables: {query: "tag:'tees'"},
+        cache: context.storefront.CacheLong(),
+      })
+      .catch(() => null),
+  ]);
+  const counted = countData?.products?.nodes?.length ?? null;
 
   return {
     products,
+    total: counted,
+    countCapped: counted === 250,
     paginated: isPaginatedRequest(new URL(request.url)),
     source: 'catalog' as const,
     description: collection?.description ?? null,
     facets: [] as Facet[],
-    total: null,
     sort,
   };
 }
 
 export default function Tees() {
-  const {products, description, facets, total, sort} =
+  const {products, description, facets, total, sort, countCapped} =
     useLoaderData<typeof loader>();
   const loaded = products?.nodes?.length ?? 0;
   const count = total ?? loaded;
@@ -166,7 +178,11 @@ export default function Tees() {
           {loaded ? (
             <>
               <ShelfFilters facets={facets} count={loaded} />
-              <CollectionControls count={count} sort={sort} />
+              <CollectionControls
+                count={count}
+                sort={sort}
+                countCapped={countCapped}
+              />
               {busy ? (
                 <SkeletonGrid count={Math.min(loaded, 8)} />
               ) : (
@@ -323,4 +339,15 @@ const TEES_CATALOG_QUERY = `#graphql
     }
   }
   ${TEES_ITEM_FRAGMENT}
+` as const;
+
+const TEES_COUNT_QUERY = `#graphql
+  query TeesCount($country: CountryCode, $language: LanguageCode, $query: String!)
+    @inContext(country: $country, language: $language) {
+    products(first: 250, query: $query) {
+      nodes {
+        id
+      }
+    }
+  }
 ` as const;

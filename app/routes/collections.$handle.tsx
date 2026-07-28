@@ -130,14 +130,15 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
         }),
         // No count field exists on a product search, so count ids in bulk.
         // Cached hard — shelf membership only changes when tagging runs.
-        tagQuery
-          ? storefront
-              .query(SHELF_COUNT_QUERY, {
-                variables: {query: tagQuery},
-                cache: storefront.CacheLong(),
-              })
-              .catch(() => null)
-          : Promise.resolve(null),
+        // Sort-based shelves (Best Sellers, New Arrivals) span the whole
+        // catalogue, so they count against the catalogue tag instead of
+        // reporting their own page size as the total.
+        storefront
+          .query(SHELF_COUNT_QUERY, {
+            variables: {query: tagQuery ?? "tag:'tees'"},
+            cache: storefront.CacheLong(),
+          })
+          .catch(() => null),
       ]);
 
       const counted = countData?.products?.nodes?.length ?? null;

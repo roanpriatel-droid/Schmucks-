@@ -605,3 +605,50 @@ across 25 requests** (largely framework and Shopify-injected, so limited
 headroom), and the **stylesheet chain** — three separate render-blocking CSS
 requests where one would do. LCP 2.78s sits just above Google's 2.5s "good"
 threshold, and the stylesheet chain is the most likely way to cross it.
+
+---
+
+## Cycle 11 — 2026-07-27 — Lens: dead ends (user-reported)
+
+### Found
+
+Reported by the owner: "the store doesn't show all the products, especially the
+pages that have the collections — often they are empty."
+
+Investigated on production. The shelf *detail* pages were fine — Courtship pages
+through 24+24+24+24+13 = 109, exactly matching its count — but three real bugs
+were making the catalogue look empty or smaller than it is:
+
+1. **`/collections` showed all nine shelves as blank grey boxes labelled
+   "RESTOCKING"** — including Courtship (109 products) and Vices (97). The tile
+   decided a shelf was live by checking for a *published Shopify collection*.
+   None of the ten are published to the Hydrogen channel, so every tile
+   reported empty even though every shelf behind it was full. Introduced in
+   phase 9; missed because I only ever re-checked the shelf pages after adding
+   the tag fallback, never the index that links to them.
+2. **`/tees` claimed "24 items of questionable judgment"** — its own page size —
+   when it carries all 393.
+3. **Best Sellers and New Arrivals claimed "24 items"** for the same reason:
+   sort-based shelves had no count source and fell back to the loaded count.
+
+### Did
+
+- Shelf tiles now fetch a real product per shelf using the same tag and sort
+  sources the shelf pages use, and show it as the tile artwork. "Restocking"
+  now means *zero products*, not *no published collection*.
+- `/tees` and the sort-based shelves count against the catalogue tag, so they
+  report `250+ items` (the Storefront page ceiling) instead of their page size.
+
+### Verified
+
+`/collections`: 9 tiles, **0 restocking flags, 0 blank boxes**, real product
+artwork on every tile (screenshotted). Counts now read 250+ for /tees, Best
+Sellers and New Arrivals; 97 for Vices; 13 for Errata — all matching the tag
+census.
+
+### Lesson
+
+Every previous cycle audited *detail* pages and the funnel. Nobody audited the
+page whose entire job is to advertise that the shelves have things on them. A
+fallback added in one place has to be re-checked everywhere the old assumption
+was encoded — including the pages that merely *describe* the data.
