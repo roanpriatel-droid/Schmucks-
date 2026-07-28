@@ -2886,6 +2886,9 @@ details[open] .sx-faq__q::after {
   position: relative;
 }
 .sx-mega__trigger {
+  /* The gap bridge below anchors here, so it stays trigger-width instead of
+     spanning the whole nav strip as an invisible band over the page. */
+  position: relative;
   background: none;
   border: 0;
   cursor: pointer;
