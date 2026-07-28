@@ -9,6 +9,7 @@ import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {WordmarkFlat} from '~/components/brand/Brand';
 import {ShelfMegaMenu, ShelfMobileTree} from '~/components/ShelfMenu';
+import {SALES_DATA_AVAILABLE} from '~/data/commerce';
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -23,7 +24,11 @@ type Viewport = 'desktop' | 'mobile';
 // are flat links. The Pair Programme is the matching-set landing page.
 const SX_NAV = [
   {title: 'The Pair Programme', to: '/matching-sets'},
-  {title: 'Best Sellers', to: '/collections/best-sellers'},
+  // Best Sellers is only a real shelf once something has sold; until then the
+  // slot carries New Arrivals rather than an invented ranking.
+  SALES_DATA_AVAILABLE
+    ? {title: 'Best Sellers', to: '/collections/best-sellers'}
+    : {title: 'New Arrivals', to: '/collections/new-arrivals'},
   {title: 'Lookbook', to: '/lookbook'},
   {title: 'Contact', to: '/pages/contact'},
 ];

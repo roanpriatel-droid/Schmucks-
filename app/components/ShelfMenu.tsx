@@ -1,6 +1,14 @@
 import {useEffect, useRef, useState} from 'react';
 import {NavLink} from 'react-router';
 import {SHELVES, COUNTER} from '~/data/shelves';
+import {SALES_DATA_AVAILABLE} from '~/data/commerce';
+
+/** Counter shelves worth linking: Best Sellers only once it means something. */
+const counterItems = COUNTER.filter(
+  (item) =>
+    item.handle !== 'tees' &&
+    (item.handle !== 'best-sellers' || SALES_DATA_AVAILABLE),
+);
 
 /**
  * The Tees mega-dropdown — the deli menu board, hung under the nav.
@@ -82,7 +90,7 @@ export function ShelfMegaMenu() {
           <div className="sx-mega__col">
             <p className="sx-mega__label">At the Counter</p>
             <ul className="sx-mega__list sx-mega__list--counter">
-              {COUNTER.filter((item) => item.handle !== 'tees').map((item) => (
+              {counterItems.map((item) => (
                 <li key={item.handle}>
                   <NavLink
                     to={
@@ -146,7 +154,7 @@ export function ShelfMobileTree({onNavigate}: {onNavigate: () => void}) {
         <span className="sx-navtree__title">All Tees</span>
         <span className="sx-navtree__desc">Everything we print, in one place.</span>
       </NavLink>
-      {COUNTER.filter((item) => item.handle !== 'tees').map((item) => (
+      {counterItems.map((item) => (
         <NavLink
           key={item.handle}
           className="sx-navtree__item"

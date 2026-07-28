@@ -19,6 +19,7 @@ import {Restocking} from '~/components/Restocking';
 import {ShelfFilters, type Facet} from '~/components/ShelfFilters';
 import {SkeletonGrid} from '~/components/Skeleton';
 import {canonicalShelfHandle, getShelf} from '~/data/shelves';
+import {NEW_ARRIVALS_LIMIT, SALES_DATA_AVAILABLE} from '~/data/commerce';
 import {shelfQueryString, shelfSortArgs} from '~/lib/shelfQuery';
 import {facetKindFor, shelfDescription, toProductFilters} from '~/lib/shelves';
 import {pageMeta, toDescription} from '~/lib/seo';
@@ -88,6 +89,13 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
     throw redirect(`/collections/${canonical}${url.search}`, {status: 301});
   }
 
+  // With no sales history, BEST_SELLING returns catalogue order, so a "Best
+  // Sellers" shelf would be 393 products in an invented ranking — and
+  // identical to New Arrivals. Send shoppers to the shelf that is real.
+  if (handle === 'best-sellers' && !SALES_DATA_AVAILABLE) {
+    throw redirect('/collections/new-arrivals', {status: 302});
+  }
+
   // Option names differ per store (Color vs Colour); pass both through and let
   // the API match. Filters are AND'd across facets, OR'd within one.
   const filters = toProductFilters(searchParams, {
@@ -117,6 +125,11 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
     if (shelf) {
       const tagQuery = shelfQueryString(handle);
       const shelfSort = shelfSortArgs(handle);
+      // A sort-based shelf is a window over the catalogue, so it is capped;
+      // otherwise "New Arrivals" silently becomes a second copy of /tees.
+      const windowLimit =
+        handle === 'new-arrivals' ? NEW_ARRIVALS_LIMIT : undefined;
+
       const [{products}, countData] = await Promise.all([
         storefront.query(SHELF_PRODUCTS_QUERY, {
           variables: {
@@ -141,12 +154,24 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
           .catch(() => null),
       ]);
 
-      const counted = countData?.products?.nodes?.length ?? null;
+      const counted = windowLimit
+        ? windowLimit
+        : (countData?.products?.nodes?.length ?? null);
+
+      // Trim the rendered page to the window so paging can't walk past it.
+      const windowed =
+        windowLimit && products?.nodes?.length
+          ? {
+              ...products,
+              nodes: products.nodes.slice(0, windowLimit),
+              pageInfo: {...products.pageInfo, hasNextPage: false},
+            }
+          : products;
 
       return {
         collection: null,
         shelf,
-        products,
+        products: windowed,
         paginated: isPaginatedRequest(url),
         sort,
         description: shelf.board ?? shelf.descriptor,

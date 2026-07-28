@@ -652,3 +652,65 @@ Every previous cycle audited *detail* pages and the funnel. Nobody audited the
 page whose entire job is to advertise that the shelves have things on them. A
 fallback added in one place has to be re-checked everywhere the old assumption
 was encoded — including the pages that merely *describe* the data.
+
+---
+
+## Cycle 12 — 2026-07-27 — Lens: merchandising correctness (user-reported)
+
+### Found
+
+Reported by the owner: products aren't on the page their collection is attached
+to — "right now it's very random."
+
+Checked every shelf against the tag census. **The six thematic shelves were
+correct**, and demonstrably so: Errata really is the misprints (SANWICH, Golira,
+TRAF, Minye, Shrit), Petty Crimes really is tax evasion and speeding,
+Terms & Conditions really is packaging parody. Those weren't the problem.
+
+**The two non-tag shelves were.** Proof:
+
+```
+products(sortKey: BEST_SELLING)              products(sortKey: CREATED_AT, reverse: true)
+1 I Peaked At My Own Birthday Party (Age 9)  1 I Peaked At My Own Birthday Party (Age 9)
+2 I Gave A Eulogy And Plugged My Instagram   2 I Gave A Eulogy And Plugged My Instagram
+3 My Group Chat Has A Group Chat Without Me  3 My Group Chat Has A Group Chat Without Me
+...identical for all 8 sampled
+```
+
+`BEST_SELLING` returns **the identical order** to newest-first. That is Shopify
+falling back to default ordering because **nothing has sold**. So:
+
+- **Best Sellers and New Arrivals were the same 393 products in the same order**,
+  under two different nav entries — the "random" the owner saw.
+- Neither was bounded, so both were also duplicates of `/tees`.
+- Every product was created on the same day (bulk import), so recency carries no
+  signal either.
+
+### Did
+
+- `SALES_DATA_AVAILABLE = false` in `commerce.ts`, with the ordering comparison
+  documented as its verification.
+- While false, `/collections/best-sellers` **302s to New Arrivals** rather than
+  present an invented ranking of the whole catalogue, and the Best Sellers entry
+  drops out of the header, mega-menu and footer.
+- **New Arrivals is now a bounded shelf** — exactly one page (24), so every
+  product in the window is reachable and it no longer duplicates `/tees`.
+- The homepage row now takes the honest path unconditionally while the flag is
+  false, so it is labelled New Arrivals with the existing in-voice line
+  ("Nobody has voted with their wallet yet…").
+
+Flip `SALES_DATA_AVAILABLE` once real orders exist and Best Sellers returns
+everywhere, ranked by actual sales.
+
+### Verified
+
+Every shelf now matches the tag census exactly: Confessional 26, Terms &
+Conditions 35, Courtship 109, Vices 97, Errata 13, Petty Crimes 20, Pair
+Programme 52, New Arrivals 24 (bounded), /tees 250+. Best Sellers 302s. No
+next-link on the bounded shelf, so nothing is stranded.
+
+### Correction to my own fix
+
+First pass set the window to 48 while the page size was 24 *and* disabled
+paging — which would have stranded 24 products. Caught it in verification
+before shipping and set the window to exactly one page.

@@ -10,6 +10,7 @@ import {Mel} from '~/components/brand/Brand';
 import {Reveal} from '~/components/Reveal';
 import {
   MULTI_BUY_LINE,
+  SALES_DATA_AVAILABLE,
   STACK_DISCOUNT_LIVE,
   STACK_TIERS,
 } from '~/data/commerce';
@@ -43,7 +44,10 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
   // row falls back to New Arrivals rather than rendering an empty rail.
   const bestSellers = data?.bestSellers?.nodes ?? [];
   const newArrivals = data?.newArrivals?.nodes ?? [];
-  const usingFallback = bestSellers.length === 0 && newArrivals.length > 0;
+  // BEST_SELLING returns catalogue order until something actually sells, so
+  // without a sales signal the row is New Arrivals — labelled as such.
+  const usingFallback =
+    !SALES_DATA_AVAILABLE || (bestSellers.length === 0 && newArrivals.length > 0);
 
   const boardFor = (
     handle: string,

@@ -56,6 +56,28 @@ export const STACK_TIERS = [
  */
 export const MULTI_PRICE_CATALOGUE = false;
 
+/**
+ * Does the shop have enough sales history for a "best sellers" ranking?
+ *
+ * VERIFIED FALSE on 2026-07-27: `products(sortKey: BEST_SELLING)` returns the
+ * *identical* order to `products(sortKey: CREATED_AT, reverse: true)` — the
+ * first eight titles match exactly. That is Shopify falling back to default
+ * ordering because nothing has sold. Ranking 393 products as "best sellers" on
+ * that basis is an invented ranking, so while this is false the Best Sellers
+ * shelf redirects to New Arrivals rather than fabricate one.
+ *
+ * TO TURN IT ON: once real orders exist, re-run the comparison; if the two
+ * orders diverge, flip this to `true`.
+ */
+export const SALES_DATA_AVAILABLE = false;
+
+/**
+ * How many products "New Arrivals" holds. It is a shelf, not the catalogue —
+ * unbounded it returned all 393 and duplicated /tees. Set to exactly one page
+ * so every product in the window is reachable without paging.
+ */
+export const NEW_ARRIVALS_LIMIT = 24;
+
 /** The blank every design is printed on. */
 export const BLANK = 'Gildan 5000 Heavy Cotton';
 

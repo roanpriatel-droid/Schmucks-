@@ -3,7 +3,11 @@ import {NavLink} from 'react-router';
 import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
 import {WordmarkFlat, Badge} from '~/components/brand/Brand';
 import {SHELVES} from '~/data/shelves';
-import {FREE_SHIPPING_THRESHOLD, RETURNS_DAYS} from '~/data/commerce';
+import {
+  FREE_SHIPPING_THRESHOLD,
+  RETURNS_DAYS,
+  SALES_DATA_AVAILABLE,
+} from '~/data/commerce';
 import {track} from '~/lib/analytics';
 
 interface FooterProps {
@@ -21,7 +25,9 @@ const SHOP_LINKS = [
     title: shelf.title,
     to: `/collections/${shelf.handle}`,
   })),
-  {title: 'Best Sellers', to: '/collections/best-sellers'},
+  ...(SALES_DATA_AVAILABLE
+    ? [{title: 'Best Sellers', to: '/collections/best-sellers'}]
+    : []),
   {title: 'New Arrivals', to: '/collections/new-arrivals'},
   {title: 'The Pair Programme', to: '/matching-sets'},
 ];
