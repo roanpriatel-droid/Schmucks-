@@ -2901,6 +2901,25 @@ details[open] .sx-faq__q::after {
 .sx-mega__trigger.is-open .sx-mega__caret {
   transform: rotate(180deg);
 }
+/* Bridge the gap between the trigger and the panel: without it the pointer
+   leaves the wrapper on the way down, mouseleave fires, and the menu shuts
+   before an option can be clicked. */
+.sx-mega__trigger::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 1.2rem;
+}
+.sx-mega__panel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 1.2rem;
+}
 .sx-mega__panel {
   position: absolute;
   top: calc(100% + 0.9rem);
@@ -4939,25 +4958,51 @@ details[open] .sx-faq__q::after {
   display: grid;
   gap: 1.5rem;
 }
+/* After 24 products the shopper needs an obvious way onward, so this is a
+   full button in the house style — mustard fill, thick outline, off-register
+   shadow — not a quiet text link. */
 .sx-pagelink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0.75rem 1.25rem;
-  border: var(--line) solid var(--ink);
-  background: var(--cream);
-  font-weight: 800;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+  gap: 0.5rem;
+  min-height: 56px;
+  min-width: min(22rem, 100%);
+  padding: 1.1rem 2rem;
+  border: var(--line-thick) solid var(--ink);
+  background: var(--mustard);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   text-decoration: none;
   color: var(--ink);
   justify-self: center;
+  box-shadow: var(--shadow-hard);
+  transition:
+    transform 90ms ease,
+    box-shadow 90ms ease;
 }
 .sx-pagelink:hover {
   background: var(--mustard);
   text-decoration: none;
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.sx-pagelink:active {
+  transform: translate(6px, 6px);
+  box-shadow: 0 0 0 var(--ink);
+}
+.sx-paged {
+  gap: 2rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-pagelink {
+    transition: none;
+  }
+  .sx-pagelink:hover {
+    transform: none;
+  }
 }
 
 /* ---------- 390px header fit ----------
@@ -5701,4 +5746,46 @@ details[open] .sx-faq__q::after {
     width: min(var(--aside-width), 92vw);
     right: calc(-1 * min(var(--aside-width), 92vw));
   }
+}
+
+/* ---------- The Pair Programme: real two-shirt sets ---------- */
+.sx-madepairs {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  margin-bottom: 2.5rem;
+}
+@media (min-width: 900px) {
+  .sx-madepairs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.sx-madepair {
+  border: var(--line) solid var(--ink);
+  background: var(--cream-shade);
+  padding: 1rem 1rem 1.25rem;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.sx-madepair__tag {
+  display: inline-block;
+  background: var(--ketchup);
+  color: var(--cream);
+  border: 2px solid var(--ink);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 0.85rem;
+}
+.sx-madepair__two {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.6rem;
+  align-items: center;
+}
+.sx-madepair__amp {
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  color: var(--ketchup);
+  text-shadow: 2px 2px 0 var(--ink);
 }

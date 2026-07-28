@@ -714,3 +714,41 @@ next-link on the bounded shelf, so nothing is stranded.
 First pass set the window to 48 while the page size was 24 *and* disabled
 paging — which would have stranded 24 products. Caught it in verification
 before shipping and set the window to exactly one page.
+
+## Cycle 13 — three reported bugs
+
+**Lens:** user-reported defects (not a rotation — direct report takes priority).
+
+### 1. The Pair Programme page didn't show the Pair Programme collection
+
+`/matching-sets` loaded `collection(handle:"the-pair-programme")`, which returns
+null because that smart collection isn't published to the Hydrogen sales channel.
+The fallback was `products(first: 8)` with no filter — so the page showed the
+first eight products in the whole catalogue. Same root cause as the collections-page
+and Best-Sellers bugs.
+
+**Fix:** query `products(query: "tag:'the-pair-programme'")` (the same tag path
+every shelf page uses), then compute real pairs from consecutive catalogue numbers
+in the title (`N°. 041` / `N°. 042`). Renders a "Made for each other" block above
+the browse grid.
+
+**Verified:** page now shows I'm Stupid & I'm Fucking Stupid (041/042), I'm
+Tweaking & I'm Fucking Tweaking (052/053), I'm Crazy & I'm Fucking Crazy,
+I'm A Slut For My Girlfriend & …Boyfriend. Four real pairs, 54 tagged products
+in the browse grid.
+
+### 2. Load-more was too quiet
+
+After 24 products the only way onward was a small bordered text link. Now a full
+house-style button — mustard fill, thick outline, hard shadow, display type, ↓,
+56px tall, min 22rem wide. Press states move the shadow like every other button.
+
+### 3. Nav menu closed before you could click an option
+
+`.sx-mega__panel` sat at `top: calc(100% + 0.9rem)`, so moving the pointer from
+the trigger toward the panel crossed a dead gap outside the wrapper — `mouseleave`
+fired and the menu shut mid-travel. Two fixes: invisible bridge pseudo-elements
+spanning the gap on both the trigger and the panel, and a 260 ms close delay so a
+brief excursion doesn't dismiss it. Re-entering cancels the pending close.
+
+Cost: 0 KB JS beyond one timer ref. Keyboard/escape behaviour unchanged.

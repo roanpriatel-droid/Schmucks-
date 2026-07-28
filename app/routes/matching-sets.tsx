@@ -15,25 +15,55 @@ export const meta: Route.MetaFunction = (args) =>
     path: '/matching-sets',
   });
 
-export async function loader({context}: Route.LoaderArgs) {
-  // The Pair Programme shelf when it's tagged, the wider catalogue otherwise —
-  // the concept works either way, so the page never sits empty on principle.
-  const {collection} = await context.storefront.query(PAIR_COLLECTION_QUERY);
-  const shelfProducts = collection?.products?.nodes ?? [];
+/** Catalogue number from "… — Schmucks · N°. 018". */
+function catalogueNumber(title: string) {
+  const match = title.match(/N°\.\s*(\d+)/);
+  return match ? Number(match[1]) : null;
+}
 
-  if (shelfProducts.length) {
-    return {
-      products: shelfProducts,
-      description: collection?.description ?? null,
-      fromShelf: true,
-    };
+export async function loader({context}: Route.LoaderArgs) {
+  // The Pair Programme shelf, by tag. The published collection is preferred
+  // when it exists, but this page must never fall back to "the first products
+  // in the catalogue" — that showed shirts with no pair at all.
+  const [{collection}, tagged] = await Promise.all([
+    context.storefront.query(PAIR_COLLECTION_QUERY),
+    context.storefront
+      .query(PAIR_TAGGED_QUERY, {
+        variables: {query: "tag:'the-pair-programme'"},
+        cache: context.storefront.CacheShort(),
+      })
+      .catch(() => null),
+  ]);
+
+  const shelfProducts = collection?.products?.nodes ?? [];
+  const pool = shelfProducts.length
+    ? shelfProducts
+    : (tagged?.products?.nodes ?? []);
+
+  // Pairs are consecutive catalogue numbers inside the shelf, so the page can
+  // show actual two-shirt sets rather than a grid of unrelated halves.
+  const byNumber = new Map<number, (typeof pool)[number]>();
+  for (const product of pool) {
+    const number = catalogueNumber(product.title);
+    if (number != null) byNumber.set(number, product);
+  }
+  const pairs: Array<[(typeof pool)[number], (typeof pool)[number]]> = [];
+  const used = new Set<number>();
+  for (const number of [...byNumber.keys()].sort((a, b) => a - b)) {
+    if (used.has(number)) continue;
+    const partner = byNumber.get(number + 1);
+    if (partner && !used.has(number + 1)) {
+      pairs.push([byNumber.get(number)!, partner]);
+      used.add(number);
+      used.add(number + 1);
+    }
   }
 
-  const {products} = await context.storefront.query(MATCH_PRODUCTS_QUERY);
   return {
-    products: products?.nodes ?? [],
+    products: pool,
+    pairs: pairs.slice(0, 4),
     description: collection?.description ?? null,
-    fromShelf: false,
+    fromShelf: true,
   };
 }
 
@@ -56,7 +86,7 @@ const STEPS = [
 ];
 
 export default function MatchingSets() {
-  const {products, description, fromShelf} = useLoaderData<typeof loader>();
+  const {products, pairs, description, fromShelf} = useLoaderData<typeof loader>();
   const grid = (products as CollectionItemFragment[]).slice(0, 8);
 
   return (
@@ -119,6 +149,25 @@ export default function MatchingSets() {
                 : 'Grab any two below. They don’t have to match — they have to disagree well.'}
             </p>
           </div>
+          {pairs.length ? (
+            <div className="sx-madepairs">
+              {(pairs as Array<[CollectionItemFragment, CollectionItemFragment]>).map(
+                ([left, right]) => (
+                  <div className="sx-madepair" key={left.id}>
+                    <span className="sx-madepair__tag">Made for each other</span>
+                    <div className="sx-madepair__two">
+                      <ProductItem product={left} loading="lazy" />
+                      <span className="sx-madepair__amp sx-display" aria-hidden="true">
+                        &amp;
+                      </span>
+                      <ProductItem product={right} loading="lazy" />
+                    </div>
+                  </div>
+                ),
+              )}
+            </div>
+          ) : null}
+
           {grid.length ? (
             <div className="sx-grid">
               {grid.map((product, index) => (
@@ -210,6 +259,19 @@ const PAIR_COLLECTION_QUERY = `#graphql
         nodes {
           ...MatchItem
         }
+      }
+    }
+  }
+  ${MATCH_ITEM_FRAGMENT}
+` as const;
+
+
+const PAIR_TAGGED_QUERY = `#graphql
+  query PairTagged($country: CountryCode, $language: LanguageCode, $query: String!)
+    @inContext(country: $country, language: $language) {
+    products(first: 60, query: $query) {
+      nodes {
+        ...MatchItem
       }
     }
   }

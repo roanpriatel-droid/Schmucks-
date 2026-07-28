@@ -1564,6 +1564,45 @@ export type PairProgrammeShelfQuery = {
   >;
 };
 
+export type PairTaggedQueryVariables = StorefrontAPI.Exact<{
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+  query: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type PairTaggedQuery = {
+  products: {
+    nodes: Array<
+      Pick<StorefrontAPI.Product, 'id' | 'handle' | 'title'> & {
+        featuredImage?: StorefrontAPI.Maybe<
+          Pick<
+            StorefrontAPI.Image,
+            'id' | 'altText' | 'url' | 'width' | 'height'
+          >
+        >;
+        images: {
+          nodes: Array<
+            Pick<
+              StorefrontAPI.Image,
+              'id' | 'altText' | 'url' | 'width' | 'height'
+            >
+          >;
+        };
+        priceRange: {
+          minVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+          maxVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+      }
+    >;
+  };
+};
+
 export type PageQueryVariables = StorefrontAPI.Exact<{
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
@@ -2600,6 +2639,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query PairProgrammeShelf($country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    collection(handle: "the-pair-programme") {\n      id\n      handle\n      title\n      description\n      products(first: 8) {\n        nodes {\n          ...MatchItem\n        }\n      }\n    }\n  }\n  #graphql\n  fragment MoneyMatchItem on MoneyV2 {\n    amount\n    currencyCode\n  }\n  fragment MatchItem on Product {\n    id\n    handle\n    title\n    featuredImage {\n      id\n      altText\n      url\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        altText\n        url\n        width\n        height\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        ...MoneyMatchItem\n      }\n      maxVariantPrice {\n        ...MoneyMatchItem\n      }\n    }\n  }\n\n': {
     return: PairProgrammeShelfQuery;
     variables: PairProgrammeShelfQueryVariables;
+  };
+  '#graphql\n  query PairTagged($country: CountryCode, $language: LanguageCode, $query: String!)\n    @inContext(country: $country, language: $language) {\n    products(first: 60, query: $query) {\n      nodes {\n        ...MatchItem\n      }\n    }\n  }\n  #graphql\n  fragment MoneyMatchItem on MoneyV2 {\n    amount\n    currencyCode\n  }\n  fragment MatchItem on Product {\n    id\n    handle\n    title\n    featuredImage {\n      id\n      altText\n      url\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        altText\n        url\n        width\n        height\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        ...MoneyMatchItem\n      }\n      maxVariantPrice {\n        ...MoneyMatchItem\n      }\n    }\n  }\n\n': {
+    return: PairTaggedQuery;
+    variables: PairTaggedQueryVariables;
   };
   '#graphql\n  query Page(\n    $language: LanguageCode,\n    $country: CountryCode,\n    $handle: String!\n  )\n  @inContext(language: $language, country: $country) {\n    page(handle: $handle) {\n      handle\n      id\n      title\n      body\n      seo {\n        description\n        title\n      }\n    }\n  }\n': {
     return: PageQuery;
