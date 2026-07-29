@@ -810,3 +810,102 @@ said anything yet." Both are honest, but they tell every visitor the product has
 never sold. BRAND §8 forbids inventing reviews and nothing was invented — the
 Judge.me mount point still ships so the widget appears the moment the app is
 installed. Only the empty shouting is gone.
+
+## Cycle 15 — mobile layout: two overflow bugs
+
+`/collections` ran 17px off-screen at 390px. Cause: `1fr` is `minmax(auto, 1fr)`,
+and a long word in the display face raised a track's `auto` minimum above its
+fair share, so the two columns resolved to 199px + 172px inside 358px. Hardened
+all 27 `repeat(N, 1fr)` declarations to `minmax(0, 1fr)` and scaled the tile
+titles so "THE CONFESSIONAL" fits a half-width phone tile without splitting.
+
+The header overflowed at 320px on **every** page: the wordmark is a fixed
+164px SVG and the CTA cluster needs ~168px, which pushed the cart button
+off-screen. The mark now scales below 380px.
+
+## Cycle 16 — the dead ends
+
+An empty cart, a search matching nothing, and a 404 each offered one link back
+to the catalogue — three places where someone already on the site is handed
+nothing to buy. All three now carry a rail of the newest products.
+
+Also removed the `/collections` "Best Sellers" tile: it claimed "the ones other
+idiots bought" and 302s to New Arrivals, while the nav and footer already hid it
+for want of sales data.
+
+## Cycle 17 — accessibility
+
+- The mobile menu toggle wrapped its hamburger in an `<h3>`, so every page
+  carried a heading in its outline whose text was "☰".
+- Three aside scrims were unlabelled buttons.
+- Aside close (20×24), menu toggle (26×21) and predictive-search submit (62×21)
+  were all under the 24px minimum.
+
+## Cycle 18 — P0: the mobile buy bar never appeared for fast scrollers
+
+`StickyBuyBar` watched the buy block with an `IntersectionObserver`, which only
+fires when the intersection *changes*. On a phone the buy block starts below the
+fold, so a shopper who flung straight past it went from "not intersecting" to
+"not intersecting" — no callback, no bar, and no add-to-cart within thumb reach
+for the rest of the page. Reproducible by jumping from the top of a PDP to
+halfway down in one scroll; stepping there gradually worked, which is why it
+survived earlier checks. Replaced with a rAF-throttled position measurement,
+which can't miss a transition it never observed.
+
+Also: "Add both — $84.00" in Complete The Pair rendered as a default browser
+button (`AddToCartButton` emits a bare `<button>`; the ancestor rule set padding
+but no background or border).
+
+## Cycle 19 — honesty and structured data
+
+The homepage emitted **no** structured data — the one page Google uses to
+establish the brand, its logo, and the sitelinks search box. Added Organization
++ WebSite.
+
+Deliberately **not** added: `sameAs` (the footer's social links point at
+instagram.com / tiktok.com / x.com — the platforms, not this brand's profiles)
+and `shippingDetails` / `hasMerchantReturnPolicy`.
+
+That last one matters. `FREE_SHIPPING_THRESHOLD` was the only constant in
+`commerce.ts` with no verification behind it, while being the most-repeated
+claim on the storefront — announcement bar, marquee, footer, cart meter, PDP.
+It can't be verified from code: `cartBuyerIdentityUpdate` with a US address
+returns no `deliveryGroups` at any subtotal for this shop. And NEEDS_INPUT had
+two contradictory entries, one saying $100 (per the brand brief) and one saying
+$50 (what the code does) — at $42 a shirt that's the difference between free
+shipping on the second shirt and the third. Merged into one entry and flagged.
+
+Also corrected: the catalogue is **391** products in **USD**, not the 393/CAD
+recorded in `commerce.ts`.
+
+## Cycle 20 — "250+ items"
+
+The item count fetched one page and counted nodes, but the Storefront API caps
+a page at 250 — so the full catalogue advertised "250+ items" when it holds 391,
+undercounting by 141. The real number is also a stronger thing to say. Counting
+now pages to the end, bounded to four pages. Verified against live tag counts:
+tees 391, courtship 109, vices 97, confessional 26, errata 13.
+
+## Cycle 21 — the header breakpoints (including one I broke)
+
+The desktop menu switched on at 45em while the mobile toggle switched off at
+48em, so between 720px and 768px both rendered and the header ran ~200px past
+the viewport. Even alone the desktop row needs ~1000px once gutters reach
+2.75rem a side, so it still overflowed at 768 and at 960.
+
+And my own cycle-17 tap-target rule set `display` on the toggle with no media
+query, which beat the `display: none` that hides it — putting a hamburger next
+to the full desktop nav. Caught by re-running the breakpoint sweep after the
+change rather than before it.
+
+One breakpoint now, at 64em, chosen by measurement. Verified at 320 / 375 / 390
+/ 414 / 600 / 720 / 767 / 768 / 900 / 1000 / 1023 / 1024 / 1100 / 1280 / 1600:
+no overflow at any width, exactly one menu visible at each.
+
+## Verification for this pass
+
+- 160 internal URLs crawled: **0 broken**, 1 expected redirect (`/account`).
+- Add-to-cart verified end to end from a listing card, the PDP, and the pair
+  block.
+- Production, warm: TTFB 92–150ms, FCP 364–436ms, ~250KB and ~45 requests per
+  page. Client JS 44KB gz entry + 42KB gz vendor; CSS 15KB gz.
