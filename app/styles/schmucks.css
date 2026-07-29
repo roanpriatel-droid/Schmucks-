@@ -552,16 +552,16 @@ a {
 .sx-grid {
   display: grid;
   gap: 1.25rem;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 @media (min-width: 620px) {
   .sx-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 @media (min-width: 940px) {
   .sx-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -1119,11 +1119,11 @@ aside header h3 {
 .sx-collections-grid {
   display: grid;
   gap: 1.25rem;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 @media (min-width: 720px) {
   .sx-collections-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .sx-collection-tile {
@@ -1154,9 +1154,17 @@ aside header h3 {
 .sx-collection-tile__title {
   font-family: var(--font-display);
   text-transform: uppercase;
-  font-size: 1.15rem;
-  padding: 0.75rem 1rem;
+  /* "THE CONFESSIONAL" has to fit a half-width tile on a 390px phone without
+     splitting the word, so the display face scales with the viewport. */
+  font-size: clamp(0.92rem, 3.6vw, 1.15rem);
+  line-height: 1.05;
+  padding: 0.75rem 0.85rem;
   margin: 0;
+}
+@media (min-width: 720px) {
+  .sx-collection-tile__title {
+    padding: 0.75rem 1rem;
+  }
 }
 
 /* --------------------------------------------------
@@ -1857,7 +1865,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 720px) {
   .sx-steps {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .sx-step {
@@ -1918,7 +1926,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 720px) {
   .sx-blog-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 .sx-blog-card {
@@ -2035,11 +2043,11 @@ details[open] .sx-faq__q::after {
 .sx-spec-grid {
   display: grid;
   gap: 1.25rem;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 @media (min-width: 820px) {
   .sx-spec-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 .sx-spec {
@@ -2112,7 +2120,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 720px) {
   .sx-fitlist {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .sx-fit {
@@ -2229,7 +2237,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 720px) {
   .sx-journal-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .sx-jcard {
@@ -2587,7 +2595,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 760px) {
   .sx-policy-cards {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 .sx-policy-card {
@@ -2882,7 +2890,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 1080px) {
   .sx-blog-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -3099,7 +3107,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 860px) {
   .sx-boards {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .sx-boards > * {
@@ -3308,12 +3316,12 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 620px) {
   .sx-shelfdir__row {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (min-width: 980px) {
   .sx-shelfdir__row {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .sx-shelfdir__item {
@@ -3549,7 +3557,7 @@ details[open] .sx-faq__q::after {
 .sx-member__terms {
   display: grid;
   gap: 0.75rem;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 1.5rem 0 0;
   padding-top: 1rem;
   border-top: 2px dashed var(--ink);
@@ -3935,12 +3943,12 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 760px) {
   .sx-lore {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (min-width: 1100px) {
   .sx-lore {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 .sx-lore__item {
@@ -3976,7 +3984,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 820px) {
   .sx-values {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .sx-value {
@@ -4017,7 +4025,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 760px) {
   .sx-facts {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .sx-facts > div {
@@ -4505,7 +4513,7 @@ details[open] .sx-faq__q::after {
 }
 .sx-spread__minis {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.6rem;
   margin-top: 1.75rem;
 }
@@ -4550,11 +4558,11 @@ details[open] .sx-faq__q::after {
   padding: 0;
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 @media (min-width: 900px) {
   .sx-worn__grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 .sx-worn__frame {
@@ -4723,7 +4731,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 860px) {
   .sx-story__cols {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .sx-story__col {
@@ -5794,7 +5802,7 @@ details[open] .sx-faq__q::after {
 }
 @media (min-width: 900px) {
   .sx-madepairs {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 .sx-madepair {
@@ -5915,7 +5923,7 @@ details[open] .sx-faq__q::after {
 }
 .sx-hero__wall {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(0.6rem, 2vw, 1rem);
   width: 100%;
 }
@@ -6003,5 +6011,36 @@ details[open] .sx-faq__q::after {
   }
   .sx-herotile:hover {
     transform: none;
+  }
+}
+
+/* `anywhere` also feeds the min-content size, which is what the grid tracks
+   above needed before they used minmax(0, 1fr). Now that they do, `break-word`
+   is enough: words break only when one genuinely cannot fit, instead of
+   eagerly splitting "CONFESSIONAL" across two lines. */
+.sx-collection-tile__title,
+.sx-card__title {
+  overflow-wrap: break-word;
+}
+
+/* ---------- Header at 320px ----------
+   The wordmark is a fixed-height SVG (164px wide at 40px tall) and the CTA
+   cluster needs ~168px, so below about 360px the two together overflowed the
+   viewport and pushed the cart button off-screen on every page. The mark
+   scales down rather than the row breaking. */
+@media (max-width: 380px) {
+  .sx-wordmark--header {
+    height: 26px;
+  }
+  .header-ctas {
+    gap: 0.6rem;
+  }
+  .sx-cart-btn {
+    padding-inline: 0.55rem;
+  }
+}
+@media (max-width: 340px) {
+  .sx-wordmark--header {
+    height: 22px;
   }
 }
