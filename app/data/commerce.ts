@@ -11,7 +11,20 @@
  * only for thresholds and ladder percentages, which the API doesn't expose.
  */
 
-/** Free-shipping threshold used by the cart progress bar, in shop currency. */
+/**
+ * Free-shipping threshold, in shop currency.
+ *
+ * UNVERIFIED — and it is the most-repeated claim on the storefront (announcement
+ * bar, marquee, footer, cart progress, PDP). Every other constant in this file
+ * carries a verification; this one cannot get one from code: the Storefront API
+ * will not expose delivery options for this shop, so a cart with a US address
+ * comes back with no `deliveryGroups` at any subtotal. Confirming it needs
+ * Shopify admin → Settings → Shipping and delivery.
+ *
+ * Because it is unverified it is deliberately NOT asserted in Product
+ * structured data — a `shippingDetails` claim Google can't match at checkout is
+ * worse than none. See NEEDS_INPUT.md; the brand brief said $100, not $50.
+ */
 export const FREE_SHIPPING_THRESHOLD = 50;
 
 /**

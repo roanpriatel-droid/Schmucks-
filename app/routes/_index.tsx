@@ -86,6 +86,7 @@ export default function Homepage() {
   const {featured, boards, pair, errata, heroProducts} = useLoaderData<typeof loader>();
   return (
     <div className="sx-home">
+      <HomeJsonLd />
       <Hero products={heroProducts as HomeProductFragment[]} />
       <Marquee
         items={[
@@ -404,6 +405,59 @@ function BrandStory() {
         </Reveal>
       </div>
     </section>
+  );
+}
+
+/**
+ * Organization + WebSite for the homepage.
+ *
+ * Product and Collection pages already emit structured data; the homepage — the
+ * page Google uses to establish who the brand is, what its logo is, and whether
+ * to show a sitelinks search box — emitted none. Only facts the storefront
+ * controls are asserted here: no shipping or returns claims, because the
+ * free-shipping threshold is unverified (see commerce.ts).
+ */
+function HomeJsonLd() {
+  const origin = 'https://shmucks.store';
+  const graph = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${origin}/#organization`,
+        name: 'SCHMUCKS',
+        alternateName: 'Schmucks — Fine Apparel for Idiots',
+        url: origin,
+        logo: `${origin}/favicon.svg`,
+        description:
+          'Funny, mildly inappropriate graphic tees. Printed to order, new drops weekly.',
+        // No `sameAs`: the footer's social links currently point at the
+        // platforms' homepages, not at real Schmucks profiles, and telling
+        // Google those URLs are this brand's accounts would be false. Add the
+        // real handles and this comes back. See NEEDS_INPUT.md.
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${origin}/#website`,
+        url: origin,
+        name: 'SCHMUCKS',
+        publisher: {'@id': `${origin}/#organization`},
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${origin}/search?q={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        },
+      },
+    ],
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{__html: JSON.stringify(graph)}}
+    />
   );
 }
 

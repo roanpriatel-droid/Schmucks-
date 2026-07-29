@@ -10,11 +10,25 @@ before it can ship as a factual claim. Until then I use honest alternatives.
   reviews later: wire a reviews app (Judge.me / Okendo / Shopify Product Reviews)
   and I'll render real data + Product `aggregateRating` schema.
 - **Press mentions / "as seen in"** — none added (none are real).
+- **Social links point at platforms, not profiles.** The footer's IG / TikTok / X
+  icons link to `instagram.com`, `tiktok.com` and `x.com` — the sites, not the
+  brand's accounts — so they read as broken to anyone who clicks. Give me the
+  real handles and they get wired up, and the homepage `Organization` schema
+  gets its `sameAs` back (deliberately omitted for now rather than telling
+  Google that the platform homepages are this brand's accounts).
 
 ## Commerce facts
-- **Free-shipping threshold** — currently shown as **$100** (from the brand
-  brief "free US shipping $100+"). Confirm the real threshold; it drives the
-  announcement bar, cart progress, and PDP shipping copy.
+- **Free-shipping threshold — UNVERIFIED, and stated on every page.** The site
+  promises "free shipping on orders over $50" in the announcement bar, the
+  marquee, the footer, the cart progress bar and the PDP. Nothing has confirmed
+  that a matching Shopify shipping profile exists. The Storefront API will not
+  expose delivery options for this shop (`cartBuyerIdentityUpdate` with a US
+  address returns no `deliveryGroups`), so it cannot be checked from code —
+  it needs a look in admin (Settings → Shipping and delivery).
+  Note the brand brief said **$100**, the code says **$50**: at $42 a shirt
+  that is the difference between free shipping on the second shirt and on the
+  third. Whichever is right, this is the single most-repeated claim on the
+  storefront and the only commerce constant with no verification behind it.
 - **Stack & Save discount** — the cart meter is UI only. Create the matching
   **Shopify automatic discount** (2+=10%, 3=20%, 4+=30%) in admin or it won't
   apply at checkout.
@@ -23,16 +37,14 @@ before it can ship as a factual claim. Until then I use honest alternatives.
   data confirms it. Confirm real fulfillment windows to hard-code copy.
 
 ## Store configuration
-- **PRICES ARE CAD $42.00, NOT $25.** The catalogue is 393 products, all one
+- **PRICES ARE USD $42.00, NOT $25.** The catalogue is 391 products, all one
   price, options Color (Black / Natural, Gold on 12) and Size S–3XL. Every
   hardcoded "$25 flat" and "free US shipping over $100" claim has been removed;
   prices now render from the API only. If you intended a $25/$27/$29 ladder,
   that has to change in admin — the storefront reports what the store says.
-- **The free-shipping threshold is set to $50** (`app/data/commerce.ts`) per
-  the brief. At CAD $42/shirt that's reached on the second shirt, not the
-  first — confirm this is the intended rule and that a matching Shopify
-  shipping profile exists, or the progress bar promises something checkout
-  won't honour.
+  (Verified 2026-07-28: shop currency is USD and the only presentment currency
+  is USD, so the earlier "CAD" note here was wrong.)
+- (Free shipping is covered under **Commerce facts** above — one entry, not two.)
 - **The ten smart collections are still unpublished to the Hydrogen channel.**
   The storefront works anyway: every shelf falls back to a product tag query
   (`app/lib/shelfQuery.ts`). Publishing them switches each shelf to
