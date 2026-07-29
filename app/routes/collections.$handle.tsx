@@ -23,6 +23,7 @@ import {NEW_ARRIVALS_LIMIT, SALES_DATA_AVAILABLE} from '~/data/commerce';
 import {shelfQueryString, shelfSortArgs} from '~/lib/shelfQuery';
 import {facetKindFor, shelfDescription, toProductFilters} from '~/lib/shelves';
 import {pageMeta, toDescription} from '~/lib/seo';
+import {countProducts} from '~/lib/countProducts';
 import {splitTitle} from '~/lib/productCopy';
 
 export const meta: Route.MetaFunction = (args) => {
@@ -146,17 +147,12 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
         // Sort-based shelves (Best Sellers, New Arrivals) span the whole
         // catalogue, so they count against the catalogue tag instead of
         // reporting their own page size as the total.
-        storefront
-          .query(SHELF_COUNT_QUERY, {
-            variables: {query: tagQuery ?? "tag:'tees'"},
-            cache: storefront.CacheLong(),
-          })
-          .catch(() => null),
+        countProducts(storefront as never, tagQuery ?? "tag:'tees'").catch(
+          () => null,
+        ),
       ]);
 
-      const counted = windowLimit
-        ? windowLimit
-        : (countData?.products?.nodes?.length ?? null);
+      const counted = windowLimit ? windowLimit : (countData?.total ?? null);
 
       // Trim the rendered page to the window so paging can't walk past it.
       const windowed =
@@ -179,7 +175,7 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
         // be published; a tag shelf gets sort + count only.
         facets: [] as Facet[],
         total: counted,
-        countCapped: counted === SHELF_COUNT_LIMIT,
+        countCapped: windowLimit ? false : (countData?.capped ?? false),
       };
     }
     throw new Response(`Collection ${handle} not found`, {
@@ -554,16 +550,4 @@ const SHELF_PRODUCTS_QUERY = `#graphql
   }
 ` as const;
 
-/** Storefront caps a page at 250; a bigger shelf reports "250+". */
-const SHELF_COUNT_LIMIT = 250;
 
-const SHELF_COUNT_QUERY = `#graphql
-  query ShelfCount($country: CountryCode, $language: LanguageCode, $query: String!)
-    @inContext(country: $country, language: $language) {
-    products(first: 250, query: $query) {
-      nodes {
-        id
-      }
-    }
-  }
-` as const;

@@ -59,6 +59,20 @@ export type RescueProductsQuery = {
   };
 };
 
+export type ProductCountQueryVariables = StorefrontAPI.Exact<{
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+  query: StorefrontAPI.Scalars['String']['input'];
+  after?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']['input']>;
+}>;
+
+export type ProductCountQuery = {
+  products: {
+    nodes: Array<Pick<StorefrontAPI.Product, 'id'>>;
+    pageInfo: Pick<StorefrontAPI.PageInfo, 'hasNextPage' | 'endCursor'>;
+  };
+};
+
 export type MoneyFragment = Pick<
   StorefrontAPI.MoneyV2,
   'currencyCode' | 'amount'
@@ -1104,16 +1118,6 @@ export type ShelfProductsQuery = {
       'hasPreviousPage' | 'hasNextPage' | 'endCursor' | 'startCursor'
     >;
   };
-};
-
-export type ShelfCountQueryVariables = StorefrontAPI.Exact<{
-  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
-  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  query: StorefrontAPI.Scalars['String']['input'];
-}>;
-
-export type ShelfCountQuery = {
-  products: {nodes: Array<Pick<StorefrontAPI.Product, 'id'>>};
 };
 
 export type CollectionFragment = Pick<
@@ -2617,20 +2621,14 @@ export type TeesCatalogQuery = {
   };
 };
 
-export type TeesCountQueryVariables = StorefrontAPI.Exact<{
-  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
-  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  query: StorefrontAPI.Scalars['String']['input'];
-}>;
-
-export type TeesCountQuery = {
-  products: {nodes: Array<Pick<StorefrontAPI.Product, 'id'>>};
-};
-
 interface GeneratedQueryTypes {
   '#graphql\n  fragment RescueItem on Product {\n    id\n    handle\n    title\n    featuredImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n  }\n  query RescueProducts($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    products(first: 4, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...RescueItem\n      }\n    }\n  }\n': {
     return: RescueProductsQuery;
     variables: RescueProductsQueryVariables;
+  };
+  '#graphql\n  query ProductCount(\n    $country: CountryCode\n    $language: LanguageCode\n    $query: String!\n    $after: String\n  ) @inContext(country: $country, language: $language) {\n    products(first: 250, query: $query, after: $after) {\n      nodes {\n        id\n      }\n      pageInfo {\n        hasNextPage\n        endCursor\n      }\n    }\n  }\n': {
+    return: ProductCountQuery;
+    variables: ProductCountQueryVariables;
   };
   '#graphql\n  fragment Shop on Shop {\n    id\n    name\n    description\n    primaryDomain {\n      url\n    }\n    brand {\n      logo {\n        image {\n          url\n        }\n      }\n    }\n  }\n  query Header(\n    $country: CountryCode\n    $headerMenuHandle: String!\n    $language: LanguageCode\n  ) @inContext(language: $language, country: $country) {\n    shop {\n      ...Shop\n    }\n    menu(handle: $headerMenuHandle) {\n      ...Menu\n    }\n  }\n  #graphql\n  fragment MenuItem on MenuItem {\n    id\n    resourceId\n    tags\n    title\n    type\n    url\n  }\n  fragment ChildMenuItem on MenuItem {\n    ...MenuItem\n  }\n  fragment ParentMenuItem on MenuItem {\n    ...MenuItem\n    items {\n      ...ChildMenuItem\n    }\n  }\n  fragment Menu on Menu {\n    id\n    items {\n      ...ParentMenuItem\n    }\n  }\n\n': {
     return: HeaderQuery;
@@ -2671,10 +2669,6 @@ interface GeneratedQueryTypes {
   '#graphql\n  #graphql\n  fragment MoneyProductItem on MoneyV2 {\n    amount\n    currencyCode\n  }\n  fragment ProductItem on Product {\n    id\n    handle\n    title\n    variants(first: 20) {\n      nodes {\n        id\n        availableForSale\n        selectedOptions {\n          name\n          value\n        }\n      }\n    }\n    featuredImage {\n      id\n      altText\n      url\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        altText\n        url\n        width\n        height\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        ...MoneyProductItem\n      }\n      maxVariantPrice {\n        ...MoneyProductItem\n      }\n    }\n  }\n\n  query ShelfProducts(\n    $country: CountryCode\n    $language: LanguageCode\n    $query: String!\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $endCursor: String\n    $sortKey: ProductSortKeys = BEST_SELLING\n    $reverse: Boolean = false\n  ) @inContext(country: $country, language: $language) {\n    products(\n      first: $first,\n      last: $last,\n      before: $startCursor,\n      after: $endCursor,\n      query: $query,\n      sortKey: $sortKey,\n      reverse: $reverse\n    ) {\n      nodes {\n        ...ProductItem\n      }\n      pageInfo {\n        hasPreviousPage\n        hasNextPage\n        endCursor\n        startCursor\n      }\n    }\n  }\n': {
     return: ShelfProductsQuery;
     variables: ShelfProductsQueryVariables;
-  };
-  '#graphql\n  query ShelfCount($country: CountryCode, $language: LanguageCode, $query: String!)\n    @inContext(country: $country, language: $language) {\n    products(first: 250, query: $query) {\n      nodes {\n        id\n      }\n    }\n  }\n': {
-    return: ShelfCountQuery;
-    variables: ShelfCountQueryVariables;
   };
   '#graphql\n  fragment Collection on Collection {\n    id\n    title\n    handle\n    description\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n  }\n  query StoreCollections(\n    $country: CountryCode\n    $endCursor: String\n    $first: Int\n    $language: LanguageCode\n    $last: Int\n    $startCursor: String\n  ) @inContext(country: $country, language: $language) {\n    collections(\n      first: $first,\n      last: $last,\n      before: $startCursor,\n      after: $endCursor\n    ) {\n      nodes {\n        ...Collection\n      }\n      pageInfo {\n        hasNextPage\n        hasPreviousPage\n        startCursor\n        endCursor\n      }\n    }\n  }\n': {
     return: StoreCollectionsQuery;
@@ -2743,10 +2737,6 @@ interface GeneratedQueryTypes {
   '#graphql\n  query TeesCatalog(\n    $country: CountryCode\n    $language: LanguageCode\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $endCursor: String\n    $sortKey: ProductSortKeys = BEST_SELLING\n    $reverse: Boolean = false\n  ) @inContext(country: $country, language: $language) {\n    products(\n      first: $first,\n      last: $last,\n      before: $startCursor,\n      after: $endCursor,\n      sortKey: $sortKey,\n      reverse: $reverse\n    ) {\n      nodes {\n        ...TeesItem\n      }\n      pageInfo {\n        hasPreviousPage\n        hasNextPage\n        startCursor\n        endCursor\n      }\n    }\n  }\n  #graphql\n  fragment MoneyTeesItem on MoneyV2 {\n    amount\n    currencyCode\n  }\n  fragment TeesItem on Product {\n    id\n    handle\n    title\n    variants(first: 20) {\n      nodes {\n        id\n        availableForSale\n        selectedOptions {\n          name\n          value\n        }\n      }\n    }\n    featuredImage {\n      id\n      altText\n      url\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        altText\n        url\n        width\n        height\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        ...MoneyTeesItem\n      }\n      maxVariantPrice {\n        ...MoneyTeesItem\n      }\n    }\n  }\n\n': {
     return: TeesCatalogQuery;
     variables: TeesCatalogQueryVariables;
-  };
-  '#graphql\n  query TeesCount($country: CountryCode, $language: LanguageCode, $query: String!)\n    @inContext(country: $country, language: $language) {\n    products(first: 250, query: $query) {\n      nodes {\n        id\n      }\n    }\n  }\n': {
-    return: TeesCountQuery;
-    variables: TeesCountQueryVariables;
   };
 }
 

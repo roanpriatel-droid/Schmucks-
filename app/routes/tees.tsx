@@ -16,6 +16,7 @@ import {
 import {SHELVES} from '~/data/shelves';
 import {facetKindFor, toProductFilters} from '~/lib/shelves';
 import {pageMeta} from '~/lib/seo';
+import {countProducts} from '~/lib/countProducts';
 import {isPaginatedRequest} from './collections.$handle';
 
 export const meta: Route.MetaFunction = (args) =>
@@ -108,19 +109,13 @@ export async function loader({context, request}: Route.LoaderArgs) {
       },
     }),
     // Without this the page reported its own page size as the shelf total.
-    context.storefront
-      .query(TEES_COUNT_QUERY, {
-        variables: {query: "tag:'tees'"},
-        cache: context.storefront.CacheLong(),
-      })
-      .catch(() => null),
+    countProducts(context.storefront as never, "tag:'tees'").catch(() => null),
   ]);
-  const counted = countData?.products?.nodes?.length ?? null;
 
   return {
     products,
-    total: counted,
-    countCapped: counted === 250,
+    total: countData?.total ?? null,
+    countCapped: countData?.capped ?? false,
     paginated: isPaginatedRequest(new URL(request.url)),
     source: 'catalog' as const,
     description: collection?.description ?? null,
@@ -341,13 +336,4 @@ const TEES_CATALOG_QUERY = `#graphql
   ${TEES_ITEM_FRAGMENT}
 ` as const;
 
-const TEES_COUNT_QUERY = `#graphql
-  query TeesCount($country: CountryCode, $language: LanguageCode, $query: String!)
-    @inContext(country: $country, language: $language) {
-    products(first: 250, query: $query) {
-      nodes {
-        id
-      }
-    }
-  }
-` as const;
+
