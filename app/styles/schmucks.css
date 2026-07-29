@@ -295,6 +295,13 @@ a {
 * -------------------------------------------------- */
 .header {
   background: var(--cream);
+  /* app.css sticks the header at z-index 1, but .sx-hero__inner is z-index 2 —
+     so the hero painted straight over the open mega panel, which read as the
+     nav going transparent. The panel's own z-index can't help: it is trapped
+     in the header's stacking context. The layer order for the whole site is
+     kept in one place below: page content < header < aside overlays <
+     lightbox. */
+  z-index: 50;
   border-bottom: var(--line-thick) solid var(--ink);
   height: auto;
   min-height: var(--header-height);
@@ -2935,8 +2942,14 @@ details[open] .sx-faq__q::after {
 }
 /* Bridge the gap between the trigger and the panel: without it the pointer
    leaves the wrapper on the way down, mouseleave fires, and the menu shuts
-   before an option can be clicked. */
-.sx-mega__trigger::after {
+   before an option can be clicked.
+
+   This has to be ::before. The trigger is also a .header-menu-item, whose
+   ::after is the mustard hover underline — so putting the bridge on ::after
+   made them the same pseudo-element, and the underline's mustard background
+   combined with the bridge's geometry into a permanent yellow block under
+   "Tees". */
+.sx-mega__trigger::before {
   content: '';
   position: absolute;
   left: 0;
@@ -6227,4 +6240,13 @@ details[open] .sx-faq__q::after {
 .cart-line-quantity {
   flex-wrap: wrap;
   row-gap: 0.5rem;
+}
+
+/* ---------- Layer order ----------
+   page content (0–2) < header (50) < aside overlays (100) < lightbox (120).
+   app.css puts .overlay at z-index 10, which was below the header the moment
+   the header was lifted above the hero — the site header then painted straight
+   across the open cart drawer. */
+.overlay {
+  z-index: 100;
 }
