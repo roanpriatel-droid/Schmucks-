@@ -28,16 +28,35 @@ export function StickyBuyBar({
   const {open} = useAside();
   const [shown, setShown] = useState(false);
 
+  /**
+   * This used to watch the buy block with an IntersectionObserver. That only
+   * delivers a callback when the intersection *changes* — so if the block
+   * started below the fold and the shopper flung straight past it, the state
+   * went "not intersecting" to "not intersecting", no callback fired, and the
+   * bar never appeared. Reproducible by jumping from the top of a PDP to
+   * halfway down in one scroll. Measuring position directly can't miss a
+   * transition it never observed.
+   */
   useEffect(() => {
     const element = watchRef.current;
-    if (!element || typeof IntersectionObserver === 'undefined') return;
-    const observer = new IntersectionObserver(
-      ([entry]) =>
-        setShown(!entry.isIntersecting && entry.boundingClientRect.top < 0),
-      {threshold: 0},
-    );
-    observer.observe(element);
-    return () => observer.disconnect();
+    if (!element) return;
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      // Shown once the real buy block has scrolled off the top of the screen.
+      setShown(element.getBoundingClientRect().bottom < 0);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
+    measure();
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('resize', onScroll, {passive: true});
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [watchRef]);
 
   const available = Boolean(selectedVariant?.availableForSale);
