@@ -5584,9 +5584,46 @@ details[open] .sx-faq__q::after {
   justify-items: center;
   text-align: center;
 }
+/* AddToCartButton renders a bare <button> with no class of its own, so it only
+   looks right where an ancestor styles it. This rule set padding and font size
+   but never a background or border, so "Add both" rendered as a browser-default
+   white box next to a full-width ketchup CTA. */
 .sx-pairblock__buy button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   font-size: 0.95rem;
-  padding: 1.05rem 1.6rem;
+  line-height: 1;
+  padding: 1.05rem 1.9rem;
+  color: var(--cream);
+  background: var(--ketchup);
+  border: var(--outline);
+  box-shadow: var(--shadow-hard);
+  cursor: pointer;
+  transition:
+    transform 90ms ease,
+    box-shadow 90ms ease;
+}
+.sx-pairblock__buy button:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.sx-pairblock__buy button:active {
+  transform: translate(6px, 6px);
+  box-shadow: 0 0 0 var(--ink);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-pairblock__buy button {
+    transition: none;
+  }
+  .sx-pairblock__buy button:hover {
+    transform: none;
+  }
 }
 .sx-pairblock__note,
 .sx-pairblock__oos {
