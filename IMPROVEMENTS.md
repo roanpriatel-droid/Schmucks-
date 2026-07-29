@@ -909,3 +909,32 @@ no overflow at any width, exactly one menu visible at each.
   block.
 - Production, warm: TTFB 92–150ms, FCP 364–436ms, ~250KB and ~45 requests per
   page. Client JS 44KB gz entry + 42KB gz vendor; CSS 15KB gz.
+
+## Cycle 22 — the mobile cart drawer was broken four ways
+
+The highest-value surface on the site, and every fault traced to one thing:
+cycle 5 narrowed the drawer to `92vw` on phones but only updated `width` and
+`right`, leaving everything else derived from the design-time `--aside-width`.
+
+- The reveal transform still travelled the full 420px, so the open drawer
+  landed 61px off — hanging past the left edge with a gap down the right.
+- `.cart-summary-aside` is hardcoded to `--aside-width - 40px` = 380px, inside
+  a 359px drawer. The free-shipping meter, subtotal, discount fields and the
+  checkout button all overhung.
+- The line item's text column wouldn't shrink (`flex` items default to
+  `min-width: auto`), pushing a long title ~28px past the edge.
+- Once that was fixed, **Remove** rendered half off-screen.
+
+Width, resting offset and transform now derive from one `--aside-w`. Verified:
+drawer sits at 31..390 on a 390px viewport, no horizontal scroll, nothing
+outside it.
+
+Also: the 404 was the only page with no `h1` (its "404" was a div), and the
+hero `h1` split across a `<br>` with no space, so its accessible name read
+"Fine Apparelfor Idiots."
+
+**How these survived earlier passes:** every one is invisible to a
+document-level overflow check, because the drawer clips its own content. They
+only show up measuring *inside* the open drawer against its own box — which is
+also why the Remove button, a control the shopper needs, had been sitting half
+off-screen.
