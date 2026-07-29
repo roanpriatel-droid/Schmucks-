@@ -5828,8 +5828,13 @@ details[open] .sx-faq__q::after {
    no visible edge to tap back to. Leave a strip of the page showing. */
 @media (max-width: 480px) {
   aside {
-    width: min(var(--aside-width), 92vw);
-    right: calc(-1 * min(var(--aside-width), 92vw));
+    /* One value drives width, resting offset AND the reveal transform. When
+       only the first two were narrowed to 92vw the drawer still slid by the
+       full 420px, so it landed 61px off: hanging off the left edge with a gap
+       down the right. */
+    --aside-w: min(var(--aside-width), 92vw);
+    width: var(--aside-w);
+    right: calc(-1 * var(--aside-w));
   }
 }
 
@@ -6179,3 +6184,47 @@ details[open] .sx-faq__q::after {
    fill their tiles. Reverted: the gain was marginal and BRAND §5 is explicit
    that breathing room is the house style ("when unsure, add space"). Cropping
    also risks clipping any mockup framed differently from the sampled ones. */
+
+/* The reveal has to travel exactly the drawer's own width — see --aside-w. */
+@media (max-width: 480px) {
+  .overlay.expanded aside {
+    transform: translateX(calc(var(--aside-w) * -1));
+  }
+}
+
+/* ---------- Cart line: let the text column shrink ----------
+   `.cart-line-inner` is a flex row (image + details). A flex item's default
+   `min-width: auto` refuses to shrink below its content, so a long product
+   title pushed the details column ~28px past the drawer's edge and made the
+   drawer scroll sideways. The title is the joke and can wrap; it must not set
+   the row's width. */
+.cart-line-inner > :last-child {
+  min-width: 0;
+  flex: 1;
+}
+.cart-line-inner strong,
+.cart-line-inner a {
+  overflow-wrap: break-word;
+}
+
+/* app.css hardcodes this to `--aside-width - 40px` (380px), which ignores the
+   92vw cap the drawer takes on a phone — so the summary, the free-shipping
+   meter and the checkout button all sat wider than the drawer holding them.
+   Derive it from the actual container instead of the design-time constant. */
+.cart-summary-aside {
+  left: 0;
+  right: 0;
+  width: auto;
+  box-sizing: border-box;
+  /* The old fixed width carried its inset implicitly; spanning the container
+     means the gutter has to be restated or the summary touches both edges. */
+  padding-inline: 1rem;
+}
+
+/* [− 1 +] and Remove don't both fit across a 92vw drawer once the title column
+   is shrinking properly, so Remove was rendering half off the drawer's right
+   edge. Let the row wrap instead of overflowing. */
+.cart-line-quantity {
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
+}
