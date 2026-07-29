@@ -6044,3 +6044,10 @@ details[open] .sx-faq__q::after {
     height: 22px;
   }
 }
+
+/* Rescue rail — the shoppable block on empty cart / no results / 404. */
+.sx-rescue {
+  border-top: var(--line) solid var(--ink);
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+  background: var(--cream);
+}

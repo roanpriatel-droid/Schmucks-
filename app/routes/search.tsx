@@ -14,6 +14,7 @@ import type {
 } from 'storefrontapi.generated';
 import {pageMeta} from '~/lib/seo';
 import {Breadcrumbs} from '~/components/Breadcrumbs';
+import {RescueRail, RESCUE_PRODUCTS_QUERY} from '~/components/RescueRail';
 
 export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
@@ -37,14 +38,22 @@ export async function loader({request, context}: Route.LoaderArgs) {
     return {term: '', result: null, error: error.message};
   });
 
-  return await searchPromise;
+  const searched = await searchPromise;
+  // A search that matched nothing used to be a dead end. Carry a few real
+  // products so there is always something to buy on the page. Predictive
+  // requests are a JSON side-channel and never render this.
+  if (isPredictive) return searched;
+  const rescue = await context.storefront
+    .query(RESCUE_PRODUCTS_QUERY, {cache: context.storefront.CacheShort()})
+    .catch(() => null);
+  return {...searched, rescue: rescue?.products?.nodes ?? []};
 }
 
 /**
  * Renders the /search route
  */
 export default function SearchPage() {
-  const {type, term, result, error} = useLoaderData<typeof loader>();
+  const {type, term, result, error, rescue} = useLoaderData<typeof loader>() as any;
   if (type === 'predictive') return null;
 
   return (
@@ -76,7 +85,14 @@ export default function SearchPage() {
           </SearchForm>
           {error && <p style={{color: 'var(--ketchup)'}}>{error}</p>}
           {!term || !result?.total ? (
-            <SearchResults.Empty />
+            <>
+              <SearchResults.Empty />
+              <RescueRail
+                products={rescue ?? []}
+                eyebrow="Since you're here"
+                title="Try these instead"
+              />
+            </>
           ) : (
             <SearchResults result={result} term={term}>
               {({articles, pages, products, term}) => (

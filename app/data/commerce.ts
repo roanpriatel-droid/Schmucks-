@@ -3,7 +3,7 @@
  * states in copy. Nothing here may be repeated as a literal anywhere else.
  *
  * Verified against the live Storefront API on 2026-07-26:
- *   393 products, all CAD $42.00, one price across every variant and size,
+ *   391 products, all USD $42.00, one price across every variant and size,
  *   options Color (Gold / Natural / Black) and Size (S–3XL), ships worldwide.
  *
  * Prices are NEVER hardcoded in components — render <Money> from the API so a
@@ -48,7 +48,7 @@ export const STACK_TIERS = [
 /**
  * Does the catalogue contain more than one price?
  *
- * VERIFIED FALSE on 2026-07-27: all 393 products return 42.00 in the shop's
+ * VERIFIED FALSE on 2026-07-27: all 391 products return 42.00 in the shop's
  * currency. While this is false, "Price: low to high" and "Price: high to low"
  * are controls that cannot change anything — a shopper picks one, the page
  * reloads, and the order is identical — so they are removed from the sort list.

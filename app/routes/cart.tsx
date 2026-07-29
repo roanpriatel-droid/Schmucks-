@@ -4,6 +4,7 @@ import type {CartQueryDataReturn} from '@shopify/hydrogen';
 import {CartForm} from '@shopify/hydrogen';
 import {CartMain} from '~/components/CartMain';
 import {pageMeta} from '~/lib/seo';
+import {RescueRail, RESCUE_PRODUCTS_QUERY} from '~/components/RescueRail';
 
 export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
@@ -103,11 +104,20 @@ export async function action({request, context}: Route.ActionArgs) {
 
 export async function loader({context}: Route.LoaderArgs) {
   const {cart} = context;
-  return await cart.get();
+  // An empty cart was a single "start making mistakes" link. Carry a few real
+  // products so the page always has something to buy on it.
+  const [current, rescue] = await Promise.all([
+    cart.get(),
+    context.storefront
+      .query(RESCUE_PRODUCTS_QUERY, {cache: context.storefront.CacheShort()})
+      .catch(() => null),
+  ]);
+  return {cart: current, rescue: rescue?.products?.nodes ?? []};
 }
 
 export default function Cart() {
-  const cart = useLoaderData<typeof loader>();
+  const {cart, rescue} = useLoaderData<typeof loader>();
+  const isEmpty = !(cart?.lines?.nodes?.length ?? 0);
 
   return (
     <div className="sx-cart-page">
@@ -120,6 +130,13 @@ export default function Cart() {
       <section className="sx-wrap sx-cart-page__grid">
         <CartMain layout="page" cart={cart} />
       </section>
+      {isEmpty ? (
+        <RescueRail
+          products={rescue as never}
+          eyebrow="Straight off the press"
+          title="Start here"
+        />
+      ) : null}
     </div>
   );
 }

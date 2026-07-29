@@ -5,6 +5,7 @@ import type {CollectionFragment} from 'storefrontapi.generated';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {Breadcrumbs} from '~/components/Breadcrumbs';
 import {ALL_SHELVES} from '~/data/shelves';
+import {SALES_DATA_AVAILABLE} from '~/data/commerce';
 import {pageMeta, toDescription} from '~/lib/seo';
 
 export const meta: Route.MetaFunction = (args) =>
@@ -96,7 +97,14 @@ export default function Collections() {
   const published = new Map(
     collections.nodes.map((node) => [node.handle, node]),
   );
-  const shelfTiles = ALL_SHELVES.filter((shelf) => shelf.handle !== 'tees').map(
+  const shelfTiles = ALL_SHELVES.filter(
+    (shelf) =>
+      shelf.handle !== 'tees' &&
+      // The nav and footer already hide Best Sellers while the store has no
+      // sales history — /collections/best-sellers 302s to New Arrivals. A tile
+      // here claimed "the ones other idiots bought" and led to a redirect.
+      (shelf.handle !== 'best-sellers' || SALES_DATA_AVAILABLE),
+  ).map(
     (shelf) => {
       const node = published.get(shelf.handle);
       const preview = previews[shelf.handle];
