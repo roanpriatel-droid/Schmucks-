@@ -6102,13 +6102,30 @@ details[open] .sx-faq__q::after {
   font-size: 1.5rem;
   line-height: 1;
 }
-.header-menu-mobile-toggle {
-  min-width: 44px;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.35rem;
+/* ---------- One header breakpoint, set where the nav actually fits ----------
+   The desktop menu switched on at 45em while the mobile toggle only switched
+   off at 48em, so between 720px and 768px both rendered at once. And even
+   alone the desktop row needs ~930px (brand 204 + menu 476 + CTAs 247), so at
+   768px it still ran off the side. Measured, the switch belongs at 64em:
+   at 960px the gutters have grown to 2.75rem a side and it is still 41px
+   short. */
+@media (max-width: 63.99em) {
+  .header-menu-desktop {
+    display: none;
+  }
+  .header-menu-mobile-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+  }
+}
+@media (min-width: 64em) {
+  .header-menu-mobile-toggle {
+    display: none;
+  }
 }
 .predictive-search-form button {
   min-height: 44px;
