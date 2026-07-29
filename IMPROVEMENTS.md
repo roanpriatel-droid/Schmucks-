@@ -752,3 +752,61 @@ spanning the gap on both the trigger and the panel, and a 260 ms close delay so 
 brief excursion doesn't dismiss it. Re-entering cancels the pending close.
 
 Cost: 0 KB JS beyond one timer ref. Keyboard/escape behaviour unchanged.
+
+---
+
+# Launch-grade pass (self-directed, "make it look like an 8-figure brand")
+
+## Cycle 14 — the joke is the product, and the site was hiding it
+
+**Audit finding.** Pulled every product title and sampled mockups across the
+whole catalogue range. Two structural problems, both fatal to browsing:
+
+1. **~99% of the 393 mockups are the same photograph** — a black tee, centred,
+   on white, with the design set in a small serif at chest-hit position. At any
+   size the site actually renders them, the words are unreadable. So the grid
+   was 393 identical black rectangles and the only thing distinguishing them was
+   the card title.
+2. **That title was clamped to three lines at 0.98rem.** Measured: median title
+   is 24 characters, p90 is 44, max is 106. 34% run past 30 characters and 15%
+   past 40 — so roughly 60 products had their punchline cut off, and they were
+   the longest, most specific, most clickable ones.
+
+### Fixes
+
+**Titles never truncate.** Type steps down by length (1.14 → 1.02 → 0.9 →
+0.8rem) instead of clipping, with a 6-line backstop for the single 106-char
+outlier. Base size also raised to 1.14rem because BRAND §3 puts card titles at
+1.1–1.3rem and this sat below the brand's own scale — on the one element that
+differentiates the catalogue.
+
+**A print-detail view.** Printify places every design at the same chest-hit
+position, so a fixed crop (`scale(2.6)`, origin `50% 38%`) is a dependable
+close-up. Verified against the catalogue's extremes — the 106-character design
+and the widest bold lockups both sit inside the frame with margin. It ships as
+gallery slide 2 on every PDP ("The print"), and as the card hover on desktop,
+replacing a hover that used to load a whole second mockup to show an almost
+identical picture of the same shirt. Same URL as the lead image, so it costs
+zero extra bytes and one decode.
+
+**P0 — quick-add never added anything.** The card was one `<Link>` wrapping the
+whole thing including the quick-add form, so the wrapper had to
+`preventDefault()` on every click to stop the card navigating — which also
+cancelled the form's own submit. Every listing page showed a working-looking
+quick-add on 24 cards that put nothing in the cart. Fixed by taking the form
+out of the anchor: the card is now a div, the link covers the media and copy,
+and the form is a sibling. Verified end-to-end — add from a card now reaches the
+cart (badge 1, line item present, free-shipping progress updates).
+
+**Card density.** The size grid stood open on all 24 cards, repeating
+"S M L XL 2XL 3XL" down the whole page and costing ~66px of height each; it now
+collapses behind one "Quick add" button. Also dropped the "Unisex tee · S–3XL"
+line, which is identical on all 393 products and so carries no information in a
+grid. Card height 430px → 355px, about 25% more product per phone screen.
+
+**Copy that argued against buying.** The homepage said "Nobody has voted with
+their wallet yet", and every PDP carried a Reviews section headed "Nobody has
+said anything yet." Both are honest, but they tell every visitor the product has
+never sold. BRAND §8 forbids inventing reviews and nothing was invented — the
+Judge.me mount point still ships so the widget appears the moment the app is
+installed. Only the empty shouting is gone.

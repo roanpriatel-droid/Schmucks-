@@ -50,6 +50,27 @@ export function ProductGallery({
     return [lead, ...images.filter((image) => image.url !== colorImageUrl)];
   }, [images, colorImageUrl]);
 
+  /**
+   * Every mockup in this catalogue is the same shot: the whole garment on
+   * white, with the print rendered small enough to be unreadable at any size
+   * the page actually displays it. The words are the product, so the shopper
+   * has to be able to read them without pinch-zooming.
+   *
+   * Printify places every design at the same chest-hit position, so a fixed
+   * crop of the lead mockup is a reliable detail shot. Verified against the
+   * catalogue's extremes — the 106-character design and the widest bold
+   * lockups both sit inside the frame with margin. Same URL as the lead image,
+   * so it costs a second decode and no extra bytes.
+   */
+  const slides = useMemo(() => {
+    const list: Array<{image: GalleryImage; detail: boolean}> = [];
+    ordered.forEach((image, position) => {
+      list.push({image, detail: false});
+      if (position === 0) list.push({image, detail: true});
+    });
+    return list;
+  }, [ordered]);
+
   const scrollTo = useCallback((next: number) => {
     const track = trackRef.current;
     if (!track) return;
@@ -108,7 +129,7 @@ export function ProductGallery({
       ? `${title}${colorName ? ` in ${colorName}` : ''}`
       : `${title} — alternate view ${position + 1}`;
 
-  const single = ordered.length === 1;
+  const single = slides.length === 1;
 
   return (
     <div className="sx-gallery">
@@ -118,23 +139,32 @@ export function ProductGallery({
         role="group"
         aria-label={`${title} images`}
       >
-        {ordered.map((image, position) => (
+        {slides.map((slide, position) => (
           <button
             type="button"
-            className="sx-gallery__slide"
-            key={image.id ?? image.url}
+            className={`sx-gallery__slide ${slide.detail ? 'sx-gallery__slide--detail' : ''}`.trim()}
+            key={`${slide.image.id ?? slide.image.url}-${slide.detail ? 'detail' : 'full'}`}
             onClick={() => setZoomed(true)}
-            aria-label={`Zoom ${altFor(position)}`}
+            aria-label={
+              slide.detail ? `Zoom the print on ${title}` : `Zoom ${altFor(position)}`
+            }
           >
             <Image
-              data={image}
-              alt={image.altText || altFor(position)}
+              data={slide.image}
+              alt={
+                slide.detail
+                  ? `Close-up of the print on ${title}`
+                  : slide.image.altText || altFor(position)
+              }
               aspectRatio="1/1"
               sizes="(min-width: 990px) 46vw, 100vw"
-              // The first slide is the LCP element on this template.
-              loading={position === 0 ? 'eager' : 'lazy'}
+              // The first two slides are the same URL and the LCP element.
+              loading={position <= 1 ? 'eager' : 'lazy'}
               fetchPriority={position === 0 ? 'high' : undefined}
             />
+            {slide.detail ? (
+              <span className="sx-gallery__detailtag">The print</span>
+            ) : null}
           </button>
         ))}
       </div>
@@ -142,10 +172,10 @@ export function ProductGallery({
       {!single ? (
         <>
           <div className="sx-gallery__dots" role="group" aria-label="Gallery position">
-            {ordered.map((image, position) => (
+            {slides.map((slide, position) => (
               <button
                 type="button"
-                key={`dot-${image.id ?? image.url}`}
+                key={`dot-${slide.image.id ?? slide.image.url}-${position}`}
                 className="sx-gallery__dot"
                 aria-current={position === index}
                 aria-label={`Go to image ${position + 1}`}
@@ -155,17 +185,23 @@ export function ProductGallery({
           </div>
 
           <div className="sx-gallery__thumbs" role="group" aria-label="Choose an image">
-            {ordered.map((image, position) => (
+            {slides.map((slide, position) => (
               <button
                 type="button"
-                key={`thumb-${image.id ?? image.url}`}
-                className={`sx-gallery__thumb ${position === index ? 'is-on' : ''}`}
+                key={`thumb-${slide.image.id ?? slide.image.url}-${position}`}
+                className={`sx-gallery__thumb ${position === index ? 'is-on' : ''} ${
+                  slide.detail ? 'sx-gallery__thumb--detail' : ''
+                }`.trim()}
                 onClick={() => scrollTo(position)}
-                aria-label={`Show ${altFor(position)}`}
+                aria-label={
+                  slide.detail
+                    ? `Show the print close-up`
+                    : `Show ${altFor(position)}`
+                }
                 aria-pressed={position === index}
               >
                 <Image
-                  data={image}
+                  data={slide.image}
                   alt=""
                   aspectRatio="1/1"
                   sizes="80px"
@@ -194,11 +230,17 @@ export function ProductGallery({
             {/* Native pinch-zoom: the scroller allows scale, so mobile gets
                 real two-finger zoom without a gesture library. */}
             <img
-              className="sx-lightbox__img"
-              src={ordered[index]?.url ?? ordered[0].url}
-              alt={altFor(index)}
-              width={ordered[index]?.width ?? undefined}
-              height={ordered[index]?.height ?? undefined}
+              className={`sx-lightbox__img ${
+                slides[index]?.detail ? 'sx-lightbox__img--detail' : ''
+              }`.trim()}
+              src={slides[index]?.image.url ?? slides[0].image.url}
+              alt={
+                slides[index]?.detail
+                  ? `Close-up of the print on ${title}`
+                  : altFor(index)
+              }
+              width={slides[index]?.image.width ?? undefined}
+              height={slides[index]?.image.height ?? undefined}
             />
           </div>
           <button

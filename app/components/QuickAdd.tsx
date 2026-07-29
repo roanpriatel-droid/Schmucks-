@@ -26,6 +26,10 @@ export function QuickAdd({
 }) {
   const {open} = useAside();
   const [chosen, setChosen] = useState<string | null>(null);
+  // Collapsed by default. A permanently-open six-button size grid on every
+  // card cost ~66px of height each and repeated "S M L XL 2XL 3XL" 24 times a
+  // page, which pushed the grid down to barely two products per phone screen.
+  const [open_, setOpen] = useState(false);
 
   const sizes = variants
     .map((variant) => ({
@@ -58,14 +62,24 @@ export function QuickAdd({
   const selected = chosen ? bySize.get(chosen) : undefined;
 
   return (
-    <div
-      className="sx-quickadd"
-      // The card is a link; keep clicks in here from navigating.
-      onClick={(event) => event.preventDefault()}
-      onKeyDown={(event) => event.stopPropagation()}
-      role="presentation"
-    >
-      <div className="sx-quickadd__sizes" role="group" aria-label={`Choose a size for ${productTitle}`}>
+    <div className="sx-quickadd">
+      {!open_ ? (
+        <button
+          type="button"
+          className="sx-quickadd__toggle"
+          onClick={() => setOpen(true)}
+          aria-expanded={false}
+        >
+          Quick add
+        </button>
+      ) : null}
+
+      <div
+        className="sx-quickadd__sizes"
+        role="group"
+        aria-label={`Choose a size for ${productTitle}`}
+        hidden={!open_}
+      >
         {entries.map(([size, variant]) => (
           <button
             type="button"
@@ -80,6 +94,7 @@ export function QuickAdd({
         ))}
       </div>
 
+      {open_ ? (
       <AddToCartButton
         disabled={!selected?.availableForSale}
         onClick={() => {
@@ -95,6 +110,7 @@ export function QuickAdd({
       >
         {chosen ? `Add ${chosen}` : 'Pick a size'}
       </AddToCartButton>
+      ) : null}
     </div>
   );
 }

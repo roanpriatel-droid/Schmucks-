@@ -138,7 +138,7 @@ function FeaturedRow({
             {!hasProducts
               ? 'This shelf fills itself the moment the tagging run finds something.'
               : featured.usingFallback
-                ? 'Nobody has voted with their wallet yet, so here’s what’s newest.'
+                ? 'Fresh off the press — the newest additions to the catalogue.'
                 : 'The ones other idiots bought. Draw your own conclusions.'}
           </p>
         </div>
