@@ -1025,6 +1025,9 @@ aside header h3 {
   line-height: 0.9;
   color: var(--ketchup);
   text-shadow: 4px 4px 0 var(--ink);
+  /* Now an <h1>; drop the UA heading margin so nothing shifts. */
+  margin: 0;
+  font-weight: 400;
 }
 .sx-404__msg {
   font-weight: 600;

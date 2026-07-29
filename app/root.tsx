@@ -357,7 +357,9 @@ export function NotFound({
     <div className="sx-404">
       <div>
         <MelShrug className="sx-404__mel" />
-        <div className="sx-404__code sx-display">{title}</div>
+        {/* Was a <div>: the 404 was the only page on the site with no h1, so
+            it had no top-level heading for assistive tech or crawlers. */}
+        <h1 className="sx-404__code sx-display">{title}</h1>
         <p className="sx-404__msg">{message}</p>
         <form className="sx-404__search" action="/search" method="get">
           <label className="sx-visually-hidden" htmlFor="notfound-search">

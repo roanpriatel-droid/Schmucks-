@@ -475,8 +475,10 @@ function Hero({products}: {products: HomeProductFragment[]}) {
       <div className="sx-wrap sx-hero__inner">
         <div className="sx-hero__copy">
           <span className="sx-hero__kicker">New Schmuck Drops Weekly</span>
+          {/* The line break is visual; without the space the accessible name
+              read "Fine Apparelfor Idiots." */}
           <h1 className="sx-hero__headline">
-            <span>Fine Apparel</span>
+            <span>Fine Apparel </span>
             <br />
             <span className="sx-hero__line2">for Idiots.</span>
           </h1>
