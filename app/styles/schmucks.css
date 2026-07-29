@@ -6051,3 +6051,29 @@ details[open] .sx-faq__q::after {
   padding-block: clamp(2.5rem, 6vw, 4rem);
   background: var(--cream);
 }
+
+/* ---------- Tap targets ----------
+   The aside close, the mobile menu toggle and the predictive-search submit
+   were all under the 24px minimum (20x24, 26x21 and 62x21). Padding is used
+   rather than size so nothing shifts visually. */
+.overlay aside header .close.reset {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.header-menu-mobile-toggle {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+}
+.predictive-search-form button {
+  min-height: 44px;
+  padding-inline: 0.9rem;
+}

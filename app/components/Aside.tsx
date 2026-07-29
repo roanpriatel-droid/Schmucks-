@@ -60,7 +60,14 @@ export function Aside({
       role="dialog"
       aria-labelledby={id}
     >
-      <button className="close-outside" onClick={close} />
+      {/* Decorative scrim. The × below is the real control, so this stays out
+          of the tab order rather than becoming a second, unlabelled stop. */}
+      <button
+        className="close-outside"
+        onClick={close}
+        aria-label="Close"
+        tabIndex={-1}
+      />
       <aside>
         <header>
           <h3 id={id}>{heading}</h3>

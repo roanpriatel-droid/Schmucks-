@@ -108,7 +108,9 @@ function HeaderMenuMobileToggle() {
       onClick={() => open('mobile')}
       aria-label="Open menu"
     >
-      <h3>☰</h3>
+      {/* A glyph, not a section heading — as an <h3> it landed in the document
+          outline and was announced as a heading reading "☰". */}
+      <span aria-hidden="true">☰</span>
     </button>
   );
 }
