@@ -62,6 +62,9 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
   });
 
   return {
+    // The hero shows real shirts. Four is enough to read as a catalogue
+    // without turning the top of the page into a grid.
+    heroProducts: newArrivals.slice(0, 4),
     featured: {
       title: usingFallback ? 'New Arrivals' : 'Best Sellers',
       handle: usingFallback ? 'new-arrivals' : 'best-sellers',
@@ -80,10 +83,10 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
 }
 
 export default function Homepage() {
-  const {featured, boards, pair, errata} = useLoaderData<typeof loader>();
+  const {featured, boards, pair, errata, heroProducts} = useLoaderData<typeof loader>();
   return (
     <div className="sx-home">
-      <Hero />
+      <Hero products={heroProducts as HomeProductFragment[]} />
       <Marquee
         items={[
           'FREE SHIPPING OVER $50',
@@ -425,35 +428,79 @@ function BrandStory() {
   );
 }
 
-function Hero() {
+/**
+ * The hero used to be type on a dotted background with no product in it at
+ * all — the first screen of a clothing shop showed no clothing. It now leads
+ * with four real shirts, cropped to the print so the shopper can actually read
+ * a joke above the fold instead of being told there are some.
+ */
+function Hero({products}: {products: HomeProductFragment[]}) {
+  const tiles = products.slice(0, 4);
+
   return (
     <section className="sx-hero" aria-label="Hero">
       <div className="sx-wrap sx-hero__inner">
-        <span className="sx-hero__kicker">New Schmuck Drops Weekly</span>
-        <h1 className="sx-hero__headline">
-          <span>Fine Apparel</span>
-          <br />
-          <span className="sx-hero__line2">for Idiots.</span>
-        </h1>
-        <p className="sx-hero__sub">
-          Funny shirts for people who peaked online. Sizes S–3XL, printed on
-          cotton that can take a joke.
-        </p>
-        <p className="sx-hero__social">
-          <span>Printed to order</span>
-          <span className="sx-hero__dot">·</span>
-          <span>Free shipping over $50</span>
-          <span className="sx-hero__dot">·</span>
-          <span>30-day returns</span>
-        </p>
-        <div className="sx-hero__ctas">
-          <Link className="sx-btn sx-btn--ketchup" to="/tees">
-            Shop the Tees
-          </Link>
-          <Link className="sx-btn sx-btn--ghost" to="/matching-sets">
-            The Pair Programme
-          </Link>
+        <div className="sx-hero__copy">
+          <span className="sx-hero__kicker">New Schmuck Drops Weekly</span>
+          <h1 className="sx-hero__headline">
+            <span>Fine Apparel</span>
+            <br />
+            <span className="sx-hero__line2">for Idiots.</span>
+          </h1>
+          <p className="sx-hero__sub">
+            Funny shirts for people who peaked online. Sizes S–3XL, printed on
+            cotton that can take a joke.
+          </p>
+          <div className="sx-hero__ctas">
+            <Link className="sx-btn sx-btn--ketchup" to="/tees">
+              Shop the Tees
+            </Link>
+            <Link className="sx-btn sx-btn--ghost" to="/matching-sets">
+              The Pair Programme
+            </Link>
+          </div>
+          <p className="sx-hero__social">
+            <span>Printed to order</span>
+            <span className="sx-hero__dot">·</span>
+            <span>Free shipping over $50</span>
+            <span className="sx-hero__dot">·</span>
+            <span>30-day returns</span>
+          </p>
         </div>
+
+        {tiles.length ? (
+          <div className="sx-hero__wall">
+            {tiles.map((product, index) => {
+              // Alternate colourways so the wall isn't four identical black
+              // squares — each product carries a Natural and a Black mockup.
+              const alt = product.images?.nodes?.find(
+                (node) => node.url !== product.featuredImage?.url,
+              );
+              const image =
+                index % 3 === 1 && alt ? alt : product.featuredImage;
+              if (!image) return null;
+              const {displayTitle} = splitTitle(product.title);
+              return (
+                <Link
+                  className="sx-herotile"
+                  key={product.id}
+                  to={`/products/${product.handle}`}
+                  prefetch="intent"
+                >
+                  <Image
+                    data={image}
+                    alt={`The print on ${displayTitle}`}
+                    aspectRatio="1/1"
+                    sizes="(min-width: 60em) 22vw, 45vw"
+                    loading={index < 2 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : undefined}
+                  />
+                  <span className="sx-herotile__shop">Shop</span>
+                </Link>
+              );
+            })}
+          </div>
+        ) : null}
       </div>
       <Mel className="sx-mel-peek" />
     </section>

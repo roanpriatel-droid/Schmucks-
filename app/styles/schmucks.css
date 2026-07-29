@@ -5899,3 +5899,109 @@ details[open] .sx-faq__q::after {
 .sx-quickadd__sizes[hidden] {
   display: none;
 }
+
+/* ---------- Hero with product in it ----------
+   Two columns on desktop, stacked on mobile. The tiles use the same print crop
+   as the PDP detail slide, so the first screen of the site shows four jokes
+   the shopper can actually read rather than a promise that they exist. */
+.sx-hero__inner {
+  align-items: center;
+}
+.sx-hero__copy {
+  display: grid;
+  gap: 1.35rem;
+  justify-items: center;
+  text-align: center;
+}
+.sx-hero__wall {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.6rem, 2vw, 1rem);
+  width: 100%;
+}
+.sx-herotile {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: var(--cream-shade);
+  border: var(--line) solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  transition:
+    transform 110ms ease,
+    box-shadow 110ms ease;
+}
+.sx-herotile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translateY(8%) scale(2.6);
+  transform-origin: 50% 38%;
+}
+.sx-herotile:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--ketchup);
+}
+.sx-herotile__shop {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background: var(--mustard);
+  border-top: var(--line) solid var(--ink);
+  border-right: var(--line) solid var(--ink);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.6rem;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+.sx-herotile:hover .sx-herotile__shop,
+.sx-herotile:focus-visible .sx-herotile__shop {
+  opacity: 1;
+}
+@media (min-width: 60em) {
+  .sx-hero__inner {
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+  .sx-hero__copy {
+    justify-items: start;
+    text-align: left;
+  }
+  .sx-hero__copy .sx-hero__kicker {
+    margin-inline: 0;
+    align-self: flex-start;
+  }
+  /* The headline was scaled for a full-width hero; in half the width, 11vw
+     ran to four lines and swallowed the section. */
+  .sx-hero__copy .sx-hero__headline {
+    text-align: left;
+    font-size: clamp(2.6rem, 5.4vw, 4.9rem);
+  }
+  .sx-hero__copy .sx-hero__sub,
+  .sx-hero__copy .sx-hero__social {
+    text-align: left;
+    justify-content: flex-start;
+    margin-inline: 0;
+  }
+  .sx-hero__copy .sx-hero__ctas {
+    justify-content: flex-start;
+  }
+  /* Mel stood on top of the bottom-right tile once the wall arrived. */
+  .sx-hero .sx-mel-peek {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-herotile,
+  .sx-herotile__shop {
+    transition: none;
+  }
+  .sx-herotile:hover {
+    transform: none;
+  }
+}
