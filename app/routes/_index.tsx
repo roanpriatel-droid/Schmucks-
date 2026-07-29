@@ -276,53 +276,32 @@ function PairBanner({pair}: {pair: HomeProductFragment[]}) {
 }
 
 /**
- * Social-proof band. There is no real UGC yet, so this is an open invitation
- * with empty frames — never invented customers or fabricated captions
- * (BRAND §8). The caption slots show what a real submission will look like.
+ * The customer-photo ask.
+ *
+ * This used to be a four-up gallery of empty dashed frames reading "your photo
+ * here" — a homepage section whose entire content was the admission that it
+ * had no content. BRAND §8 rules out staging or buying photos to fill it, so
+ * the honest move is to stop pretending it's a gallery: it's a one-line
+ * invitation until real photos exist, at which point the grid comes back.
  */
-const UGC_SLOTS = [
-  'Wore it to a wedding. Not my wedding.',
-  'My mother has asked me to take it off.',
-  'Third one. No notes.',
-  'Bought it ironically. Wear it sincerely.',
-];
-
 function AsWornByIdiots() {
   return (
-    <section className="sx-worn" aria-labelledby="sx-worn-title">
-      <div className="sx-wrap">
-        <div className="sx-section-head">
-          <div>
-            <p className="sx-eyebrow">As Worn By Idiots</p>
-            <h2 className="sx-section-title" id="sx-worn-title">
-              Caught in public
-            </h2>
-          </div>
-          <p className="sx-section-note">
-            These frames are empty on purpose. Send us a photo and we&rsquo;ll
-            put you in one — no staged models, no stock photography.
-          </p>
+    <section className="sx-wornband" aria-labelledby="sx-worn-title">
+      <div className="sx-wrap sx-wornband__inner">
+        <div>
+          <p className="sx-eyebrow sx-eyebrow--mustard">As Worn By Idiots</p>
+          <h2 className="sx-wornband__title sx-display" id="sx-worn-title">
+            Caught in public
+          </h2>
         </div>
-
-        <ul className="sx-worn__grid">
-          {UGC_SLOTS.map((caption, index) => (
-            <li className="sx-worn__tile" key={caption}>
-              <div className="sx-worn__frame">
-                <span className="sx-worn__slot sx-display">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <span className="sx-worn__await">Your photo here</span>
-              </div>
-              <p className="sx-worn__caption">&ldquo;{caption}&rdquo;</p>
-            </li>
-          ))}
-        </ul>
-
-        <div className="sx-worn__cta">
-          <Link className="sx-btn sx-btn--ghost" to="/pages/contact">
-            Send us yours
-          </Link>
-        </div>
+        <p className="sx-wornband__note">
+          No staged models and no stock photography — the only photos that go on
+          this site are ones you send us. Wear it somewhere inadvisable and
+          we&rsquo;ll put you up.
+        </p>
+        <Link className="sx-btn sx-btn--ketchup" to="/pages/contact">
+          Send us yours
+        </Link>
       </div>
     </section>
   );

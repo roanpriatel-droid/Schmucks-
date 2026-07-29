@@ -6077,3 +6077,48 @@ details[open] .sx-faq__q::after {
   min-height: 44px;
   padding-inline: 0.9rem;
 }
+
+/* ---------- "Caught in public" ----------
+   Was a four-up grid of empty dashed frames on the homepage. Until there are
+   real customer photos it's a single band, not a gallery with nothing in it. */
+.sx-wornband {
+  background: var(--ink);
+  color: var(--cream);
+  border-block: var(--line-thick) solid var(--ink);
+  padding-block: clamp(2rem, 5vw, 3rem);
+}
+.sx-wornband__inner {
+  display: grid;
+  gap: 1.1rem;
+  align-items: center;
+}
+.sx-wornband__title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  line-height: 0.95;
+  margin: 0.25rem 0 0;
+}
+.sx-wornband__note {
+  margin: 0;
+  max-width: 46ch;
+  line-height: 1.6;
+  opacity: 0.86;
+}
+.sx-wornband .sx-btn {
+  justify-self: start;
+}
+@media (min-width: 60em) {
+  .sx-wornband__inner {
+    grid-template-columns: auto 1fr auto;
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+  .sx-wornband .sx-btn {
+    justify-self: end;
+  }
+}
+
+/* Tried scaling card mockups 1.16x to crop the white margin and make garments
+   fill their tiles. Reverted: the gain was marginal and BRAND §5 is explicit
+   that breathing room is the house style ("when unsure, add space"). Cropping
+   also risks clipping any mockup framed differently from the sampled ones. */
