@@ -6250,3 +6250,17 @@ details[open] .sx-faq__q::after {
 .overlay {
   z-index: 100;
 }
+
+/* Shipping note in the cart. Replaces the free-shipping progress meter, which
+   counted the shopper down to a threshold that does not exist in any zone. */
+.sx-shipnote {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: var(--line) solid var(--ink);
+  background: var(--cream-shade);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.35;
+}

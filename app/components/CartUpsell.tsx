@@ -1,6 +1,7 @@
 import {Link} from 'react-router';
 import {useAside} from '~/components/Aside';
 import {
+  FREE_SHIPPING_LIVE,
   FREE_SHIPPING_THRESHOLD,
   STACK_DISCOUNT_LIVE,
   STACK_TIERS,
@@ -27,7 +28,9 @@ export function CartUpsell({totalQuantity}: {totalQuantity: number}) {
       <p className="sx-upsell__note">
         {STACK_DISCOUNT_LIVE
           ? `Two shirts takes ${STACK_TIERS[0].percent}% off the lot, applied automatically at checkout. No code, no catch worth mentioning.`
-          : `Orders over $${FREE_SHIPPING_THRESHOLD} ship free, and one shirt doesn’t get you there. Two do — and the second one is somebody else’s problem to explain.`}
+          : FREE_SHIPPING_LIVE
+            ? `Orders over $${FREE_SHIPPING_THRESHOLD} ship free, and one shirt doesn’t get you there. Two do — and the second one is somebody else’s problem to explain.`
+            : `One shirt is a decision. Two is a bit. The second one is somebody else’s problem to explain.`}
       </p>
       <div className="sx-upsell__ctas">
         <Link

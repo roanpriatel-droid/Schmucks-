@@ -4,7 +4,9 @@ import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
 import {WordmarkFlat, Badge} from '~/components/brand/Brand';
 import {SHELVES} from '~/data/shelves';
 import {
+  FREE_SHIPPING_LIVE,
   FREE_SHIPPING_THRESHOLD,
+  US_SHIPPING_FROM,
   RETURNS_DAYS,
   SALES_DATA_AVAILABLE,
 } from '~/data/commerce';
@@ -79,7 +81,11 @@ export function Footer({policies = []}: FooterProps) {
             shipped with love and mild concern.
           </p>
           <ul className="sx-footer__perks">
-            <li>Free shipping over ${FREE_SHIPPING_THRESHOLD}</li>
+            <li>
+              {FREE_SHIPPING_LIVE
+                ? `Free shipping over $${FREE_SHIPPING_THRESHOLD}`
+                : `US shipping from $${US_SHIPPING_FROM.toFixed(2)}`}
+            </li>
             <li>{RETURNS_DAYS}-day returns</li>
             <li>Printed to order</li>
           </ul>

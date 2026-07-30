@@ -116,7 +116,6 @@ export default function MatchingSets() {
         items={[
           'MIX & MATCH ANY DESIGNS',
           'TWO SHIRTS, ONE BAD IDEA',
-          'FREE SHIPPING OVER $50',
           'PRINTED TO ORDER',
         ]}
       />

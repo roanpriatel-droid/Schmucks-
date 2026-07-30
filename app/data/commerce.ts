@@ -12,20 +12,42 @@
  */
 
 /**
- * Free-shipping threshold, in shop currency.
+ * Is there free shipping over a threshold?
  *
- * UNVERIFIED — and it is the most-repeated claim on the storefront (announcement
- * bar, marquee, footer, cart progress, PDP). Every other constant in this file
- * carries a verification; this one cannot get one from code: the Storefront API
- * will not expose delivery options for this shop, so a cart with a US address
- * comes back with no `deliveryGroups` at any subtotal. Confirming it needs
- * Shopify admin → Settings → Shipping and delivery.
+ * VERIFIED FALSE on 2026-07-30 against the Shopify Admin API
+ * (GET /admin/api/2026-04/shipping_zones.json, shop 101605572889):
  *
- * Because it is unverified it is deliberately NOT asserted in Product
- * structured data — a `shippingDetails` claim Google can't match at checkout is
- * worse than none. See NEEDS_INPUT.md; the brand brief said $100, not $50.
+ *   32 zones, 372 shipping rates.
+ *   price-based (threshold) rates anywhere: 0
+ *   rates costing $0.00 anywhere:           0
+ *
+ * Every zone is weight-based flat rate. There is no free shipping in any
+ * country at any subtotal. The storefront had been promising "free shipping on
+ * orders over $50" in the announcement bar on every page, the marquee, the
+ * footer, the cart progress meter, the PDP, the FAQ and the Pair Programme —
+ * and the checkout charges for shipping every time. A shopper adding a second
+ * shirt to "unlock free shipping" was being charged for it at the till.
+ *
+ * TO TURN IT ON: Shopify admin → Settings → Shipping and delivery → add a
+ * price-based rate of $0.00 with a minimum order price, in each zone you want
+ * it. Then re-run the check above and flip this to `true`. Every claim across
+ * the site comes back at once.
+ */
+export const FREE_SHIPPING_LIVE = false;
+
+/**
+ * Threshold used only when FREE_SHIPPING_LIVE is true. Kept so the copy can
+ * come back unchanged the moment a real rate exists.
  */
 export const FREE_SHIPPING_THRESHOLD = 50;
+
+/**
+ * Cheapest real US shipping rate, from the shipping_zones response above:
+ * the United States zone starts at $4.75 for the lightest weight bracket.
+ * Used instead of a free-shipping promise so the site still says something
+ * concrete about delivery cost.
+ */
+export const US_SHIPPING_FROM = 4.75;
 
 /**
  * Is the Stack & Save multi-buy discount actually live at checkout?
@@ -108,7 +130,18 @@ export const CONTACT_EMAIL = 'help@schmucks.example';
  * the free-shipping threshold and two clear it. That's a real incentive the
  * checkout actually honours.
  */
-export const MULTI_BUY_LINE = `Free shipping kicks in over $${FREE_SHIPPING_THRESHOLD} — one shirt doesn't get you there, two do.`;
+/**
+ * The multi-buy line.
+ *
+ * This used to be "free shipping kicks in over $50 — one shirt doesn't get you
+ * there, two do", which was the site's main reason to add a second shirt and
+ * is false (see FREE_SHIPPING_LIVE). With no discount and no free-shipping
+ * tier, there is currently NO financial reason to buy two, so the copy no
+ * longer invents one — the pair stands on being a pair.
+ */
+export const MULTI_BUY_LINE = FREE_SHIPPING_LIVE
+  ? `Free shipping kicks in over $${FREE_SHIPPING_THRESHOLD} — one shirt doesn't get you there, two do.`
+  : `Two people, two shirts, one running joke. Sizes are chosen separately, so nobody has to compromise.`;
 
 export function stackTierFor(quantity: number) {
   return [...STACK_TIERS].reverse().find((tier) => quantity >= tier.quantity);

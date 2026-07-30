@@ -1,7 +1,8 @@
 import {useEffect, useState} from 'react';
 
 const MESSAGES = [
-  'FREE SHIPPING ON ORDERS OVER $50',
+  // Was "FREE SHIPPING ON ORDERS OVER $50" — no such rate exists in any zone.
+  'PRINTED TO ORDER — NOTHING SITS IN A WAREHOUSE',
   'PRINTED TO ORDER — NOTHING SITS IN A WAREHOUSE',
   '30-DAY RETURNS (WE MIGHT ASK ONE QUESTION)',
 ];

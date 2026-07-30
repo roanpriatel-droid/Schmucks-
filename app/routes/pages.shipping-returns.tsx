@@ -5,7 +5,9 @@ import {Reveal} from '~/components/Reveal';
 import {Mel} from '~/components/brand/Brand';
 import {
   CONTACT_EMAIL,
+  FREE_SHIPPING_LIVE,
   FREE_SHIPPING_THRESHOLD,
+  US_SHIPPING_FROM,
   RETURNS_DAYS,
 } from '~/data/commerce';
 import {pageMeta} from '~/lib/seo';
@@ -13,7 +15,7 @@ import {pageMeta} from '~/lib/seo';
 export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
     title: 'Shipping & Returns',
-    description: `How a Schmucks order gets made, packed and shipped, what free shipping over $${FREE_SHIPPING_THRESHOLD} means, and how to send a shirt back within ${RETURNS_DAYS} days.`,
+    description: `How a Schmucks order gets made, packed and shipped, what it costs, and how to send a shirt back within ${RETURNS_DAYS} days.`,
     path: '/pages/shipping-returns',
   });
 
@@ -60,13 +62,16 @@ export default function ShippingReturns() {
         <div className="sx-wrap">
           <div className="sx-shipcards">
             <div className="sx-shipcard sx-shipcard--hero">
-              <p className="sx-shipcard__label">Free shipping</p>
+              <p className="sx-shipcard__label">Shipping</p>
               <p className="sx-shipcard__value sx-display">
-                Over ${FREE_SHIPPING_THRESHOLD}
+                {FREE_SHIPPING_LIVE
+                  ? `Free over $${FREE_SHIPPING_THRESHOLD}`
+                  : `From $${US_SHIPPING_FROM.toFixed(2)}`}
               </p>
               <p className="sx-shipcard__note">
-                Applied automatically at checkout. Below that, the exact rate is
-                calculated before you pay — no surprise line items.
+                Charged by weight, so it goes up with the number of shirts, not
+                the price. The exact rate is calculated at checkout before you
+                pay — no surprise line items.
               </p>
             </div>
             <div className="sx-shipcard">

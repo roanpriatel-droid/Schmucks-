@@ -18,17 +18,24 @@ before it can ship as a factual claim. Until then I use honest alternatives.
   Google that the platform homepages are this brand's accounts).
 
 ## Commerce facts
-- **Free-shipping threshold — UNVERIFIED, and stated on every page.** The site
-  promises "free shipping on orders over $50" in the announcement bar, the
-  marquee, the footer, the cart progress bar and the PDP. Nothing has confirmed
-  that a matching Shopify shipping profile exists. The Storefront API will not
-  expose delivery options for this shop (`cartBuyerIdentityUpdate` with a US
-  address returns no `deliveryGroups`), so it cannot be checked from code —
-  it needs a look in admin (Settings → Shipping and delivery).
-  Note the brand brief said **$100**, the code says **$50**: at $42 a shirt
-  that is the difference between free shipping on the second shirt and on the
-  third. Whichever is right, this is the single most-repeated claim on the
-  storefront and the only commerce constant with no verification behind it.
+- **THERE IS NO FREE SHIPPING. RESOLVED 2026-07-30 — the site was lying.**
+  Checked against the Admin API (`GET /admin/api/2026-04/shipping_zones.json`):
+  **32 zones, 372 rates, zero price-based (threshold) rates, zero $0.00 rates.**
+  Every zone is weight-based flat rate. The storefront had been promising "free
+  shipping on orders over $50" in the announcement bar on every page, the
+  marquee, the footer, the cart progress meter, the PDP, the FAQ and the Pair
+  Programme — and the checkout charged for shipping every time. Someone adding
+  a second shirt to "unlock free shipping" got billed for it at the till.
+  All of it is now suppressed behind `FREE_SHIPPING_LIVE` in
+  `app/data/commerce.ts`. Real US rates, for reference:
+  1 shirt **$4.75**, 2 shirts **$7.15**, 3 shirts **$9.55** (Canada $9.39 /
+  $13.78, EU ~$13.49 / $17.49, rest of world $10 / $14).
+  **If you want free shipping to be true**, add a price-based $0.00 rate with a
+  minimum order price per zone in Settings → Shipping and delivery, then flip
+  `FREE_SHIPPING_LIVE` to `true` — every claim comes back at once. Note that at
+  $42 a shirt with $7.15 US shipping, a $50 threshold means you'd absorb $7.15
+  on most two-shirt orders.
+
 - **Stack & Save discount** — the cart meter is UI only. Create the matching
   **Shopify automatic discount** (2+=10%, 3=20%, 4+=30%) in admin or it won't
   apply at checkout.

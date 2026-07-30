@@ -5,7 +5,11 @@ import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
 import {StackProgress} from '~/components/StackProgress';
 import {track} from '~/lib/analytics';
-import {FREE_SHIPPING_THRESHOLD} from '~/data/commerce';
+import {
+  FREE_SHIPPING_LIVE,
+  FREE_SHIPPING_THRESHOLD,
+  US_SHIPPING_FROM,
+} from '~/data/commerce';
 import {TrustRow} from '~/components/product/TrustRow';
 
 // Real free-shipping threshold. Confirm this value (see NEEDS_INPUT.md).
@@ -88,6 +92,22 @@ function FreeShipProgress({
   currency: string;
 }) {
   if (subtotal <= 0) return null;
+  // No free-shipping tier exists in any zone (see FREE_SHIPPING_LIVE), so a
+  // progress bar counting down to one was walking the shopper toward a promise
+  // the checkout breaks — at the exact moment they're deciding to pay. State
+  // the real cheapest rate instead of animating toward a fiction.
+  if (!FREE_SHIPPING_LIVE) {
+    const from = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+    }).format(US_SHIPPING_FROM);
+    return (
+      <div className="sx-shipnote">
+        <span className="sx-stars">★</span> Shipping calculated at checkout —
+        from {from} in the US.
+      </div>
+    );
+  }
   const remaining = Math.max(FREE_SHIPPING_THRESHOLD - subtotal, 0);
   const pct = Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
   const unlocked = remaining === 0;

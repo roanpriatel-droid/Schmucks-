@@ -5,7 +5,9 @@ import {MelShrug} from '~/components/brand/Brand';
 import {
   BLANK,
   CONTACT_EMAIL,
+  FREE_SHIPPING_LIVE,
   FREE_SHIPPING_THRESHOLD,
+  US_SHIPPING_FROM,
   RETURNS_DAYS,
   SIZE_RUN,
   STACK_DISCOUNT_LIVE,
@@ -105,8 +107,8 @@ const GROUPS: Array<{
         a: (
           <>
             Almost certainly — the shop ships internationally. Rates are
-            calculated at checkout before you pay anything, and orders over $
-            {FREE_SHIPPING_THRESHOLD} ship free. Full detail on the{' '}
+            calculated at checkout before you pay anything, starting at $
+            {US_SHIPPING_FROM.toFixed(2)} in the US. Full detail on the{' '}
             <Link className="sx-inline-link" to="/pages/shipping-returns">
               shipping &amp; returns
             </Link>{' '}
@@ -189,14 +191,14 @@ const GROUPS: Array<{
           }
         : {
             q: 'Do you do multi-buy discounts?',
-            plain: `Not at the moment. The one saving that is real is free shipping on orders over $${FREE_SHIPPING_THRESHOLD}, which a single shirt doesn't reach and two do. We would rather tell you that than advertise a discount the checkout doesn't apply.`,
+            plain: `No. There is no multi-buy discount and no free-shipping threshold — shipping is charged by weight and starts at $${US_SHIPPING_FROM.toFixed(2)} in the US. We would rather say that than advertise a saving the checkout doesn't apply.`,
             a: (
               <>
-                Not at the moment. The one saving that&rsquo;s real is{' '}
-                <strong>
-                  free shipping on orders over ${FREE_SHIPPING_THRESHOLD}
-                </strong>
-                , which one shirt doesn&rsquo;t reach and two do. If we ever run
+                No. There&rsquo;s no multi-buy discount and{' '}
+                <strong>no free-shipping threshold</strong> — shipping is
+                charged by weight and starts at ${US_SHIPPING_FROM.toFixed(2)}{' '}
+                in the US. We&rsquo;d rather say that than advertise a saving
+                the checkout doesn&rsquo;t apply. If we ever run
                 a proper multi-buy deal it&rsquo;ll apply itself at checkout and
                 say so here — we&rsquo;d rather admit this than advertise a
                 discount your basket never gets.{' '}

@@ -54,7 +54,7 @@ export function StackLadder() {
         </div>
 
         <p className="sx-stack__fine">
-          Auto-applied at checkout · Mix &amp; match · Stacks with free shipping
+          Auto-applied at checkout · Mix &amp; match · Sizes chosen per shirt
         </p>
       </div>
     </section>

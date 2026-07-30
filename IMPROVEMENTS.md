@@ -938,3 +938,44 @@ document-level overflow check, because the drawer clips its own content. They
 only show up measuring *inside* the open drawer against its own box — which is
 also why the Remove button, a control the shopper needs, had been sitting half
 off-screen.
+
+## Cycle 23 — the site's most-repeated claim was false
+
+With Admin API access I could finally check the one thing `commerce.ts` had no
+verification for. `GET /admin/api/2026-04/shipping_zones.json`:
+
+```
+32 zones, 372 shipping rates
+price-based (threshold) rates anywhere: 0
+rates costing $0.00 anywhere:           0
+```
+
+**There is no free shipping, in any country, at any subtotal.** Every zone is a
+weight-based flat rate. Real US cost: $4.75 for one shirt, $7.15 for two.
+
+The storefront was promising "free shipping on orders over $50" in the
+announcement bar on *every page*, the marquee, the footer, the cart progress
+meter, the PDP, the FAQ and the Pair Programme. The cart meter was the worst of
+it — it animated a shopper toward a threshold that does not exist, at the exact
+moment they were deciding to pay, and the checkout then charged them. The Pair
+Programme's whole reason to buy two ("one shirt doesn't get you there, two do")
+was built on it. The FAQ said, without irony, "the one saving that's real is
+free shipping over $50 — we'd rather tell you that than advertise a discount
+the checkout doesn't apply."
+
+Fixed with the same pattern as `STACK_DISCOUNT_LIVE`: a `FREE_SHIPPING_LIVE`
+flag, verified false, that suppresses every claim at once and restores them
+unchanged if a real rate is ever created. Where a message was still needed the
+site now states the truth — "Shipping calculated at checkout — from $4.75 in
+the US."
+
+The multi-buy line no longer invents a financial reason to buy two, because
+there isn't one: no discount, no free-shipping tier. The pair stands on being a
+pair.
+
+**Verified:** no page renders a free-shipping promise any more (`/`, `/cart`,
+`/pages/faq`, `/pages/shipping-returns`, `/matching-sets`, `/tees`).
+
+Still unverified — the app token lacks `read_products`, `read_discounts` and
+`read_price_rules`, so the Stack & Save discount and the smart-collection
+publication state could not be checked from code.

@@ -90,7 +90,6 @@ export default function Homepage() {
       <Hero products={heroProducts as HomeProductFragment[]} />
       <Marquee
         items={[
-          'FREE SHIPPING OVER $50',
           'PRINTED TO ORDER',
           '30-DAY RETURNS',
           'NEW SCHMUCK DROPS WEEKLY',
@@ -497,7 +496,7 @@ function Hero({products}: {products: HomeProductFragment[]}) {
           <p className="sx-hero__social">
             <span>Printed to order</span>
             <span className="sx-hero__dot">·</span>
-            <span>Free shipping over $50</span>
+            <span>Ships worldwide</span>
             <span className="sx-hero__dot">·</span>
             <span>30-day returns</span>
           </p>
