@@ -48,8 +48,22 @@ export const meta: Route.MetaFunction = (args) => {
     description: copy
       ? `${copy.sell} ${copy.meta}`
       : product?.seo?.description || undefined,
-    // OG image is the product mockup, not the generic site card.
-    image: product?.featuredImage?.url,
+    /**
+     * OG image is the product mockup, not the generic site card — but the
+     * mockup is 2048x2048 and pageMeta declares every card as 1200x630, so
+     * crawlers were being told a false aspect ratio and would letterbox or
+     * centre-crop it themselves.
+     *
+     * Asking the CDN for 1200x630 cropped from the top makes the declaration
+     * true AND produces a better card: shoulders and a legible joke, instead
+     * of a small shirt marooned in white. The print sits at ~33-43% of the
+     * mockup height, comfortably inside the top 52% this keeps.
+     */
+    image: product?.featuredImage?.url
+      ? `${product.featuredImage.url}${
+          product.featuredImage.url.includes('?') ? '&' : '?'
+        }width=1200&height=630&crop=top`
+      : undefined,
     type: 'product',
     path: product?.handle ? `/products/${product.handle}` : undefined,
   });
