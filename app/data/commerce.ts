@@ -170,7 +170,24 @@ export const SIZE_RUN = 'S–3XL';
 export const RETURNS_DAYS = 30;
 
 /** Contact address. Placeholder until a real inbox exists (NEEDS_INPUT.md). */
-export const CONTACT_EMAIL = 'help@schmucks.example';
+/**
+ * Customer service address.
+ *
+ * Was `help@schmucks.example`. `.example` is a reserved TLD that can never
+ * resolve, so every "email us" link on the site — the contact form's mailto,
+ * the FAQ, the returns instructions — silently discarded the message. A
+ * shopper with a problem had no working way to reach anyone.
+ *
+ * This is the address Shopify already has as the store's `customer_email`, so
+ * it is the one every order confirmation tells customers to reply to. Putting
+ * it on the contact page is not a new exposure.
+ *
+ * WORTH UPGRADING: you own shmucks.store, and Shopify-managed domains support
+ * free email forwarding. Setting up help@shmucks.store → this inbox takes a
+ * minute and looks considerably better on a receipt. Change this constant and
+ * every path updates.
+ */
+export const CONTACT_EMAIL = 'roanpriatel379@gmail.com';
 
 /**
  * The honest multi-buy reason while Stack & Save is off: one shirt sits under

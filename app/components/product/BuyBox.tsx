@@ -68,6 +68,7 @@ export function BuyBox({
 
   const available = Boolean(selectedVariant?.availableForSale);
   const compareAt = selectedVariant?.compareAtPrice;
+  const currencyCode = selectedVariant?.price?.currencyCode;
   const onSale =
     compareAt &&
     Number(compareAt.amount) > Number(selectedVariant?.price?.amount ?? 0);
@@ -96,7 +97,13 @@ export function BuyBox({
             <Money data={compareAt} />
           </s>
         ) : null}
-        <span className="sx-buybox__tax">Taxes and shipping at checkout</span>
+        {/* The shop is Canada-based and prices in USD only, but ships to 32
+            zones. A bare "$42.00" reads as their own dollar to most of the
+            world, so the currency is stated once, next to the price. */}
+        <span className="sx-buybox__tax">
+          {currencyCode ? `${currencyCode} · ` : ''}Taxes and shipping at
+          checkout
+        </span>
       </div>
 
       {colorOption && colorOption.optionValues.length > 1 ? (
