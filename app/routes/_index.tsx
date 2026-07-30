@@ -525,7 +525,9 @@ function Hero({products}: {products: HomeProductFragment[]}) {
                     data={image}
                     alt={`The print on ${displayTitle}`}
                     aspectRatio="1/1"
-                    sizes="(min-width: 60em) 22vw, 45vw"
+                    // Widened for the 2.6x print zoom (see --print-zoom):
+                    // 22vw of layout needs ~58vw of pixels to stay sharp.
+                    sizes="(min-width: 60em) 58vw, 100vw"
                     loading={index < 2 ? 'eager' : 'lazy'}
                     fetchPriority={index === 0 ? 'high' : undefined}
                   />

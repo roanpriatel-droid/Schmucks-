@@ -53,6 +53,9 @@ export function ProductItem({
    */
   const secondary = image;
   const sizes = '(min-width: 45em) 400px, 50vw';
+  // The hover swap magnifies 2.6x to show the print, so it needs a bigger
+  // source than the card box implies (see --print-zoom in the stylesheet).
+  const zoomSizes = '(min-width: 45em) 1040px, 100vw';
   // If a product's variants ever differ in price, one figure would be a
   // half-truth — show a range instead. (Today the catalogue is flat-priced.)
   const {minVariantPrice, maxVariantPrice} = product.priceRange;
@@ -90,7 +93,7 @@ export function ProductItem({
               aspectRatio="1/1"
               data={secondary}
               loading="lazy"
-              sizes={sizes}
+              sizes={zoomSizes}
               className="sx-card__img--secondary"
             />
           )}

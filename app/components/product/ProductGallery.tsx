@@ -157,7 +157,9 @@ export function ProductGallery({
                   : slide.image.altText || altFor(position)
               }
               aspectRatio="1/1"
-              sizes="(min-width: 990px) 46vw, 100vw"
+              // The detail slide magnifies 2.6x, so it needs far more source
+              // than its layout box implies (see --print-zoom).
+              sizes={slide.detail ? '100vw' : '(min-width: 990px) 46vw, 100vw'}
               // The first two slides are the same URL and the LCP element.
               loading={position <= 1 ? 'eager' : 'lazy'}
               fetchPriority={position === 0 ? 'high' : undefined}
@@ -204,7 +206,7 @@ export function ProductGallery({
                   data={slide.image}
                   alt=""
                   aspectRatio="1/1"
-                  sizes="80px"
+                  sizes={slide.detail ? '220px' : '80px'}
                   loading="lazy"
                 />
               </button>

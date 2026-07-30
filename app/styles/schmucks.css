@@ -7,6 +7,11 @@
 */
 
 :root {
+  /* Print-detail zoom. Any <Image> that uses this MUST widen its `sizes` by the
+     same factor, or it requests an image for the layout box and then magnifies
+     it — which is what made the hero mockups blurry (600px source stretched
+     across 1270 device pixels). Kept here so the two can't drift apart. */
+  --print-zoom: 2.6;
   /* House colors (locked) */
   --mustard: #f2b33d;
   --ink: #1a1714;
@@ -5896,7 +5901,7 @@ details[open] .sx-faq__q::after {
 /* The card hover reveals the print rather than another view of the same
    garment. Same crop geometry as the PDP detail slide, same image URL. */
 .sx-card__media--swap .sx-card__img--secondary {
-  transform: translateY(8%) scale(2.6);
+  transform: translateY(8%) scale(var(--print-zoom));
   transform-origin: 50% 38%;
 }
 
@@ -5912,7 +5917,7 @@ details[open] .sx-faq__q::after {
   overflow: hidden;
 }
 .sx-gallery__slide--detail img {
-  transform: translateY(8%) scale(2.6);
+  transform: translateY(8%) scale(var(--print-zoom));
   transform-origin: 50% 38%;
 }
 .sx-gallery__detailtag {
@@ -5934,7 +5939,7 @@ details[open] .sx-faq__q::after {
   overflow: hidden;
 }
 .sx-gallery__thumb--detail img {
-  transform: translateY(8%) scale(2.6);
+  transform: translateY(8%) scale(var(--print-zoom));
   transform-origin: 50% 38%;
 }
 .sx-lightbox__img--detail {
@@ -6001,7 +6006,7 @@ details[open] .sx-faq__q::after {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: translateY(8%) scale(2.6);
+  transform: translateY(8%) scale(var(--print-zoom));
   transform-origin: 50% 38%;
 }
 .sx-herotile:hover {
