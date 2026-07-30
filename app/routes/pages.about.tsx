@@ -51,7 +51,7 @@ const VALUES = [
   },
   {
     label: 'The shirt is not a joke',
-    body: `Heavyweight ${BLANK}, ringspun cotton, ribbed collar, double-needle hems. Printed to order so nothing sits in a warehouse getting sad.`,
+    body: `${BLANK}, 180 gsm US cotton, ribbed collar, double-needle hems. Printed to order so nothing sits in a warehouse getting sad.`,
   },
   {
     label: 'No invented flattery',
@@ -191,7 +191,7 @@ export default function About() {
           <dl className="sx-facts">
             <div>
               <dt>The blank</dt>
-              <dd>{BLANK}, heavyweight ringspun cotton.</dd>
+              <dd>{BLANK}, 180 gsm 100% US cotton.</dd>
             </div>
             <div>
               <dt>Sizes</dt>

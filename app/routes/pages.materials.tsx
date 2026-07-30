@@ -8,20 +8,30 @@ export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
     title: 'Materials & Construction',
     description:
-      'What goes into a Schmucks tee: ~180 gsm heavyweight ringspun cotton, ribbed collar, double-needle hems, and soft-hand prints built to survive the wash.',
+      'What goes into a Schmucks tee: 180 gsm 100% US cotton, seamless tubular body, ribbed collar, double-needle hems, and soft-hand prints built to survive the wash.',
     path: '/pages/materials',
   });
 
 const SPECS = [
   {num: '~180', label: 'GSM Weight', note: 'Heavyweight. Not see-through, not flimsy. Has a real hand-feel.'},
-  {num: '100%', label: 'Ringspun Cotton', note: 'Finer, smoother, stronger yarn than standard open-end cotton.'},
+  // Was "Ringspun Cotton — finer, smoother, stronger yarn than standard
+  // open-end cotton". The Gildan 5000 is carded open-end cotton; the supplier
+  // spec says only "100% cotton". The claim was unsupported and specifically
+  // contradicted by the garment it described. See GARMENT_FACTS.
+  {num: '100%', label: 'US Cotton', note: 'Grown and harvested in the US, under the Cotton Trust Protocol.'},
   {num: '2×', label: 'Double-Needle Hems', note: 'Two rows of stitching at sleeve and bottom so edges don’t unravel.'},
   {num: 'S–3XL', label: 'Unisex Sizing', note: 'One relaxed unisex cut, six sizes, a few colorways each.'},
+  {
+    num: 'OEKO',
+    label: 'TEX® Standard 100',
+    note: 'Certificate 168252 (OETI) — tested for substances harmful to skin.',
+  },
 ];
 
 const CONSTRUCTION = [
-  ['Fabric', 'Heavyweight ringspun cotton, ~180 gsm', 'Soft hand, holds shape, survives repeat washing'],
-  ['Collar', 'Ribbed crew with a touch of elastane', 'Snaps back instead of stretching into a scoop'],
+  ['Fabric', '100% cotton, 180 gsm / 5.3 oz', 'Tightly knit, so print detail stays sharp and colour lasts'],
+  ['Body', 'Seamless tubular body — no side seams', 'Nothing digging in down the sides; cleaner drape'],
+  ['Collar', 'Ribbed crew, tear-away label', 'Snaps back instead of stretching into a scoop, and nothing scratches'],
   ['Shoulders', 'Shoulder-to-shoulder taping', 'Hides the seam, stops the neck warping'],
   ['Hems', 'Double-needle sleeve & bottom hem', 'No curling, no unraveling edges'],
   ['Print', 'Soft-hand water-based / DTG, matched to design', 'Sinks into the fabric — not a plastic decal on top'],
@@ -71,11 +81,11 @@ export default function Materials() {
               the body.
             </p>
             <p className="sx-pull">
-              Ringspun means the yarn is twisted finer — softer to wear, tougher
+              The knit is tight — which is what keeps print detail sharp — and tougher
               against pilling.
             </p>
             <p>
-              Heavier, ringspun, reinforced. It costs us more than the cheap
+              Heavier, tightly knit, reinforced. It costs us more than the cheap
               blank. It&rsquo;s the reason the shirt outlasts the joke.
             </p>
           </div>

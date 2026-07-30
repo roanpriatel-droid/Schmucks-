@@ -366,7 +366,7 @@ function ErrataStrip({products}: {products: HomeProductFragment[]}) {
 const STORY = [
   {
     head: 'Fine Apparel',
-    body: 'Heavyweight ringspun cotton, ribbed collar, double-needle hems, printed to order. The shirt is the part we refuse to cheap out on, because the joke only works if the garment survives it.',
+    body: 'Heavyweight 100% US cotton, ribbed collar, double-needle hems, printed to order. The shirt is the part we refuse to cheap out on, because the joke only works if the garment survives it.',
     to: '/pages/materials',
     cta: 'What it’s made of',
   },

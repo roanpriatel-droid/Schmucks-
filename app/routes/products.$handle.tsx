@@ -29,7 +29,12 @@ import {Breadcrumbs} from '~/components/Breadcrumbs';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {buildProductCopy} from '~/lib/productCopy';
 import {SHELVES, COUNTER} from '~/data/shelves';
-import {RETURNS_DAYS, SIZE_RUN} from '~/data/commerce';
+import {
+  PRODUCTION_DAYS,
+  RETURNS_DAYS,
+  SIZE_RUN,
+  US_SHIPPING_FROM,
+} from '~/data/commerce';
 import {track} from '~/lib/analytics';
 import {pageMeta} from '~/lib/seo';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
@@ -294,6 +299,43 @@ export default function Product() {
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
+      /**
+       * Shipping and returns were deliberately absent from this schema while
+       * the free-shipping claim was unverified — a rate Google can't match at
+       * checkout is worse than none. Both are now confirmed: the US rate comes
+       * from the Admin API shipping zones, the handling time from the print
+       * provider's catalogue entry. Only the US is described, because that's
+       * the one destination whose rate is asserted as a flat figure.
+       */
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: US_SHIPPING_FROM,
+          currency: variant.price.currencyCode,
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'US',
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 2,
+            maxValue: PRODUCTION_DAYS,
+            unitCode: 'DAY',
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'US',
+        returnPolicyCategory:
+          'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: RETURNS_DAYS,
+        returnMethod: 'https://schema.org/ReturnByMail',
+      },
       ...(productUrl
         ? {url: `${productUrl}?variant=${variant.id.split('/').pop()}`}
         : {}),

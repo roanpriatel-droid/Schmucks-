@@ -287,7 +287,7 @@ function sellLine(displayTitle: string, isPairMember: boolean) {
 
 const FALLBACK_SPECS = {
   substrate:
-    'Heavyweight 100% cotton jersey. Unisex fit, taped shoulders, ribbed collar. Preshrunk.',
+    'Gildan 5000, 180 gsm 100% US cotton. Seamless tubular body, taped neck and shoulders, ribbed crew, tear-away label. OEKO-TEX® Standard 100 certified.',
   print: 'DTG water-based ink, chest-hit position, front only.',
   origin: 'Printed and shipped from Miami, FL.',
   care: 'Machine wash cold with like colors, tumble dry low, do not iron the print.',

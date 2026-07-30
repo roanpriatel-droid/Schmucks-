@@ -8,6 +8,8 @@ import {
   FREE_SHIPPING_LIVE,
   FREE_SHIPPING_THRESHOLD,
   US_SHIPPING_FROM,
+  SHIPPING_RATES,
+  PRODUCTION_DAYS,
   RETURNS_DAYS,
 } from '~/data/commerce';
 import {pageMeta} from '~/lib/seo';
@@ -75,6 +77,16 @@ export default function ShippingReturns() {
               </p>
             </div>
             <div className="sx-shipcard">
+              <p className="sx-shipcard__label">Made to order</p>
+              <p className="sx-shipcard__value sx-display">
+                Up to {PRODUCTION_DAYS} days
+              </p>
+              <p className="sx-shipcard__note">
+                Nothing is sitting in a warehouse — your shirt is printed after
+                you order it. Delivery time is on top of that.
+              </p>
+            </div>
+            <div className="sx-shipcard">
               <p className="sx-shipcard__label">Ships to</p>
               <p className="sx-shipcard__value sx-display">Most places</p>
               <p className="sx-shipcard__note">
@@ -92,6 +104,33 @@ export default function ShippingReturns() {
               </p>
             </div>
           </div>
+          <div className="sx-ratetable">
+            <h2 className="sx-section-title">What shipping actually costs</h2>
+            <p className="sx-ratetable__note">
+              Charged by weight, so it goes up with the number of shirts rather
+              than the price. These are the real rates — the exact figure is
+              confirmed at checkout before you pay.
+            </p>
+            <table className="sx-sizetable">
+              <thead>
+                <tr>
+                  <th scope="col">Where</th>
+                  <th scope="col">First shirt</th>
+                  <th scope="col">Each extra</th>
+                </tr>
+              </thead>
+              <tbody>
+                {SHIPPING_RATES.map((rate) => (
+                  <tr key={rate.region}>
+                    <th scope="row">{rate.region}</th>
+                    <td>${rate.first.toFixed(2)}</td>
+                    <td>+${rate.extra.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
         </div>
       </section>
 

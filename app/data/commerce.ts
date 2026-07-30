@@ -50,6 +50,31 @@ export const FREE_SHIPPING_THRESHOLD = 50;
 export const US_SHIPPING_FROM = 4.75;
 
 /**
+ * Real shipping rates, from the Admin API shipping_zones response and matched
+ * against what Printify charges for blueprint 6 / provider 29 — the store
+ * passes the print provider's cost straight through, first item + each extra.
+ * Verified 2026-07-30.
+ */
+export const SHIPPING_RATES = [
+  {region: 'United States', first: 4.75, extra: 2.4},
+  {region: 'Canada', first: 9.39, extra: 4.39},
+  {region: 'Europe', first: 13.49, extra: 4.0},
+  {region: 'Australia', first: 12.49, extra: 4.99},
+  {region: 'Rest of world', first: 10.0, extra: 4.0},
+] as const;
+
+/**
+ * Production time before anything ships, in days.
+ *
+ * From the Printify catalogue for this blueprint/provider
+ * (`handling_time: {value: 10, unit: 'day'}`). Nothing on the storefront said
+ * when an order would arrive, which is the question every print-to-order
+ * shopper asks and the one most likely to become a support ticket or a
+ * chargeback. Transit is on top of this.
+ */
+export const PRODUCTION_DAYS = 10;
+
+/**
  * Is the Stack & Save multi-buy discount actually live at checkout?
  *
  * VERIFIED FALSE on 2026-07-27 by building real carts through the Storefront
@@ -115,6 +140,28 @@ export const NEW_ARRIVALS_LIMIT = 24;
 
 /** The blank every design is printed on. */
 export const BLANK = 'Gildan 5000 Heavy Cotton';
+
+/**
+ * Garment facts, taken from the Printify catalogue entry for blueprint 6
+ * (Gildan 5000 "Unisex Heavy Cotton Tee"), verified 2026-07-30.
+ *
+ * NOTE ON "RINGSPUN": the site used to describe this tee as "100% ringspun
+ * cotton … finer, smoother, stronger yarn than standard open-end cotton". The
+ * Gildan 5000 is carded open-end cotton — Printify's spec says only "100%
+ * cotton" and never ringspun (its genuinely ringspun blanks say so explicitly).
+ * The claim was both unsupported and specifically contradicted by the garment
+ * it described, so it is gone. The facts below are ones the supplier documents.
+ */
+export const GARMENT_FACTS = {
+  weightGsm: 180,
+  weightOz: 5.3,
+  composition: '100% US-grown cotton',
+  construction: 'Seamless tubular body — no side seams',
+  collar: 'Ribbed crew neck, taped neck and shoulders',
+  label: 'Tear-away label',
+  certification: 'OEKO-TEX® STANDARD 100 (cert. 168252, OETI)',
+  sourcing: 'US Cotton Trust Protocol member',
+} as const;
 
 /** Size run offered on every product. */
 export const SIZE_RUN = 'S–3XL';

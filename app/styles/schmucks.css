@@ -6269,3 +6269,16 @@ details[open] .sx-faq__q::after {
   font-weight: 600;
   line-height: 1.35;
 }
+
+/* Real shipping rate table on /pages/shipping-returns. */
+.sx-ratetable {
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+.sx-ratetable__note {
+  max-width: 60ch;
+  line-height: 1.6;
+  margin: 0.5rem 0 1.25rem;
+}
+.sx-ratetable table {
+  width: 100%;
+}
