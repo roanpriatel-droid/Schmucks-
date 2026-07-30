@@ -979,3 +979,51 @@ pair.
 Still unverified — the app token lacks `read_products`, `read_discounts` and
 `read_price_rules`, so the Stack & Save discount and the smart-collection
 publication state could not be checked from code.
+
+## Cycle 24 — supplier data: blurry mockups, and a wrong fabric
+
+**Blurry mockups (reported).** Every image using the print-detail crop
+magnifies 2.6× in CSS, but its `sizes` attribute described the layout box only.
+A hero tile is 250 CSS px on a 2× screen — 500 device pixels — then magnified
+2.6×, so it needs a ~1300px source. It was requesting **600px**: 231px of real
+detail stretched across 500 pixels. The PDP detail slide was worse. The zoom is
+now one `--print-zoom` property with the coupling documented, and every `sizes`
+is widened by it. Hero requests 1600px and the print is sharp. Costs ~140KB on
+the homepage, for images that were previously unusable.
+
+**The fabric description was wrong.** Printify's catalogue entry for this
+blueprint (6 — Gildan 5000) documents "100% cotton", 5.3 oz / 180 gsm, seamless
+tubular body, tear-away label, OEKO-TEX® Standard 100 cert. 168252, US cotton
+under the Trust Protocol. The site claimed **"100% ringspun cotton — finer,
+smoother, stronger yarn than standard open-end cotton"**. The Gildan 5000 is
+carded open-end cotton. The claim was unsupported *and* specifically
+disparaged the construction the shirt actually uses — including a journal
+section headed "Ringspun means softer, stronger". Nine places, all corrected to
+facts the supplier documents. The same article also still said "Twenty-five
+dollars, flat" when the price is $42.
+
+**Delivery expectations.** Nothing on the storefront said when an order would
+arrive — the first question a print-to-order shopper asks. Production is up to
+10 days before dispatch (the provider's own handling time), plus transit. Now on
+the PDP buy box and the shipping page.
+
+**Real shipping costs, published.** US $4.75 +$2.40, CA $9.39 +$4.39, EU $13.49
++$4.00, AU $12.49 +$4.99, ROW $10.00 +$4.00 — matched against what Printify
+charges, which the store passes straight through.
+
+**Structured data.** `shippingDetails` and `hasMerchantReturnPolicy` were held
+back while the shipping claim was unverified; both now ship.
+
+### What I could not do
+
+The `shpat_` token reads the shop and its shipping zones but has **no write
+scope** — REST `price_based_shipping_rates` returns 406, GraphQL
+`deliveryProfiles` returns ACCESS_DENIED, and products/discounts/price-rules are
+refused as "requires merchant approval". The client ID and secret are OAuth app
+credentials and can't call the Admin API without an OAuth exchange. So the
+shipping rates and discounts are specified in `SHOPIFY_SETTINGS.md` with the
+margin maths, rather than applied.
+
+Economics that decision rests on: **$10.65 product cost against $42.00 retail**,
+a 75% gross margin, which is what makes absorbing $7.15 of US shipping on a
+two-shirt order comfortable.
