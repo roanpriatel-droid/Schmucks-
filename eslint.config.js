@@ -244,4 +244,12 @@ export default [
       'react-hooks/rules-of-hooks': 'off',
     },
   },
+  {
+    // Command-line tools: printing is their output.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {globals: {...globals.node}},
+    rules: {
+      'no-console': 'off',
+    },
+  },
 ];

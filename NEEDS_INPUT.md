@@ -1,5 +1,27 @@
 # Needs Real-World Input
 
+## Found 2026-11-24 (store-setup session)
+
+- **Printify is not connected to the Shopify catalogue.** The Printify shop
+  "Schmucks" (28354424) holds 393 products at $42, and Printify reports **none**
+  of them published to Shopify and **zero orders ever received**. If the ~391
+  products in Shopify weren't published *by Printify*, an order for one of them
+  will never be printed. `node scripts/store-setup/audit.mjs` settles it (it
+  matches every Shopify product to Printify by SKU). Do not place a real order
+  until it does.
+- **`shmucks.store` doesn't serve HTTPS** (TLS handshake fails). Check
+  Settings → Domains in Shopify admin.
+- **The newsletter forms were discarding emails.** Fixed: they now create a
+  subscribed customer via `/api/newsletter`. This needs Storefront
+  `customerCreate`, which works when classic customer accounts are enabled. If
+  signups show the error message on the live site, that's the cause.
+- **Oxygen workflow `oxygen-deployment-1000159015.yml` fails on every push
+  since 2026-11-24**, while the newer `…1000186391.yml` succeeds. If 1000159015
+  is the old storefront, delete its workflow file.
+- **The store-setup scripts are ready** (`scripts/store-setup/README.md`). They
+  need the store's `*.myshopify.com` domain to run.
+
+
 Things I deliberately did **not** fabricate. Each needs a real value from you
 before it can ship as a factual claim. Until then I use honest alternatives.
 

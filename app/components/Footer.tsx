@@ -1,4 +1,3 @@
-import {useState} from 'react';
 import {NavLink} from 'react-router';
 import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
 import {WordmarkFlat, Badge} from '~/components/brand/Brand';
@@ -10,7 +9,7 @@ import {
   RETURNS_DAYS,
   SALES_DATA_AVAILABLE,
 } from '~/data/commerce';
-import {track} from '~/lib/analytics';
+import {NewsletterForm} from '~/components/NewsletterForm';
 
 interface FooterProps {
   footer: Promise<FooterQuery | null>;
@@ -47,7 +46,6 @@ const BRAND_LINKS = [
   {title: 'Lookbook', to: '/lookbook'},
   {title: 'Materials', to: '/pages/materials'},
   {title: 'Journal', to: '/journal'},
-  {title: 'News', to: '/blogs'},
 ];
 
 const SOCIALS = [
@@ -66,7 +64,7 @@ export function Footer({policies = []}: FooterProps) {
             New drops and early access, before the smart people find out.
           </p>
         </div>
-        <NewsletterForm />
+        <FooterNewsletter />
       </div>
 
       <div className="sx-wrap sx-footer">
@@ -170,39 +168,19 @@ function FooterCol({
   );
 }
 
-function NewsletterForm() {
-  const [done, setDone] = useState(false);
-  if (done) {
-    return (
-      <div className="sx-footer-news__done" role="status">
-        You&rsquo;re in. Nothing arrives until the next drop — that&rsquo;s the
-        whole arrangement.
-      </div>
-    );
-  }
+function FooterNewsletter() {
   return (
-    <form
+    <NewsletterForm
+      location="footer"
       className="sx-footer-news__form"
-      onSubmit={(event) => {
-        event.preventDefault();
-        track('newsletter_signup', {location: 'footer'});
-        setDone(true);
-      }}
-      aria-label="Newsletter signup"
-    >
-      <label htmlFor="footer-email" className="sr-only">
-        Email address
-      </label>
-      <input
-        id="footer-email"
-        type="email"
-        required
-        placeholder="you@regrets.com"
-        className="sx-footer-news__input"
-      />
-      <button className="sx-btn sx-btn--ketchup" type="submit">
-        Sign Up
-      </button>
-    </form>
+      inputClassName="sx-footer-news__input"
+      buttonLabel="Sign Up"
+      done={
+        <div className="sx-footer-news__done" role="status">
+          You&rsquo;re in. Nothing arrives until the next drop — that&rsquo;s
+          the whole arrangement.
+        </div>
+      }
+    />
   );
 }
