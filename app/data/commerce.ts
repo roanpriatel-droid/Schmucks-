@@ -14,26 +14,18 @@
 /**
  * Is there free shipping over a threshold?
  *
- * VERIFIED FALSE on 2026-07-30 against the Shopify Admin API
- * (GET /admin/api/2026-04/shipping_zones.json, shop 101605572889):
+ * TRUE as of 2026-11-24, on the store at x1ugph-ad.myshopify.com. Two
+ * automatic free-shipping discounts exist (scripts/store-setup, --free-shipping):
+ *   United States — order subtotal ≥ US$50
+ *   Canada        — order subtotal ≥ C$75
+ * Verified with `node scripts/store-setup/cart-test.mjs`: a two-shirt Canadian
+ * cart applies "Free shipping — CA orders $75+". The subtotal is measured after
+ * Stack & Save, so two shirts ($75.60) still clear both thresholds.
  *
- *   32 zones, 372 shipping rates.
- *   price-based (threshold) rates anywhere: 0
- *   rates costing $0.00 anywhere:           0
- *
- * Every zone is weight-based flat rate. There is no free shipping in any
- * country at any subtotal. The storefront had been promising "free shipping on
- * orders over $50" in the announcement bar on every page, the marquee, the
- * footer, the cart progress meter, the PDP, the FAQ and the Pair Programme —
- * and the checkout charges for shipping every time. A shopper adding a second
- * shirt to "unlock free shipping" was being charged for it at the till.
- *
- * TO TURN IT ON: Shopify admin → Settings → Shipping and delivery → add a
- * price-based rate of $0.00 with a minimum order price, in each zone you want
- * it. Then re-run the check above and flip this to `true`. Every claim across
- * the site comes back at once.
+ * If either discount is deleted in admin, set this back to false — every
+ * free-shipping claim on the site switches off at once.
  */
-export const FREE_SHIPPING_LIVE = false;
+export const FREE_SHIPPING_LIVE = true;
 
 /**
  * Threshold used only when FREE_SHIPPING_LIVE is true. Kept so the copy can
@@ -41,26 +33,28 @@ export const FREE_SHIPPING_LIVE = false;
  */
 export const FREE_SHIPPING_THRESHOLD = 50;
 
+/** Canada's threshold, in Canadian dollars (Canadian orders are charged in CAD). */
+export const FREE_SHIPPING_THRESHOLD_CA = 75;
+
 /**
- * Cheapest real US shipping rate, from the shipping_zones response above:
- * the United States zone starts at $4.75 for the lightest weight bracket.
+ * Cheapest real US shipping rate: the Printify profile's United States zone
+ * starts at $4.95 for the lightest weight bracket (verified 2026-11-24).
  * Used instead of a free-shipping promise so the site still says something
  * concrete about delivery cost.
  */
-export const US_SHIPPING_FROM = 4.75;
+export const US_SHIPPING_FROM = 4.95;
 
 /**
- * Real shipping rates, from the Admin API shipping_zones response and matched
- * against what Printify charges for blueprint 6 / provider 29 — the store
- * passes the print provider's cost straight through, first item + each extra.
- * Verified 2026-07-30.
+ * Real shipping rates (USD), from the Printify delivery profile on the store —
+ * Printify's cost for blueprint 6 / provider 29 passed straight through,
+ * first item + each extra. Verified 2026-11-24 via the Admin API.
  */
 export const SHIPPING_RATES = [
-  {region: 'United States', first: 4.75, extra: 2.4},
-  {region: 'Canada', first: 9.39, extra: 4.39},
-  {region: 'Europe', first: 13.49, extra: 4.0},
-  {region: 'Australia', first: 12.49, extra: 4.99},
-  {region: 'Rest of world', first: 10.0, extra: 4.0},
+  {region: 'United States', first: 4.95, extra: 2.4},
+  {region: 'Canada', first: 9.69, extra: 4.39},
+  {region: 'European Union', first: 13.49, extra: 4.0},
+  {region: 'Australia', first: 12.99, extra: 4.99},
+  {region: 'Rest of world', first: 10.39, extra: 4.0},
 ] as const;
 
 /**
@@ -77,24 +71,15 @@ export const PRODUCTION_DAYS = 10;
 /**
  * Is the Stack & Save multi-buy discount actually live at checkout?
  *
- * VERIFIED FALSE on 2026-07-27 by building real carts through the Storefront
- * API: 2 shirts = $84.00 and 4 shirts = $168.00, with `discountAllocations`
- * empty at every quantity, and six candidate codes (STACK10, STACK2, STACK,
- * PAIR10, SCHMUCKS10, WELCOME10) all reporting `applicable: false`.
+ * TRUE as of 2026-11-24. Three automatic discounts exist (2 = 10%, 3 = 20%,
+ * 4+ = 30%; they don't combine, Shopify applies the best). Verified with
+ * `node scripts/store-setup/cart-test.mjs`, which prices real carts:
+ *   1 shirt $42.00 · 2 → $75.60 (−8.40) · 3 → $100.80 (−25.20) · 4 → $117.60 (−50.40)
+ * in both USD and CAD.
  *
- * A storefront must never promise a price the checkout won't honour, so while
- * this is false every Stack & Save claim on the site is suppressed and the
- * honest free-shipping threshold does the multi-buy work instead.
- *
- * TO TURN IT ON: create the automatic discount in Shopify admin (Discounts →
- * Automatic → 2+ = 10%, 3 = 20%, 4+ = 30%), re-run the cart test below, then
- * flip this to `true`. Every claim across the site comes back at once.
- *
- *   cartCreate(input:{lines:[{merchandiseId:"<variant>", quantity:2}]}) {
- *     cart { cost { totalAmount { amount } } discountAllocations { ... } }
- *   }
+ * If the discounts are deleted or edited in admin, set this back to false.
  */
-export const STACK_DISCOUNT_LIVE = false;
+export const STACK_DISCOUNT_LIVE = true;
 
 /**
  * Stack & Save tiers. Only rendered when STACK_DISCOUNT_LIVE is true.

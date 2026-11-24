@@ -23,7 +23,27 @@
  * right shelves the moment it arrives.
  */
 import {APPLY, argValue, change, log, paginate, printify, printifyProducts, normTitle, sleep} from './lib.mjs';
+import {readFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {HERE} from './lib.mjs';
 import {BASE_TAG, PRINTIFY_SHOP_ID} from './config.mjs';
+
+/** Shelf assignment per design number (N°), plus the his/hers pairs. */
+const CATALOGUE = JSON.parse(readFileSync(join(HERE, 'data', 'catalogue.json'), 'utf8'));
+const PAIRED = new Set(CATALOGUE.pairs.flat().map(String));
+
+/** "… — Schmucks · N°. 394" → "394" */
+export function designNumber(title) {
+  return title.match(/N°\.\s*0*(\d+)/)?.[1] ?? null;
+}
+
+export function tagsFor(product) {
+  const n = designNumber(product.title);
+  const tags = new Set([...(product.tags ?? []), BASE_TAG]);
+  if (n && CATALOGUE.shelves[n]) tags.add(CATALOGUE.shelves[n]);
+  if (n && PAIRED.has(n)) tags.add('the-pair-programme');
+  return [...tags];
+}
 
 const SHOPIFY_PRODUCTS = `#graphql
   query SyncProducts($after: String) {
@@ -43,25 +63,31 @@ async function main() {
   const byTitle = new Map(shopify.map((p) => [normTitle(p.title), p]));
 
   const pf = await printifyProducts(PRINTIFY_SHOP_ID);
-  const buckets = {linked: [], skuMatch: [], titleOnly: [], toPublish: []};
+  const buckets = {linked: [], publishing: [], skuMatch: [], titleOnly: [], toPublish: []};
   for (const p of pf) {
     if (p.external?.id) buckets.linked.push(p);
+    // Locked = Printify is mid-publish; it will arrive in Shopify on its own.
+    else if (p.is_locked) buckets.publishing.push(p);
     else if (p.variants.some((v) => v.is_enabled && bySku.has(v.sku))) buckets.skuMatch.push(p);
     else if (byTitle.has(normTitle(p.title))) buckets.titleOnly.push(p);
     else buckets.toPublish.push(p);
   }
   log(`Printify ${pf.length} · Shopify ${shopify.length}`);
   log(`  linked already ............ ${buckets.linked.length}`);
+  log(`  publishing right now ...... ${buckets.publishing.length}`);
   log(`  in Shopify, SKUs match .... ${buckets.skuMatch.length}`);
   log(`  in Shopify, UNLINKED ...... ${buckets.titleOnly.length}  ← orders for these won't reach Printify`);
   log(`  not in Shopify — publish .. ${buckets.toPublish.length}`);
 
   let done = 0;
+  const only = argValue('only-id');
   for (const p of buckets.toPublish) {
     if (done >= limit) break;
-    const tags = [...new Set([...(p.tags ?? []), BASE_TAG])];
+    if (only && p.id !== only) continue;
+    const tags = tagsFor(p);
     await change(`publish "${p.title}" (tags: ${tags.join(', ')})`, async () => {
       if (tags.length !== (p.tags ?? []).length) {
+        // Tags live in Printify so a future re-publish doesn't wipe them.
         await printify(`/shops/${PRINTIFY_SHOP_ID}/products/${p.id}.json`, {method: 'PUT', body: {tags}});
       }
       await printify(`/shops/${PRINTIFY_SHOP_ID}/products/${p.id}/publish.json`, {

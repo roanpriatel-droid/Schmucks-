@@ -41,7 +41,7 @@ import {
   collectionSeo,
 } from './config.mjs';
 
-const DEFAULT_STEPS = ['collections', 'products', 'publish', 'menus', 'policies'];
+const DEFAULT_STEPS = ['shipping', 'markets', 'collections', 'products', 'publish', 'menus', 'policies'];
 const only = argValue('only');
 const steps = only ? only.split(',') : DEFAULT_STEPS;
 const want = (s) => steps.includes(s);
@@ -226,6 +226,47 @@ const AUTO_SHIP_CREATE = `#graphql
     }
   }`;
 
+const MARKETS_Q = `#graphql
+  query SetupMarkets {
+    shop { currencyCode shipsToCountries }
+    markets(first: 50) {
+      nodes {
+        id name handle status
+        conditions { regionsCondition { regions(first: 250) { nodes { ... on MarketRegionCountry { code } } } } }
+      }
+    }
+  }`;
+
+const MARKET_CREATE = `#graphql
+  mutation SetupMarketCreate($input: MarketCreateInput!) {
+    marketCreate(input: $input) {
+      market { id handle }
+      userErrors { field message }
+    }
+  }`;
+
+const SHIPPING_Q = `#graphql
+  query SetupShipping {
+    locations(first: 20, includeLegacy: true) { nodes { id name fulfillmentService { handle } } }
+    deliveryProfiles(first: 20) {
+      nodes {
+        id name default
+        profileLocationGroups {
+          locationGroup { id locations(first: 20, includeLegacy: true) { nodes { id } } }
+          locationGroupZones(first: 1) { nodes { zone { id } } }
+        }
+      }
+    }
+  }`;
+
+const PROFILE_UPDATE = `#graphql
+  mutation SetupProfileUpdate($id: ID!, $profile: DeliveryProfileInput!) {
+    deliveryProfileUpdate(id: $id, profile: $profile) {
+      profile { id }
+      userErrors { field message }
+    }
+  }`;
+
 // ------------------------------------------------------------------ helpers
 
 /** "I Peaked At X — Schmucks · N°. 394" → "I Peaked At X" */
@@ -288,12 +329,21 @@ async function stepProducts() {
   log('\n▸ Products');
   const products = await paginate(PRODUCTS_Q, (d) => d.products);
   log(`  ${products.length} products`);
+  const takenHandles = new Set(products.map((p) => p.handle));
   for (const p of products) {
     const name = designName(p.title);
     const input = {id: p.id};
     if (!p.vendor || /printify|my store/i.test(p.vendor)) input.vendor = BRAND;
     if (!p.productType) input.productType = PRODUCT_TYPE;
     if (!p.category) input.category = TSHIRT_CATEGORY;
+    // Printify handles carry the boilerplate: "…-schmucks-n-394". Keep the
+    // design name only, with a redirect from the old URL.
+    const clean = p.handle.replace(/-schmucks-n-\d+$/, '');
+    if (clean !== p.handle && clean.length > 2 && !takenHandles.has(clean)) {
+      input.handle = clean;
+      input.redirectNewHandle = true;
+      takenHandles.add(clean);
+    }
     if (!p.seo.title && !p.seo.description) {
       input.seo = {
         title: clip(`${name} T-Shirt | ${BRAND}`, 70),
@@ -387,7 +437,7 @@ function toMenuItems(items, collectionIds, update = false) {
     const id = item.collection ? collectionIds.get(item.collection) : null;
     const node = id
       ? {title: item.title ?? col.title, type: 'COLLECTION', resourceId: id}
-      : {title: item.title ?? col?.title, type: 'HTTP', url: item.url ?? `/collections/${item.collection}`};
+      : {title: item.title ?? col?.title, type: item.type ?? 'HTTP', url: item.url ?? `/collections/${item.collection}`};
     if (item.items) node.items = toMenuItems(item.items, collectionIds, update);
     return node;
   });
@@ -432,6 +482,91 @@ async function stepPolicies() {
       mutate(POLICY_UPDATE, {shopPolicy: {type, body}}, 'shopPolicyUpdate'),
     );
     bump('policies');
+  }
+}
+
+/**
+ * Sell outside Canada. Printify's shipping profile already covers the US, EU,
+ * Australia and the rest of the world, but Shopify only had a Canada market,
+ * so nobody else could check out. Both new markets price in USD at a manual
+ * rate of 1.0 against the shop currency, so a $42 product is US$42 — what the
+ * site and the policies say — whatever the store's base currency is.
+ */
+async function stepMarkets() {
+  log('\n▸ Markets');
+  const {shop, markets} = await gql(MARKETS_Q);
+  const covered = new Set(
+    markets.nodes.flatMap((m) => m.conditions?.regionsCondition?.regions.nodes.map((r) => r.code) ?? []),
+  );
+  const usd = shop.currencyCode === 'USD'
+    ? {baseCurrency: 'USD', localCurrencies: false}
+    : {baseCurrency: 'USD', baseCurrencyManualRate: '1.0', localCurrencies: false};
+  const plan = [
+    {name: 'United States', handle: 'us', countries: ['US']},
+    {
+      name: 'International',
+      handle: 'international',
+      countries: shop.shipsToCountries.filter((c) => !['US', 'CA'].includes(c) && c !== 'ZZ'),
+    },
+  ];
+  for (const m of plan) {
+    const countries = m.countries.filter((c) => !covered.has(c));
+    if (markets.nodes.some((x) => x.handle === m.handle) || countries.length === 0) {
+      log(`  ✓ ${m.name}`);
+      continue;
+    }
+    await change(`create market ${m.name} (${countries.length} countries, USD)`, () =>
+      mutate(
+        MARKET_CREATE,
+        {
+          input: {
+            name: m.name,
+            handle: m.handle,
+            status: 'ACTIVE',
+            conditions: {regionsCondition: {regions: countries.map((countryCode) => ({countryCode}))}},
+            currencySettings: usd,
+          },
+        },
+        'marketCreate',
+      ),
+    );
+    bump('markets');
+  }
+}
+
+/**
+ * Printify creates its own shipping profile (US/CA/EU/AU/rest-of-world rates)
+ * but can leave its location group empty — a profile with nowhere to ship
+ * from quotes no rates, so checkout has no shipping option and can't be
+ * completed. Attach the Printify fulfilment location to every non-default
+ * profile whose location group has zones but no location.
+ */
+async function stepShipping() {
+  log('\n▸ Shipping profiles');
+  const {locations, deliveryProfiles} = await gql(SHIPPING_Q);
+  const printifyLoc = locations.nodes.find((l) => l.fulfillmentService?.handle === 'printify');
+  if (!printifyLoc) return log('  no Printify location — is the Printify app installed?');
+  for (const profile of deliveryProfiles.nodes.filter((p) => !p.default)) {
+    for (const g of profile.profileLocationGroups) {
+      const hasZones = g.locationGroupZones.nodes.length > 0;
+      if (!hasZones || g.locationGroup.locations.nodes.length > 0) {
+        log(`  ✓ ${profile.name}`);
+        continue;
+      }
+      await change(`attach Printify location to "${profile.name}"`, () =>
+        mutate(
+          PROFILE_UPDATE,
+          {
+            id: profile.id,
+            profile: {
+              locationGroupsToUpdate: [{id: g.locationGroup.id, locationsToAdd: [printifyLoc.id]}],
+            },
+          },
+          'deliveryProfileUpdate',
+        ),
+      );
+      bump('shipping profiles fixed');
+    }
   }
 }
 
@@ -530,6 +665,8 @@ async function stepFreeShipping() {
 
 async function main() {
   log(APPLY ? 'APPLY MODE — writing to the store.' : 'DRY RUN — nothing will change. Add --apply to write.');
+  if (want('shipping')) await stepShipping();
+  if (want('markets')) await stepMarkets();
   if (want('collections')) await stepCollections();
   if (want('products')) await stepProducts();
   // Publish after collections exist so new ones go out too.

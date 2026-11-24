@@ -174,6 +174,7 @@ export const MENUS = [
       {title: 'Shipping policy', url: '/policies/shipping-policy'},
       {title: 'Terms of service', url: '/policies/terms-of-service'},
       {title: 'Privacy policy', url: '/policies/privacy-policy'},
+      {title: 'Search', url: '/search', type: 'SEARCH'},
     ],
   },
 ];
@@ -210,7 +211,7 @@ export const POLICIES = {
 <h3>Orders</h3>
 <p>Placing an order is an offer to buy. We can decline or cancel an order — if we do, you get a full refund, promptly. Every shirt is printed to order, so once production has started an order usually can’t be changed or cancelled. If you need to change something, email us fast and we’ll try.</p>
 <h3>Prices</h3>
-<p>All prices are in US dollars. We can change prices at any time, but never after you’ve paid. Taxes and duties are calculated at checkout or charged on import, depending on where you are — see the shipping policy.</p>
+<p>Prices are in US dollars, except for orders delivered to Canada, which are charged in Canadian dollars. We can change prices at any time, but never after you’ve paid. Taxes and duties are calculated at checkout or charged on import, depending on where you are — see the shipping policy.</p>
 <h3>The product</h3>
 <p>Colours on a screen are not colours on cotton. Print position and size may vary very slightly between garments, which is what happens when a person prints a shirt rather than a machine stamping a billion identical ones.</p>
 <h3>The designs</h3>
@@ -225,16 +226,18 @@ export const POLICIES = {
   SHIPPING_POLICY: `
 <h2>Made to order, then sent.</h2>
 <p>Nothing sits in a warehouse. Your shirt is printed after you order it, which takes up to 10 days before it ships. Delivery time is on top of that and depends on where you are.</p>
-<h3>What it costs</h3>
-<p>Charged by weight, so it goes up with the number of shirts rather than the price of them.</p>
+<h3>Free shipping</h3>
+<p><strong>United States:</strong> free on orders of US$50 or more. <strong>Canada:</strong> free on orders of C$75 or more. Two shirts gets you there either way. Applied automatically at checkout — no code.</p>
+<h3>What it costs otherwise</h3>
+<p>Charged by weight, so it goes up with the number of shirts rather than the price of them. Rates in US dollars:</p>
 <table>
 <thead><tr><th>Where</th><th>First shirt</th><th>Each extra</th></tr></thead>
 <tbody>
-<tr><td>United States</td><td>$4.75</td><td>+$2.40</td></tr>
-<tr><td>Canada</td><td>$9.39</td><td>+$4.39</td></tr>
-<tr><td>Europe</td><td>$13.49</td><td>+$4.00</td></tr>
-<tr><td>Australia</td><td>$12.49</td><td>+$4.99</td></tr>
-<tr><td>Rest of world</td><td>$10.00</td><td>+$4.00</td></tr>
+<tr><td>United States</td><td>$4.95</td><td>+$2.40</td></tr>
+<tr><td>Canada</td><td>$9.69</td><td>+$4.39</td></tr>
+<tr><td>European Union</td><td>$13.49</td><td>+$4.00</td></tr>
+<tr><td>Australia</td><td>$12.99</td><td>+$4.99</td></tr>
+<tr><td>Rest of world</td><td>$10.39</td><td>+$4.00</td></tr>
 </tbody>
 </table>
 <p>The exact figure is confirmed at checkout before you pay. No surprise line items after the fact.</p>

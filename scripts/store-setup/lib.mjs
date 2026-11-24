@@ -116,7 +116,7 @@ export async function shopifyToken() {
   }
   const body = JSON.parse(text);
   cachedToken = body.access_token;
-  if (body.scope) log(`Shopify token scopes: ${body.scope}`);
+  if (body.scope && process.env.DEBUG) log(`Shopify token scopes: ${body.scope}`);
   return cachedToken;
 }
 
@@ -199,7 +199,15 @@ export async function printify(path, {method = 'GET', body} = {}, attempt = 0) {
     },
     body: body ? JSON.stringify(body) : undefined,
   });
-  if ((res.status === 429 || res.status >= 500) && attempt < 6) {
+  // Printify throttles publishing hard ("Too Many Attempts"); back off in
+  // minutes, not seconds, so a long sync rides it out instead of dying.
+  if (res.status === 429 && attempt < 10) {
+    const wait = Math.min(60_000 * 2 ** attempt, 600_000);
+    console.log(`  Printify rate limit — waiting ${wait / 60_000} min`);
+    await sleep(wait);
+    return printify(path, {method, body}, attempt + 1);
+  }
+  if (res.status >= 500 && attempt < 6) {
     await sleep(1500 * 2 ** attempt);
     return printify(path, {method, body}, attempt + 1);
   }
