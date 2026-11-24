@@ -66,3 +66,30 @@ already have (matched by SKU, then by title), so it can't duplicate the
 catalogue. It reports products that exist in Shopify **without** a Printify
 link. Orders for those won't reach Printify for printing, and fixing that is a
 decision (it replaces the Shopify copy), not a default.
+
+## Artwork (designs N° 21–394)
+
+`artwork/render.py` typesets the editorial designs: statement in Playfair
+Display Black (bold, high-contrast, print-safe strokes), a rule, and a tracked
+"SCHMUCKS · N°. 000" caption in Inter ExtraBold, on a 4500×5100 transparent
+canvas positioned like the original files. It writes two inks: `cream` (dark
+ink, printed on Natural/Gold) and `black` (cream ink, printed on Black).
+
+`artwork/rollout.py` renders, uploads to Printify, swaps only the front
+print, and republishes **images only** to Shopify (title, tags, SEO and URL
+untouched). Dry-run by default; idempotent (skips designs already on
+`schmucks-bold-*`). Afterwards run `apply.mjs --only=products --apply` to
+restore vendor and alt text on the new images.
+
+Fonts (OFL, not committed) — download once:
+
+```bash
+mkdir -p /tmp/fonts && cd /tmp/fonts
+curl -sLo PlayfairDisplay.ttf "https://raw.githubusercontent.com/google/fonts/main/ofl/playfairdisplay/PlayfairDisplay%5Bwght%5D.ttf"
+curl -sLo Inter.ttf "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz,wght%5D.ttf"
+```
+
+```bash
+python3 scripts/store-setup/artwork/rollout.py --fonts /tmp/fonts --out /tmp/preview           # previews only
+python3 scripts/store-setup/artwork/rollout.py --fonts /tmp/fonts --out /tmp/preview --apply   # live
+```
