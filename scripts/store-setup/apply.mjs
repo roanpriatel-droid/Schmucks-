@@ -338,7 +338,9 @@ async function stepProducts() {
     if (!p.category) input.category = TSHIRT_CATEGORY;
     // Printify handles carry the boilerplate: "…-schmucks-n-394". Keep the
     // design name only, with a redirect from the old URL.
-    const clean = p.handle.replace(/-schmucks-n-\d+$/, '');
+    // "❤" survives into handles as a raw emoji, which breaks when a URL is
+    // typed, shared or pasted; spell it.
+    const clean = p.handle.replace(/-schmucks-n-\d+$/, '').replace(/❤/g, 'heart');
     if (clean !== p.handle && clean.length > 2 && !takenHandles.has(clean)) {
       input.handle = clean;
       input.redirectNewHandle = true;

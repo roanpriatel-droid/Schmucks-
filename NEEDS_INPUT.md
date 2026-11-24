@@ -1,29 +1,42 @@
 # Needs Real-World Input
 
-## Found 2026-11-24 (store-setup session)
+## Store status 2026-11-24 (store-setup session) — read this first
 
-- **Printify is not connected to the Shopify catalogue.** The Printify shop
-  "Schmucks" (28354424) holds 393 products at $42, and Printify reports **none**
-  of them published to Shopify and **zero orders ever received**. If the ~391
-  products in Shopify weren't published *by Printify*, an order for one of them
-  will never be printed. `node scripts/store-setup/audit.mjs` settles it (it
-  matches every Shopify product to Printify by SKU). Do not place a real order
-  until it does.
-- **`shmucks.store` doesn't serve HTTPS** (TLS handshake fails). Check
-  Settings → Domains in Shopify admin.
-- **The newsletter forms were discarding emails.** Fixed: they now create a
-  subscribed customer via `/api/newsletter`. This needs Storefront
-  `customerCreate`, which works when classic customer accounts are enabled. If
-  signups show the error message on the live site, that's the cause.
-- **Oxygen workflow `oxygen-deployment-1000159015.yml` fails on every push
-  since 2026-11-24**, while the newer `…1000186391.yml` succeeds. If 1000159015
-  is the old storefront, delete its workflow file.
-- **The store-setup scripts are ready** (`scripts/store-setup/README.md`). They
-  need the store's `*.myshopify.com` domain to run.
+The live store is **x1ugph-ad.myshopify.com** (CAD base, Canada). It was empty;
+it now holds all 393 designs, every one linked to Printify by SKU (orders route
+to Printify for printing), on the right shelves, published to the Hydrogen
+storefront, Online Store and Shop. Markets, collections, menus, policies, Stack
+& Save and free shipping are live. Re-check any time with
+`node scripts/store-setup/audit.mjs` and `node scripts/store-setup/cart-test.mjs`.
 
+**BLOCKER 1 — nothing outside Canada can be bought.** In a US (or EU) context
+every product reports `availableForSale: false` and carts return
+`MERCHANDISE_OUT_OF_STOCK`; Canada works. The storefront browses as `US`
+(`app/lib/context.ts`), so the site currently shows everything sold out.
+Ruled out via the API: stock (9999, CONTINUE policy), publication, shipping
+zones and rates (US/EU/AU/ROW all present), markets (active, USD), timing.
+Both locations — including Printify's — are registered in **Canada**, so the
+likely cause is an order-routing / fulfillable-inventory rule that keeps a
+market to locations inside it. Check Settings → Shipping and delivery →
+**Order routing** (e.g. "Stay within the destination market") and any
+"Fulfillable inventory" / "sell only within shipping zones" option, and
+Settings → Markets → United States. The Printify location's address can only
+be edited by Printify (the API refuses) — if needed, ask Printify support to
+set it to the real origin (Monster Digital, Miami FL). Then run
+`cart-test.mjs`: the US rows should show a shipping rate.
 
-Things I deliberately did **not** fabricate. Each needs a real value from you
-before it can ship as a factual claim. Until then I use honest alternatives.
+**BLOCKER 2 — the production storefront is private.** `schmucks.store`
+redirects visitors to a Shopify login. Hydrogen → Storefront settings →
+Environments → Production → URL privacy → Public. Fix blocker 1 first.
+
+Also:
+- Canadians are charged C$42; US and International pay US$42 (manual rate
+  1.0). If you'd rather everyone pays USD, change the store currency to USD in
+  Settings → Store details (no orders exist yet, so it's allowed).
+- Oxygen workflow `oxygen-deployment-1000159015.yml` fails on every push since
+  2026-11-24; `…1000186391.yml` (the new storefront) succeeds. Delete the old
+  one if 1000159015 is the retired storefront.
+- Newsletter signups now create subscribed customers (verified on this store).
 
 ## Trust / social proof
 - **Customer reviews, star ratings, review counts** — removed all invented ones
