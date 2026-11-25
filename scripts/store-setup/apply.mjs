@@ -82,7 +82,7 @@ const PRODUCTS_Q = `#graphql
     products(first: 100, after: $after) {
       pageInfo { hasNextPage endCursor }
       nodes {
-        id title handle vendor productType tags
+        id title handle vendor productType tags isGiftCard
         category { id }
         seo { title description }
         media(first: 20) { nodes { id alt mediaContentType } }
@@ -331,6 +331,7 @@ async function stepProducts() {
   log(`  ${products.length} products`);
   const takenHandles = new Set(products.map((p) => p.handle));
   for (const p of products) {
+    if (p.isGiftCard) continue; // not a shirt: no T-shirt type, tag or category
     const name = designName(p.title);
     const input = {id: p.id};
     if (!p.vendor || /printify|my store/i.test(p.vendor)) input.vendor = BRAND;

@@ -393,3 +393,81 @@ h3 {
 .sx-product__shelf:hover {
   color: var(--ink);
 }
+
+/* ---------- Contrast fixes (axe, WCAG AA 4.5:1) ----------
+   Ketchup text passes on cream but not on the shade, the mustard or the ink,
+   so on those grounds small text switches to ink (or mustard on ink) and the
+   ketchup moves to the underline — still the accent, never the only signal. */
+.sx-guide .sx-eyebrow,
+.sx-gift__tips .sx-eyebrow {
+  color: var(--ink);
+}
+.sx-shipping__foot .sx-inline-link,
+.sx-guide .sx-inline-link {
+  color: var(--ink);
+  text-decoration-color: var(--ketchup);
+  text-decoration-thickness: 2px;
+}
+.sx-pagehead .sx-inline-link {
+  color: var(--mustard);
+  text-decoration-color: var(--mustard);
+}
+
+/* ---------- Journal cards: colour by position, newest leads ---------- */
+.sx-jcard__media {
+  position: relative;
+}
+.sx-jcard__media--ketchup {
+  background: var(--ketchup);
+}
+.sx-jcard__media--mustard {
+  background: var(--mustard);
+}
+.sx-jcard__media--ink {
+  background: var(--ink);
+}
+.sx-jcard__media--ketchup svg,
+.sx-jcard__media--ink svg {
+  opacity: 0.8;
+}
+.sx-jcard__tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: var(--cream);
+  color: var(--ink);
+  border-right: var(--line) solid var(--ink);
+  border-bottom: var(--line) solid var(--ink);
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.7rem;
+}
+.sx-jcard__title {
+  font-size: var(--step-1);
+}
+@media (min-width: 1100px) {
+  .sx-journal-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .sx-jcard--lead {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  .sx-jcard--lead .sx-jcard__media {
+    aspect-ratio: auto;
+    flex: 1;
+    min-height: 320px;
+  }
+  .sx-jcard--lead .sx-jcard__title {
+    font-size: var(--step-3);
+  }
+}
+
+/* ---------- Mobile hero: stacked lines shouldn't touch ---------- */
+@media (max-width: 59.99em) {
+  .sx-hero__headline {
+    line-height: 0.95;
+  }
+}

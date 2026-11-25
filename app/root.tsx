@@ -19,6 +19,7 @@ import schmucksStyles from '~/styles/schmucks.css?url';
 import upgradeStyles from '~/styles/upgrade.css?url';
 import {PageLayout} from './components/PageLayout';
 import {MelShrug} from '~/components/brand/Brand';
+import {CONTACT_EMAIL, RETURNS_DAYS} from '~/data/commerce';
 import {pageMeta} from '~/lib/seo';
 
 export type RootLoader = typeof loader;
@@ -195,16 +196,42 @@ function orgJsonLd(origin?: string) {
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'Organization',
+        '@type': ['OnlineStore', 'Organization'],
+        ...(origin ? {'@id': `${origin}/#organization`} : {}),
         name: 'SCHMUCKS',
+        alternateName: 'Schmucks',
         description:
-          'Fine Apparel for Idiots — funny graphic tees printed to order on heavyweight cotton.',
+          'SCHMUCKS sells funny one-liner graphic t-shirts — numbered designs, each a short confession or joke set in bold editorial type — printed to order on Gildan 5000 heavyweight cotton in Miami, Florida. US$42 a shirt, sizes S–3XL.',
         slogan: 'Fine Apparel for Idiots',
+        knowsAbout: [
+          'funny t-shirts',
+          'graphic tees',
+          'matching couple shirts',
+          'print-on-demand apparel',
+        ],
+        areaServed: ['US', 'CA', 'EU', 'AU'],
+        contactPoint: {
+          '@type': 'ContactPoint',
+          contactType: 'customer service',
+          email: CONTACT_EMAIL,
+          availableLanguage: 'English',
+        },
+        hasMerchantReturnPolicy: {
+          '@type': 'MerchantReturnPolicy',
+          applicableCountry: ['US', 'CA'],
+          returnPolicyCategory:
+            'https://schema.org/MerchantReturnFiniteReturnWindow',
+          merchantReturnDays: RETURNS_DAYS,
+          returnMethod: 'https://schema.org/ReturnByMail',
+        },
         ...(origin ? {url: origin, logo: `${origin}/apple-touch-icon.png`} : {}),
       },
       {
         '@type': 'WebSite',
         name: 'SCHMUCKS',
+        ...(origin
+          ? {'@id': `${origin}/#website`, publisher: {'@id': `${origin}/#organization`}}
+          : {}),
         description: 'Funny graphic tees, printed to order.',
         ...(origin
           ? {

@@ -293,67 +293,84 @@ export default function Product() {
     ? `${root.origin}/products/${product.handle}`
     : undefined;
 
-  // One Offer per variant, so rich results can show the real range and stock.
+  // ProductGroup with one Product per variant — Google's recommended shape
+  // for apparel, so colour and size are understood as variants of one design
+  // rather than as dozens of unrelated offers.
+  const shippingDetails = {
+    '@type': 'OfferShippingDetails',
+    shippingRate: {
+      '@type': 'MonetaryAmount',
+      value: US_SHIPPING_FROM,
+      currency: 'USD',
+    },
+    shippingDestination: {'@type': 'DefinedRegion', addressCountry: 'US'},
+    deliveryTime: {
+      '@type': 'ShippingDeliveryTime',
+      handlingTime: {
+        '@type': 'QuantitativeValue',
+        minValue: 2,
+        maxValue: PRODUCTION_DAYS,
+        unitCode: 'DAY',
+      },
+    },
+  };
+  const returnPolicy = {
+    '@type': 'MerchantReturnPolicy',
+    applicableCountry: ['US', 'CA'],
+    returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+    merchantReturnDays: RETURNS_DAYS,
+    returnMethod: 'https://schema.org/ReturnByMail',
+    // The customer pays return postage unless the shirt is faulty (refund policy).
+    returnFees: 'https://schema.org/ReturnShippingFees',
+  };
+  const optionValue = (
+    variant: {selectedOptions?: Array<{name: string; value: string}>},
+    name: RegExp,
+  ) => variant.selectedOptions?.find((o) => name.test(o.name))?.value;
+
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Product',
+    '@type': 'ProductGroup',
     name: copy.displayTitle,
     description: `${copy.sell} ${copy.meta}`,
+    ...(productUrl ? {url: productUrl} : {}),
+    productGroupID: product.handle,
+    ...(copy.catalogueNumber ? {mpn: `SCHMUCKS-${copy.catalogueNumber}`} : {}),
     image: (product.images?.nodes ?? []).slice(0, 6).map((image) => image.url),
     brand: {'@type': 'Brand', name: 'SCHMUCKS'},
-    ...(product.vendor ? {manufacturer: product.vendor} : {}),
-    ...(productUrl ? {url: productUrl} : {}),
-    offers: (product.variants?.nodes ?? []).map((variant) => ({
-      '@type': 'Offer',
-      name: variant.title,
-      ...(variant.sku ? {sku: variant.sku} : {}),
-      price: variant.price.amount,
-      priceCurrency: variant.price.currencyCode,
-      availability: variant.availableForSale
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
-      itemCondition: 'https://schema.org/NewCondition',
-      /**
-       * Shipping and returns were deliberately absent from this schema while
-       * the free-shipping claim was unverified — a rate Google can't match at
-       * checkout is worse than none. Both are now confirmed: the US rate comes
-       * from the Admin API shipping zones, the handling time from the print
-       * provider's catalogue entry. Only the US is described, because that's
-       * the one destination whose rate is asserted as a flat figure.
-       */
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingRate: {
-          '@type': 'MonetaryAmount',
-          value: US_SHIPPING_FROM,
-          currency: variant.price.currencyCode,
+    material: '100% cotton',
+    audience: {'@type': 'PeopleAudience', suggestedGender: 'unisex'},
+    ...(shelf ? {category: `Apparel > T-Shirts > ${shelf.title}`} : {}),
+    variesBy: ['https://schema.org/color', 'https://schema.org/size'],
+    hasVariant: (product.variants?.nodes ?? []).map((variant) => {
+      const variantUrl = productUrl
+        ? `${productUrl}?variant=${variant.id.split('/').pop()}`
+        : undefined;
+      return {
+        '@type': 'Product',
+        name: `${copy.displayTitle} — ${variant.title}`,
+        ...(variant.sku ? {sku: variant.sku} : {}),
+        ...(optionValue(variant, /colou?r/i)
+          ? {color: optionValue(variant, /colou?r/i)}
+          : {}),
+        ...(optionValue(variant, /size/i)
+          ? {size: optionValue(variant, /size/i)}
+          : {}),
+        ...(variant.image?.url ? {image: variant.image.url} : {}),
+        offers: {
+          '@type': 'Offer',
+          price: variant.price.amount,
+          priceCurrency: variant.price.currencyCode,
+          availability: variant.availableForSale
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+          itemCondition: 'https://schema.org/NewCondition',
+          ...(variantUrl ? {url: variantUrl} : {}),
+          shippingDetails,
+          hasMerchantReturnPolicy: returnPolicy,
         },
-        shippingDestination: {
-          '@type': 'DefinedRegion',
-          addressCountry: 'US',
-        },
-        deliveryTime: {
-          '@type': 'ShippingDeliveryTime',
-          handlingTime: {
-            '@type': 'QuantitativeValue',
-            minValue: 2,
-            maxValue: PRODUCTION_DAYS,
-            unitCode: 'DAY',
-          },
-        },
-      },
-      hasMerchantReturnPolicy: {
-        '@type': 'MerchantReturnPolicy',
-        applicableCountry: 'US',
-        returnPolicyCategory:
-          'https://schema.org/MerchantReturnFiniteReturnWindow',
-        merchantReturnDays: RETURNS_DAYS,
-        returnMethod: 'https://schema.org/ReturnByMail',
-      },
-      ...(productUrl
-        ? {url: `${productUrl}?variant=${variant.id.split('/').pop()}`}
-        : {}),
-    })),
+      };
+    }),
   };
 
   function nudgeToSize() {

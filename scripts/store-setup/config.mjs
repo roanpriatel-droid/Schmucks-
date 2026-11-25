@@ -19,7 +19,11 @@ export const BASE_TAG = 'tees';
 
 // ---------------------------------------------------------------- collections
 
-const ALL_PRODUCTS = [{column: 'VARIANT_PRICE', relation: 'GREATER_THAN', condition: '0'}];
+const ALL_PRODUCTS = [
+  {column: 'VARIANT_PRICE', relation: 'GREATER_THAN', condition: '0'},
+  // Gift cards are products too; keep them off the shirt shelves.
+  {column: 'TYPE', relation: 'NOT_EQUALS', condition: 'Gift Card'},
+];
 const tag = (t) => [{column: 'TAG', relation: 'EQUALS', condition: t}];
 
 /**
