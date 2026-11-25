@@ -392,7 +392,17 @@ export default function Product() {
 
         <div className="sx-product__main">
           <p className="sx-product__eyebrow">
-            {shelf ? shelf.title : 'Fine Apparel for Idiots'}
+            {shelf ? (
+              <Link
+                to={`/collections/${shelf.handle}`}
+                className="sx-product__shelf"
+                prefetch="intent"
+              >
+                {shelf.title}
+              </Link>
+            ) : (
+              'Fine Apparel for Idiots'
+            )}
             {copy.catalogueNumber ? ` · N°. ${copy.catalogueNumber}` : ''}
           </p>
 

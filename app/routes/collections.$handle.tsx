@@ -25,6 +25,8 @@ import {facetKindFor, shelfDescription, toProductFilters} from '~/lib/shelves';
 import {pageMeta, toDescription} from '~/lib/seo';
 import {countProducts} from '~/lib/countProducts';
 import {splitTitle} from '~/lib/productCopy';
+import {ShelfGuide} from '~/components/ShelfGuide';
+import {shelfGuide} from '~/data/shelfContent';
 
 export const meta: Route.MetaFunction = (args) => {
   const collection = args.data?.collection;
@@ -311,6 +313,7 @@ export default function Collection() {
     navigation.state === 'loading' &&
     navigation.location?.pathname === pathname;
   const title = collection?.title ?? shelf?.title ?? 'Shop';
+  const guide = shelfGuide(collection?.handle ?? shelf?.handle);
   const count = total ?? loaded;
 
   // ItemList tells search engines this page is a product listing and in what
@@ -387,6 +390,7 @@ export default function Collection() {
           )}
         </div>
       </section>
+      {guide ? <ShelfGuide guide={guide} /> : null}
       {collection ? (
         <Analytics.CollectionView
           data={{
@@ -401,7 +405,7 @@ export default function Collection() {
   );
 }
 
-const PRODUCT_ITEM_FRAGMENT = `#graphql
+export const PRODUCT_ITEM_FRAGMENT = `#graphql
   fragment MoneyProductItem on MoneyV2 {
     amount
     currencyCode

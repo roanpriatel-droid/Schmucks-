@@ -31,6 +31,7 @@ const SHOP_LINKS = [
     : []),
   {title: 'New Arrivals', to: '/collections/new-arrivals'},
   {title: 'The Pair Programme', to: '/matching-sets'},
+  {title: 'Gift Guides', to: '/gifts'},
 ];
 
 const HELP_LINKS = [

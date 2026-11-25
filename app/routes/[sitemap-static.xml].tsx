@@ -1,6 +1,7 @@
 import type {Route} from './+types/[sitemap-static.xml]';
 import {JOURNAL} from '~/data/journal';
 import {SHELVES} from '~/data/shelves';
+import {GIFTS} from '~/data/gifts';
 
 /**
  * Hydrogen's generated sitemaps only cover Shopify resources (products,
@@ -14,11 +15,12 @@ const STATIC_ROUTES: Array<{path: string; priority: string}> = [
   {path: '/', priority: '1.0'},
   {path: '/tees', priority: '0.9'},
   {path: '/matching-sets', priority: '0.9'},
+  {path: '/gifts', priority: '0.8'},
+  ...GIFTS.map((gift) => ({path: `/gifts/${gift.slug}`, priority: '0.8'})),
   {path: '/collections', priority: '0.7'},
   {path: '/collections/all', priority: '0.8'},
   {path: '/lookbook', priority: '0.7'},
   {path: '/journal', priority: '0.7'},
-  {path: '/blogs', priority: '0.5'},
   {path: '/pages/about', priority: '0.7'},
   {path: '/pages/materials', priority: '0.7'},
   {path: '/pages/size-guide', priority: '0.7'},

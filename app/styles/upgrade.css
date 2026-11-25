@@ -201,3 +201,195 @@ h3 {
     transform: none;
   }
 }
+
+/* ---------- Shelf guide: the words under the grid ---------- */
+.sx-guide {
+  background: var(--cream-shade);
+  border-top: var(--line-thick) solid var(--ink);
+  padding-block: var(--section-pad);
+}
+.sx-guide__inner {
+  display: grid;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+@media (min-width: 900px) {
+  .sx-guide__inner {
+    grid-template-columns: 1.1fr 1fr;
+    align-items: start;
+  }
+}
+.sx-guide__title {
+  font-size: var(--step-3);
+  line-height: 0.98;
+  margin: 0.5rem 0 1.25rem;
+  text-transform: uppercase;
+}
+.sx-guide__p {
+  font-size: var(--step-1);
+  line-height: 1.6;
+  max-width: 60ch;
+  margin: 0 0 1rem;
+}
+.sx-guide__next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.75rem;
+}
+.sx-guide__chip {
+  display: inline-block;
+  border: var(--line) solid var(--ink);
+  background: var(--cream);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 0.5rem 0.9rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    transform 110ms ease,
+    box-shadow 110ms ease;
+}
+.sx-guide__chip:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ketchup);
+}
+.sx-guide__chip--gift {
+  background: var(--mustard);
+}
+.sx-guide__qa {
+  display: grid;
+  gap: 1rem;
+  margin: 0.75rem 0 0;
+}
+.sx-guide__qa-item {
+  background: var(--cream);
+  border: var(--line) solid var(--ink);
+  box-shadow: var(--shadow-hard);
+  padding: 1.1rem 1.25rem 1.2rem;
+}
+.sx-guide__qa-item dt {
+  font-weight: 800;
+  font-size: var(--step-1);
+  line-height: 1.3;
+  margin-bottom: 0.4rem;
+}
+.sx-guide__qa-item dd {
+  margin: 0;
+  line-height: 1.6;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-guide__chip {
+    transition: none;
+  }
+}
+
+/* ---------- Gift guides ---------- */
+.sx-gift__layout {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+@media (min-width: 1100px) {
+  .sx-gift__layout {
+    grid-template-columns: 280px 1fr;
+    align-items: start;
+  }
+  .sx-gift__tips {
+    position: sticky;
+    top: 1.5rem;
+  }
+  .sx-gift__grid.sx-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.sx-gift__tips {
+  background: var(--mustard);
+  border: var(--line) solid var(--ink);
+  box-shadow: var(--shadow-hard);
+  padding: 1.25rem 1.35rem;
+}
+.sx-gift__tips ul {
+  margin: 0.6rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.7rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.sx-gifthub {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.75rem);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+}
+.sx-gifthub__card {
+  display: grid;
+  gap: 0.75rem;
+  height: 100%;
+  padding: clamp(1.4rem, 2.5vw, 2rem);
+  border: var(--line) solid var(--ink);
+  box-shadow: var(--shadow-hard);
+  text-decoration: none;
+  transition:
+    transform 110ms ease,
+    box-shadow 110ms ease;
+}
+.sx-gifthub__card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 10px 10px 0 var(--ink);
+}
+.sx-gifthub__card.is-ketchup {
+  background: var(--ketchup);
+  color: var(--cream);
+}
+.sx-gifthub__card.is-mustard {
+  background: var(--mustard);
+  color: var(--ink);
+}
+.sx-gifthub__card.is-ink {
+  background: var(--ink);
+  color: var(--cream);
+}
+.sx-gifthub__kicker {
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.sx-gifthub__title {
+  font-size: clamp(1.7rem, 1.3rem + 1.3vw, 2.5rem);
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.sx-gifthub__desc {
+  line-height: 1.55;
+}
+.sx-gifthub__cta {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.88rem;
+  margin-top: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-gifthub__card {
+    transition: none;
+  }
+}
+
+/* PDP eyebrow: the shelf is a way out, not just a label. */
+.sx-product__shelf {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.sx-product__shelf:hover {
+  color: var(--ink);
+}
