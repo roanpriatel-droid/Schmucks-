@@ -30,6 +30,12 @@ redirects visitors to a Shopify login. Hydrogen → Storefront settings →
 Environments → Production → URL privacy → Public. Fix blocker 1 first.
 
 Also:
+- **Gift cards are switched off in Shopify.** Creating the gift card product
+  ($25/$50/$100, copy ready in the session notes) is refused until you turn
+  gift cards on: Settings → Gift cards. The shelves already exclude gift
+  cards (Best Sellers/New Arrivals rules), so it's safe to switch on.
+- **Social handles** — send them and they go into the footer and the
+  OnlineStore schema (`sameAs`).
 - Canadians are charged C$42; US and International pay US$42 (manual rate
   1.0). If you'd rather everyone pays USD, change the store currency to USD in
   Settings → Store details (no orders exist yet, so it's allowed).
