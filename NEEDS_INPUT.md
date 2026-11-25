@@ -9,12 +9,22 @@ storefront, Online Store and Shop. Markets, collections, menus, policies, Stack
 & Save and free shipping are live. Re-check any time with
 `node scripts/store-setup/audit.mjs` and `node scripts/store-setup/cart-test.mjs`.
 
+**Support email mismatch (fix before launch).** The site, footer and the
+published policies use `roanpriatel379@gmail.com` (`CONTACT_EMAIL` in
+`app/data/commerce.ts`), but this store's Shopify customer email — the one
+order confirmations use — is `roanpriatel389@gmail.com`. One is wrong. Tell
+me which, and I'll update the code and republish the policies.
+
 **BLOCKER 1 — nothing outside Canada can be bought.** In a US (or EU) context
 every product reports `availableForSale: false` and carts return
 `MERCHANDISE_OUT_OF_STOCK`; Canada works. The storefront browses as `US`
 (`app/lib/context.ts`), so the site currently shows everything sold out.
 Ruled out via the API: stock (9999, CONTINUE policy), publication, shipping
 zones and rates (US/EU/AU/ROW all present), markets (active, USD), timing.
+Also ruled out on 2026-11-25 by reversible experiments (all restored):
+untracked inventory (still sold out), the US market priced in the store's own
+CAD (still sold out), delivery customizations and fulfilment constraint
+rules (none exist), and both locations are eligible for delivery profiles.
 Both locations — including Printify's — are registered in **Canada**, so the
 likely cause is an order-routing / fulfillable-inventory rule that keeps a
 market to locations inside it. Check Settings → Shipping and delivery →
@@ -39,9 +49,6 @@ Also:
 - Canadians are charged C$42; US and International pay US$42 (manual rate
   1.0). If you'd rather everyone pays USD, change the store currency to USD in
   Settings → Store details (no orders exist yet, so it's allowed).
-- Oxygen workflow `oxygen-deployment-1000159015.yml` fails on every push since
-  2026-11-24; `…1000186391.yml` (the new storefront) succeeds. Delete the old
-  one if 1000159015 is the retired storefront.
 - Newsletter signups now create subscribed customers (verified on this store).
 
 ## Trust / social proof
