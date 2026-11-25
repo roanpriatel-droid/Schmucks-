@@ -37,6 +37,44 @@ const GROUPS: Array<{
   items: Array<{q: string; a: React.ReactNode; plain: string}>;
 }> = [
   {
+    group: 'The short version',
+    items: [
+      {
+        q: 'What is SCHMUCKS?',
+        plain:
+          'SCHMUCKS is an online t-shirt brand selling funny one-liner graphic tees: numbered designs, each a short confession or joke set in bold editorial type. Every shirt is a Gildan 5000 heavyweight cotton tee, printed to order in Miami, Florida, for US$42, in unisex sizes S–3XL.',
+        a: 'An online t-shirt brand selling funny one-liner graphic tees: numbered designs, each a short confession or joke set in bold editorial type. Every shirt is a Gildan 5000 heavyweight cotton tee, printed to order in Miami, Florida, for US$42, in unisex sizes S–3XL.',
+      },
+      {
+        q: 'Are the shirts good quality?',
+        plain:
+          'They are Gildan 5000 Heavy Cotton: 5.3 oz (180 gsm), 100% US-grown cotton, seamless tubular body, taped neck and shoulders, OEKO-TEX STANDARD 100 certified, printed direct-to-garment with water-based ink. Faulty or misprinted shirts are replaced free.',
+        a: (
+          <>
+            They&rsquo;re Gildan 5000 Heavy Cotton: 5.3 oz (180 gsm), 100%
+            US-grown cotton, seamless tubular body, taped neck and shoulders,
+            OEKO-TEX STANDARD 100 certified, printed direct-to-garment with
+            water-based ink. Faulty or misprinted shirts are replaced free. The
+            full spec is on the{' '}
+            <Link className="sx-inline-link" to="/pages/materials">
+              materials page
+            </Link>
+            .
+          </>
+        ),
+      },
+      ...(STACK_DISCOUNT_LIVE
+        ? [
+            {
+              q: 'Is there a discount for buying more than one?',
+              plain: `Yes — Stack & Save applies automatically at checkout, no code: ${ladder}.`,
+              a: `Yes — Stack & Save applies automatically at checkout, no code: ${ladder}.`,
+            },
+          ]
+        : []),
+    ],
+  },
+  {
     group: 'Sizing & fit',
     items: [
       {

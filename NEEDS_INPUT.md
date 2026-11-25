@@ -1,7 +1,48 @@
 # Needs Real-World Input
 
-Things I deliberately did **not** fabricate. Each needs a real value from you
-before it can ship as a factual claim. Until then I use honest alternatives.
+## Store status 2026-11-24 (store-setup session) — read this first
+
+The live store is **x1ugph-ad.myshopify.com** (CAD base, Canada). It was empty;
+it now holds all 393 designs, every one linked to Printify by SKU (orders route
+to Printify for printing), on the right shelves, published to the Hydrogen
+storefront, Online Store and Shop. Markets, collections, menus, policies, Stack
+& Save and free shipping are live. Re-check any time with
+`node scripts/store-setup/audit.mjs` and `node scripts/store-setup/cart-test.mjs`.
+
+**BLOCKER 1 — nothing outside Canada can be bought.** In a US (or EU) context
+every product reports `availableForSale: false` and carts return
+`MERCHANDISE_OUT_OF_STOCK`; Canada works. The storefront browses as `US`
+(`app/lib/context.ts`), so the site currently shows everything sold out.
+Ruled out via the API: stock (9999, CONTINUE policy), publication, shipping
+zones and rates (US/EU/AU/ROW all present), markets (active, USD), timing.
+Both locations — including Printify's — are registered in **Canada**, so the
+likely cause is an order-routing / fulfillable-inventory rule that keeps a
+market to locations inside it. Check Settings → Shipping and delivery →
+**Order routing** (e.g. "Stay within the destination market") and any
+"Fulfillable inventory" / "sell only within shipping zones" option, and
+Settings → Markets → United States. The Printify location's address can only
+be edited by Printify (the API refuses) — if needed, ask Printify support to
+set it to the real origin (Monster Digital, Miami FL). Then run
+`cart-test.mjs`: the US rows should show a shipping rate.
+
+**BLOCKER 2 — the production storefront is private.** `schmucks.store`
+redirects visitors to a Shopify login. Hydrogen → Storefront settings →
+Environments → Production → URL privacy → Public. Fix blocker 1 first.
+
+Also:
+- **Gift cards are switched off in Shopify.** Creating the gift card product
+  ($25/$50/$100, copy ready in the session notes) is refused until you turn
+  gift cards on: Settings → Gift cards. The shelves already exclude gift
+  cards (Best Sellers/New Arrivals rules), so it's safe to switch on.
+- **Social handles** — send them and they go into the footer and the
+  OnlineStore schema (`sameAs`).
+- Canadians are charged C$42; US and International pay US$42 (manual rate
+  1.0). If you'd rather everyone pays USD, change the store currency to USD in
+  Settings → Store details (no orders exist yet, so it's allowed).
+- Oxygen workflow `oxygen-deployment-1000159015.yml` fails on every push since
+  2026-11-24; `…1000186391.yml` (the new storefront) succeeds. Delete the old
+  one if 1000159015 is the retired storefront.
+- Newsletter signups now create subscribed customers (verified on this store).
 
 ## Trust / social proof
 - **Customer reviews, star ratings, review counts** — removed all invented ones

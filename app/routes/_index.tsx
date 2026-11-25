@@ -525,9 +525,14 @@ function Hero({products}: {products: HomeProductFragment[]}) {
                     data={image}
                     alt={`The print on ${displayTitle}`}
                     aspectRatio="1/1"
-                    // Widened for the 2.6x print zoom (see --print-zoom):
-                    // 22vw of layout needs ~58vw of pixels to stay sharp.
-                    sizes="(min-width: 60em) 58vw, 100vw"
+                    // Widened for the 2.6x print zoom (see --print-zoom).
+                    // The featured tile is ~34vw of layout on desktop (upgrade.css),
+                    // so it needs ~90vw of pixels; the support tiles ~17vw → 45vw.
+                    sizes={
+                      index === 0
+                        ? '(min-width: 60em) 90vw, 100vw'
+                        : '(min-width: 60em) 45vw, 100vw'
+                    }
                     loading={index < 2 ? 'eager' : 'lazy'}
                     fetchPriority={index === 0 ? 'high' : undefined}
                   />

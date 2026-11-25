@@ -29,6 +29,7 @@ const SX_NAV = [
   SALES_DATA_AVAILABLE
     ? {title: 'Best Sellers', to: '/collections/best-sellers'}
     : {title: 'New Arrivals', to: '/collections/new-arrivals'},
+  {title: 'Gifts', to: '/gifts'},
   {title: 'Lookbook', to: '/lookbook'},
   {title: 'Contact', to: '/pages/contact'},
 ];

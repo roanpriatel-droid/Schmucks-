@@ -18,6 +18,113 @@ export type JournalArticle = {
 
 export const JOURNAL: JournalArticle[] = [
   {
+    slug: 'why-our-shirts-got-bolder',
+    title: 'Why Our Shirts Got Bolder',
+    dek: 'We reset 372 designs in a heavier typeface. Here is what changed, and why a thin letter is a liability on cotton.',
+    tag: 'Behind the Counter',
+    date: '2026-11-25',
+    readingTime: '4 min read',
+    author: 'The Schmucks Desk',
+    lead: 'For a while our shirts whispered. The jokes were set in a hairline serif at about a third of the chest, and on an actual person, across an actual room, they mostly read as a smudge. So we fixed it.',
+    bodyHtml: `
+      <p>The original idea was restraint. A one-line confession, set small in an elegant, high-contrast serif, the way a fashion house might print its name. On a screen it looked expensive. On cotton it had two problems.</p>
+      <h2>Problem one: nobody could read it</h2>
+      <p>A joke shirt has one job, which is to be read by someone who did not ask to read it. Ours were being read by the wearer and approximately no one else. The thin strokes of a display serif vanish at a distance, and a line set at a third of the chest width turns into texture by the time it is across a bar.</p>
+      <h2>Problem two: thin lines do not print well</h2>
+      <p>Our shirts are printed direct-to-garment — the ink goes straight into the cotton, like an inkjet onto very expensive paper. That is why the print feels soft. It also means the very finest strokes of a typeface can break up into the weave instead of printing as a clean line. A hairline that looks crisp on a monitor can come out looking faded and frayed on the shirt.</p>
+      <h2>What we changed</h2>
+      <p>Every design from N°. 21 to N°. 394 has been reset in a heavy editorial serif, roughly twice the visual weight of the old one, and sized to fill about three-quarters of the print area. Lines break evenly so nothing hangs alone. The caption underneath — <em>SCHMUCKS · N°. 042</em> — is bolder too, because the number is part of the joke. The layout is the same: the statement, a rule, the number. It just speaks up now.</p>
+      <p>We kept the serif on purpose. A joke about crying at a car wash, set like the masthead of a serious magazine, is funnier than the same joke in a cartoon font. The contrast is the bit.</p>
+      <h2>What did not change</h2>
+      <p>Same <a href="/pages/materials">Gildan 5000 heavyweight cotton</a>, same Miami print shop, same price, same <a href="/pages/shipping-returns">30-day returns</a>. Designs N°. 1 to 20 were already set in our chunky deli slab and stayed exactly as they were. If you bought one of the old prints, it is now a limited edition, which is a nicer way of describing a mistake than we usually manage.</p>
+    `,
+  },
+  {
+    slug: 'how-to-wash-a-graphic-tee',
+    title: 'How to Wash a Graphic Tee So the Print Lasts',
+    dek: 'Four rules, one of which you are currently breaking. The joke should outlive the shirt, not the other way round.',
+    tag: 'Care',
+    date: '2026-11-18',
+    readingTime: '3 min read',
+    author: 'The Schmucks Desk',
+    lead: 'Most graphic tees do not wear out. They get washed out — too hot, too often, face up against a zip. Here is how to keep a printed shirt looking printed.',
+    bodyHtml: `
+      <p>Our shirts are printed direct-to-garment with water-based ink, which means the design is in the cotton rather than sitting on top of it like a sticker. That is why it feels soft. It also means the print ages the way the cotton ages, so looking after one looks after the other.</p>
+      <h2>1. Turn it inside out</h2>
+      <p>The print should never be the side that rubs against the drum, jeans rivets or someone else&rsquo;s zip. Inside out, every time. This one habit does more than the other three combined.</p>
+      <h2>2. Wash cold</h2>
+      <p>Machine wash cold with like colours. Heat is what fades ink and shrinks cotton, and a cold wash gets a t-shirt every bit as clean as a hot one. Black shirts especially: cold water and like colours keep the black black.</p>
+      <h2>3. Tumble dry low — or don&rsquo;t</h2>
+      <p>Low heat is fine. High heat is how a size L becomes a gift for your nephew. Hanging it to dry is better still, and it saves you ironing, which brings us to the last rule.</p>
+      <h2>4. Never iron the print</h2>
+      <p>If it needs pressing, iron it inside out, or iron around the design. A hot iron directly on a print is the fastest way to ruin one. No bleach, no dry cleaning.</p>
+      <p>That is it. The same advice is on the <a href="/pages/care">care guide</a> and the label. Follow it and the shirt will outlast the joke — and if a print ever arrives faulty, that is on us, not your washing machine: see <a href="/pages/shipping-returns">returns</a>.</p>
+    `,
+  },
+  {
+    slug: 'funny-shirt-gifts-that-actually-get-worn',
+    title: 'Funny Shirt Gifts That Actually Get Worn',
+    dek: 'Most novelty gifts end up in a drawer. Here is how to pick the one that ends up in the rotation.',
+    tag: 'Gift Guide',
+    date: '2026-11-10',
+    readingTime: '4 min read',
+    author: 'The Schmucks Desk',
+    lead: 'A funny shirt is the easiest gift to buy and the easiest to get wrong. The difference between a laugh and a drawer is about three decisions.',
+    bodyHtml: `
+      <h2>Pick the true one, not the funniest one</h2>
+      <p>The shirt that gets worn is the one that is accurate. Not the most outrageous line in the shop — the one that makes everyone who knows them say &ldquo;well, yes.&rdquo; Accuracy is funnier than shock, and it is flattering in a way shock is not. The friend who has heard every story twice gets something from <a href="/collections/the-confessional">The Confessional</a>. The one who has never returned a shopping cart gets <a href="/collections/petty-crimes">Petty Crimes</a>.</p>
+      <h2>Know where it will be worn</h2>
+      <p>Some of our shirts are fine at a family barbecue. Some are not fine anywhere your grandmother is. If it is a Secret Santa or a work swap, stay on <a href="/collections/terms-conditions">Terms &amp; Conditions</a> — warning labels and fine print, no explicit language. Our <a href="/gifts/for-coworkers">coworker guide</a> is the office-safe edit.</p>
+      <h2>Get the size right</h2>
+      <p>The shirts are a standard unisex fit, sizes S to 3XL. If you are guessing, go with their usual t-shirt size; if you are unsure between two, size up — a slightly big shirt gets worn, a tight one does not. The <a href="/pages/size-guide">size guide</a> has measurements if you can steal one of their shirts to compare.</p>
+      <h2>Buy two</h2>
+      <p>Not as an upsell — it is genuinely the better gift. One for them, one for you, or a <a href="/gifts/for-couples">matching pair</a> for a couple. Two shirts take 10% off automatically, and in the US two shirts also clear free shipping.</p>
+      <h2>Order early</h2>
+      <p>Every shirt is printed after you order it, which takes up to 10 days before it ships. For a birthday or the holidays, give it two to three weeks. Browse every guide at <a href="/gifts">/gifts</a>.</p>
+    `,
+  },
+  {
+    slug: 'why-every-shirt-has-a-number',
+    title: 'Why Every Shirt Has a Number',
+    dek: 'N°. 001 to N°. 394, and counting. The catalogue number is not decoration — it is how we keep ourselves honest.',
+    tag: 'Behind the Counter',
+    date: '2026-10-30',
+    readingTime: '3 min read',
+    author: 'The Schmucks Desk',
+    lead: 'Look under any joke on a Schmucks shirt and you will find a catalogue number. People ask what it is for. Mostly, it is for us.',
+    bodyHtml: `
+      <p>Every design gets a number in the order it was written. <em>Certified Schmuck</em> is N°. 001. <em>I Peaked at My Own Birthday Party (Age 9)</em> is N°. 394. The number is printed on the shirt, under a rule, in the same place every time.</p>
+      <h2>It makes a joke a series</h2>
+      <p>One funny shirt is a novelty. Three hundred and ninety-four numbered ones is a catalogue — a body of work, written by idiots, filed with the care of a library. The number turns a throwaway line into an entry in something larger, which is funnier, and also slightly more expensive-looking than it has any right to be.</p>
+      <h2>It stops us repeating ourselves</h2>
+      <p>With hundreds of one-liners, it is easy to write the same joke twice in different words. Numbering everything means there is one list, in order, that we check new lines against. If it is already on the list, it does not get a second number.</p>
+      <h2>It gives you something to ask for</h2>
+      <p>&ldquo;The one about the Costco parking lot&rdquo; is a description. &ldquo;N°. 387&rdquo; is an order. Search the shop by number, quote it in an email, or start collecting them in order. We are not going to stop you.</p>
+      <p>The full catalogue is on <a href="/tees">every shirt</a>, sorted newest first. The numbers keep going up.</p>
+    `,
+  },
+  {
+    slug: 'matching-couple-shirts-without-the-cringe',
+    title: 'Matching Couple Shirts, Without the Cringe',
+    dek: 'Two people, two shirts, one bad idea. How to do matching outfits so it reads as a joke you are both in on.',
+    tag: 'Styling',
+    date: '2026-10-20',
+    readingTime: '3 min read',
+    author: 'The Schmucks Desk',
+    lead: 'Matching couple shirts have a reputation, and it is earned. Done right, though, they are the rare couples thing that is actually funny to everyone else in the room.',
+    bodyHtml: `
+      <h2>Make the shirts talk to each other</h2>
+      <p>The best couple shirts are not identical — they are two halves of the same joke. &ldquo;Bare Minimum Boyfriend&rdquo; and &ldquo;Bare Minimum Girlfriend.&rdquo; &ldquo;Husband Material (Clearance Bin)&rdquo; and &ldquo;Wife Material (Final Sale).&rdquo; Each one works alone. Together they are a bit. We keep every pair in <a href="/collections/the-pair-programme">The Pair Programme</a>.</p>
+      <h2>Split the colours</h2>
+      <p>One in Black, one in Natural. Identical shirts in identical colours read as a uniform; the same line in opposite colours reads as a decision. It also photographs better.</p>
+      <h2>Pick your sizes separately</h2>
+      <p>The shirts are unisex, S to 3XL, and each one is ordered on its own — there is no &ldquo;set&rdquo; forcing you into the same size. If one of you likes a closer fit, go down a size; for a boxier look, go up. The <a href="/pages/size-guide">size guide</a> has the measurements.</p>
+      <h2>Wear them once, together, on purpose</h2>
+      <p>Matching shirts work as an event — a birthday, a wedding weekend, a trip — not as a lifestyle. Wear them separately the rest of the time and nobody needs to know.</p>
+      <p>Add both halves to the cart and Stack &amp; Save takes 10% off automatically. More ideas in the <a href="/gifts/for-couples">couples gift guide</a>.</p>
+    `,
+  },
+  {
     slug: 'the-anatomy-of-a-25-dollar-shirt',
     title: 'The Anatomy of a Schmucks Shirt',
     dek: 'A stupid design does not require a stupid shirt. Here is where the money actually goes.',
@@ -54,7 +161,7 @@ export const JOURNAL: JournalArticle[] = [
     bodyHtml: `
       <p>The instinct with matching anything is to go loud — same shirt, same colour, standing side by side like a two-man tribute band. You can do that. We will not stop you. But the better move, the one that actually looks intentional, is quieter than that.</p>
       <h2>Match the palette, not the print</h2>
-      <p>Our whole line lives inside four colours: mustard, ink, cream, and a hit of ketchup red. That is deliberate, and it is your cheat code. Two <em>different</em> designs in the same colourway read as a set without screaming it. Cream on cream. Ink on ink. One person in the loud graphic, one in the quiet one. You look coordinated; you do not look like a uniform.</p>
+      <p>Every design comes on Black or Natural (a handful also on Gold), and every print is a single line of type. That restraint is your cheat code. Two <em>different</em> designs on the same colour read as a set without screaming it. Natural with Natural. Black with Black. Or split them — one of each — and let the type do the matching. You look coordinated; you do not look like a uniform.</p>
       <p>If you want the harder-to-pull-off version — same design, two people — keep everything else neutral. Plain trousers, plain shoes, no competing patterns. The shirt is the whole statement, so let it be the whole statement.</p>
       <h2>Layering, for the commitment-averse</h2>
       <p>A graphic tee under an open overshirt or a plain crewneck is the adult way to wear a shirt that says something unhinged. You get the joke when the jacket is open and plausible deniability when it is closed. This is also how you get a summer shirt through autumn. Heavier fabric like <a href="/pages/materials">ours</a> layers well precisely because it is not tissue-thin under a second layer.</p>
@@ -83,7 +190,7 @@ export const JOURNAL: JournalArticle[] = [
       <p>The less obvious win is freshness. A print made this week has not spent months boxed under warehouse lights slowly oxidising. The graphic going on your shirt is new. The blank is pulled fresh. On <a href="/pages/materials">a tightly knit 180 gsm blank</a>, a fresh water-based print sits into the fabric properly instead of sitting on top of it like a decal.</p>
       <p>And it means we can put out <a href="/tees">new designs</a> constantly without betting the company on each one. A dumb idea on a Tuesday can be live by the weekend. If three people buy it, great. If three thousand do, also great, and we did not have to print thirty thousand to find out.</p>
       <h2>The honest downside</h2>
-      <p>Print-to-order is slower than pulling a folded shirt off a shelf. We are making your specific shirt, so there is a production step between "you ordered" and "it ships" — typically a few business days before it goes out the door, on top of transit time. If you need a shirt tomorrow for a party tonight, we are not your brand, and we would rather say that plainly than bury it in the fine print.</p>
+      <p>Print-to-order is slower than pulling a folded shirt off a shelf. We are making your specific shirt, so there is a production step between "you ordered" and "it ships" — up to 10 days before it goes out the door, on top of transit time. If you need a shirt tomorrow for a party tonight, we are not your brand, and we would rather say that plainly than bury it in the fine print.</p>
       <p>We think the trade is worth it: a slightly longer wait for a better-made, fresher shirt and a supply chain that is not quietly burning its mistakes. But it is a trade, and you should know which side of it you are getting.</p>
       <h2>What it is not</h2>
       <p>Printing to order does not make us a sustainability brand, and we are not going to drape ourselves in that word. We make joke shirts. What we can honestly say is that we do not manufacture waste on purpose, we do not fake scarcity, and we do not pretend a shirt is "limited" to rush you. When something sells out it is because the design is retired or the blank is unavailable, not because a countdown timer told you to panic.</p>

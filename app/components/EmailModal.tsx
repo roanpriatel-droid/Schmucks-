@@ -1,9 +1,12 @@
 import {useEffect, useState} from 'react';
+import {useFetcher} from 'react-router';
 import {Badge} from '~/components/brand/Brand';
-import {track} from '~/lib/analytics';
+import {NewsletterForm} from '~/components/NewsletterForm';
+import type {NewsletterResult} from '~/routes/api.newsletter';
 
 const SEEN_KEY = 'sx-email-modal-seen';
 const DELAY_MS = 25000;
+const MODAL_LOCATION = 'exit_modal';
 
 /**
  * One email capture per session. Fires on desktop exit-intent (cursor leaves
@@ -13,7 +16,9 @@ const DELAY_MS = 25000;
  */
 export function EmailModal() {
   const [open, setOpen] = useState(false);
-  const [done, setDone] = useState(false);
+  // Same fetcher key NewsletterForm uses, so the modal can swap to its thank-you.
+  const signup = useFetcher<NewsletterResult>({key: `newsletter-${MODAL_LOCATION}`});
+  const subscribed = signup.data?.ok === true;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -74,42 +79,29 @@ export function EmailModal() {
         <div style={{display: 'grid', placeItems: 'center', marginBottom: '0.75rem'}}>
           <Badge className="sx-join__badge" />
         </div>
-        {done ? (
-          <>
+        {subscribed ? (
+          <div role="status">
             <h2 className="sx-modal__title">You&rsquo;re In.</h2>
             <p>
               Welcome to the Schmucks. New drops will hit your inbox first — our
               condolences in advance.
             </p>
-          </>
+          </div>
         ) : (
           <>
             <h2 className="sx-modal__title">Get In Early, Idiot</h2>
             <p style={{marginBottom: '1.25rem'}}>
-              Join the list for early access to weekly drops before they sell out
-              to smarter people.
+              Join the list for early access to weekly drops before they sell
+              out to smarter people.
             </p>
-            <form
+            <NewsletterForm
+              location={MODAL_LOCATION}
               className="sx-join__form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                track('newsletter_signup', {location: 'exit_modal'});
-                setDone(true);
-              }}
-              aria-label="Email signup"
-            >
-              <input
-                className="sx-join__input"
-                type="email"
-                required
-                placeholder="you@regrets.com"
-                aria-label="Email address"
-                style={{boxShadow: '3px 3px 0 var(--ink)'}}
-              />
-              <button className="sx-btn sx-btn--ketchup" type="submit">
-                Sign Me Up
-              </button>
-            </form>
+              inputClassName="sx-join__input"
+              inputStyle={{boxShadow: '3px 3px 0 var(--ink)'}}
+              buttonLabel="Sign Me Up"
+              done={null}
+            />
             <button
               type="button"
               onClick={() => setOpen(false)}

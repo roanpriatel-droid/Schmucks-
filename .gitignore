@@ -10,3 +10,8 @@ node_modules
 
 # TS incremental build cache
 tsconfig.tsbuildinfo
+
+# store-setup: credentials, backups, cached schema
+scripts/store-setup/.env
+scripts/store-setup/backups/
+scripts/store-setup/.schema/

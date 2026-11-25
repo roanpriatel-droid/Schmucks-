@@ -14,11 +14,32 @@ export function loader({request}: Route.LoaderArgs) {
   });
 }
 
+/** Named explicitly so the intent is unambiguous (GEO). */
+const AI_AGENTS = [
+  'GPTBot',
+  'OAI-SearchBot',
+  'ChatGPT-User',
+  'PerplexityBot',
+  'Perplexity-User',
+  'ClaudeBot',
+  'Claude-SearchBot',
+  'Claude-User',
+  'Google-Extended',
+  'Applebot-Extended',
+  'Amazonbot',
+  'CCBot',
+];
+
 function robotsTxtData({url}: {url?: string}) {
   const sitemapUrl = url ? `${url}/sitemap.xml` : undefined;
 
   return `
 User-agent: *
+${generalDisallowRules({sitemapUrl})}
+
+# AI search and assistants are welcome — being quoted correctly is the point.
+# Brand facts for them live at /llms.txt and /llms-full.txt.
+${AI_AGENTS.map((agent) => `User-agent: ${agent}`).join('\n')}
 ${generalDisallowRules({sitemapUrl})}
 
 # Google adsbot ignores robots.txt unless specifically named!

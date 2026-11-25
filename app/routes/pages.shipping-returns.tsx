@@ -7,6 +7,7 @@ import {
   CONTACT_EMAIL,
   FREE_SHIPPING_LIVE,
   FREE_SHIPPING_THRESHOLD,
+  FREE_SHIPPING_THRESHOLD_CA,
   US_SHIPPING_FROM,
   SHIPPING_RATES,
   PRODUCTION_DAYS,
@@ -71,9 +72,9 @@ export default function ShippingReturns() {
                   : `From $${US_SHIPPING_FROM.toFixed(2)}`}
               </p>
               <p className="sx-shipcard__note">
-                Charged by weight, so it goes up with the number of shirts, not
-                the price. The exact rate is calculated at checkout before you
-                pay — no surprise line items.
+                {FREE_SHIPPING_LIVE
+                  ? `US orders over $${FREE_SHIPPING_THRESHOLD} and Canadian orders over C$${FREE_SHIPPING_THRESHOLD_CA} ship free, applied at checkout. Under that, it’s charged by weight — the exact rate is shown before you pay.`
+                  : 'Charged by weight, so it goes up with the number of shirts, not the price. The exact rate is calculated at checkout before you pay — no surprise line items.'}
               </p>
             </div>
             <div className="sx-shipcard">

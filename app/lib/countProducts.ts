@@ -12,7 +12,13 @@
  * not per request.
  */
 export async function countProducts(
-  storefront: {query: Function; CacheLong: () => unknown},
+  storefront: {
+    query: (
+      document: string,
+      options: {variables: Record<string, unknown>; cache: unknown},
+    ) => Promise<unknown>;
+    CacheLong: () => unknown;
+  },
   query: string,
   maxPages = 4,
 ): Promise<{total: number; capped: boolean}> {

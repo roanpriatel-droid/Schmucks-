@@ -901,6 +901,24 @@ a {
   color: var(--cream);
   opacity: 0.5;
 }
+/* Signup failure — full row under the input. Ketchup = urgent, per BRAND.md. */
+.sx-newsletter__error {
+  flex-basis: 100%;
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.sx-join__form .sx-newsletter__error {
+  color: var(--ketchup);
+}
+.sx-footer-news__form .sx-newsletter__error {
+  color: var(--mustard);
+}
+.sx-footer-news__form button[disabled],
+.sx-join__form button[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
 .sx-footer-news__done {
   border: var(--line) solid var(--mustard);
   color: var(--cream);

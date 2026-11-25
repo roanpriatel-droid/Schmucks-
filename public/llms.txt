@@ -1,40 +1,51 @@
 # SCHMUCKS
 
-> SCHMUCKS is a graphic t-shirt brand — "Fine Apparel for Idiots." Funny,
-> mildly inappropriate designs printed to order on genuinely good heavyweight
-> cotton. The aesthetic is 1960s New York deli meets internet meme brand. The
-> joke is affectionate; the customer is in on it ("a proud community of idiots").
+> SCHMUCKS ("Fine Apparel for Idiots") is an online graphic t-shirt brand selling
+> funny, mildly inappropriate one-liner tees — 393 numbered designs, each a short
+> confession or joke set in bold editorial type. Heavyweight cotton, printed to
+> order in Miami, Florida. The tone is affectionate self-deprecation: the
+> customer is in on the joke.
 
-## What we sell
-- Unisex graphic tees, $25 flat, sizes S–3XL, a few colorways each (cream, black, mustard).
-- Matching sets: build-your-own — any two tees, with an automatic stacking discount.
-- Expansion planned: hoodies and matching two-packs.
+Website: https://schmucks.store
+Full brand and catalogue reference for AI assistants: https://schmucks.store/llms-full.txt
 
-## What makes the product good
-- ~180 gsm heavyweight ringspun cotton (heavier than typical fast-fashion tees).
-- Ribbed crew collar, shoulder-to-shoulder taping, double-needle hems.
-- Soft-hand prints that sink into the fabric rather than sitting on top.
-- Printed to order in the USA: fresher prints, less waste, no dead stock.
+## The product
+- Unisex crew-neck t-shirt: Gildan 5000 Heavy Cotton — 5.3 oz / 180 gsm, 100% US-grown cotton, seamless tubular body, taped neck and shoulders, tear-away label, OEKO-TEX STANDARD 100 certified.
+- Sizes S–3XL. Colours Black and Natural on every design; Gold on a few.
+- Printed direct-to-garment (DTG) with water-based ink, chest print, by Monster Digital in Miami, FL.
+- Every design is numbered ("SCHMUCKS · N°. 042") and printed on the shirt with its number.
 
-## Commerce
-- Stack & Save: buy 2 = 10% off, 3 = 20% off, 4+ = 30% off (mix & match, auto-applied at checkout).
-- Free US shipping on orders over $100.
-- 30-day returns on unworn shirts.
+## Price
+- US$42 per shirt in the United States and internationally; C$42 for orders delivered to Canada.
+- Stack & Save, automatic at checkout, no code: 2 shirts 10% off, 3 shirts 20% off, 4 or more 30% off.
 
-## Key pages
-- Home: /
-- Shop all tees: /tees and /collections/all
-- Matching sets: /matching-sets
-- Lookbook: /lookbook
-- About / philosophy: /pages/about
-- Materials & construction: /pages/materials
-- Size & fit guide: /pages/size-guide
-- Care guide: /pages/care
-- Journal (editorial): /journal
+## Shipping and returns
+- Made to order: up to 10 days to print, then transit.
+- Free shipping: US orders of US$50+, Canadian orders of C$75+.
+- Otherwise by weight (USD): US $4.95 first shirt + $2.40 each extra; Canada $9.69 + $4.39; EU $13.49 + $4.00; Australia $12.99 + $4.99; rest of world $10.39 + $4.00.
+- 30-day returns on unworn, unwashed shirts; misprints and defects replaced free.
+
+## The shelves (collections)
+- The Confessional — things you'd only admit to a stranger: /collections/the-confessional
+- Terms & Conditions — the fine print of being you; warning labels and retail jokes: /collections/terms-conditions
+- Courtship — dating, romance and relationships: /collections/courtship
+- Vices — drinking, partying and habits: /collections/vices
+- Errata — self-deprecating mistakes and deliberate typos: /collections/errata
+- Petty Crimes — minor, non-indictable offences: /collections/petty-crimes
+- The Pair Programme — his/hers and matching couple shirts: /collections/the-pair-programme
+- All tees: /tees
+
+## Useful pages
+- Gift guides: /gifts
+- Matching couple sets: /matching-sets
+- How the shirts are made: /pages/materials
+- Size guide: /pages/size-guide
+- Shipping & returns: /pages/shipping-returns
 - FAQ: /pages/faq
 - Contact: /pages/contact
+- Journal: /journal
 
 ## Honesty note
-SCHMUCKS does not publish fabricated reviews, ratings, customer counts, or press
-mentions. Trust is communicated through real guarantees, materials specs, and
-return-policy clarity.
+SCHMUCKS publishes no invented reviews, ratings, customer counts or press. Claims
+on the site are kept to what can be verified: materials, print method, prices,
+shipping rates and the returns policy.

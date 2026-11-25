@@ -38,10 +38,20 @@ export default function JournalIndex() {
       <section className="sx-shop">
         <div className="sx-wrap">
           <Reveal className="sx-journal-grid">
-            {JOURNAL.map((a) => (
-              <Link key={a.slug} className="sx-jcard" to={`/journal/${a.slug}`} prefetch="intent">
-                <div className="sx-jcard__media">
+            {JOURNAL.map((a, index) => (
+              <Link
+                key={a.slug}
+                className={`sx-jcard ${index === 0 ? 'sx-jcard--lead' : ''}`}
+                to={`/journal/${a.slug}`}
+                prefetch="intent"
+              >
+                {/* Colour by position so eight Mels don't read as one card
+                    repeated; the first (newest) article leads at double width. */}
+                <div
+                  className={`sx-jcard__media sx-jcard__media--${['ketchup', 'mustard', 'ink'][index % 3]}`}
+                >
                   <Mel />
+                  <span className="sx-jcard__tag">{a.tag}</span>
                 </div>
                 <div className="sx-jcard__body">
                   <span className="sx-jcard__meta">
