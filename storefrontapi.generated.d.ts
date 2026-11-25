@@ -517,9 +517,51 @@ export type HomeShelvesQueryVariables = StorefrontAPI.Exact<{
   pettyCrimes: StorefrontAPI.Scalars['String']['input'];
   pair: StorefrontAPI.Scalars['String']['input'];
   errata: StorefrontAPI.Scalars['String']['input'];
+  picks:
+    | Array<StorefrontAPI.Scalars['ID']['input']>
+    | StorefrontAPI.Scalars['ID']['input'];
 }>;
 
 export type HomeShelvesQuery = {
+  picks: Array<
+    StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Product, 'id' | 'title' | 'handle'> & {
+        featuredImage?: StorefrontAPI.Maybe<
+          Pick<
+            StorefrontAPI.Image,
+            'id' | 'url' | 'altText' | 'width' | 'height'
+          >
+        >;
+        images: {
+          nodes: Array<
+            Pick<
+              StorefrontAPI.Image,
+              'id' | 'url' | 'altText' | 'width' | 'height'
+            >
+          >;
+        };
+        priceRange: {
+          minVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+          maxVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+        variants: {
+          nodes: Array<
+            Pick<StorefrontAPI.ProductVariant, 'id' | 'availableForSale'> & {
+              selectedOptions: Array<
+                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+              >;
+            }
+          >;
+        };
+      }
+    >
+  >;
   bestSellers: {
     nodes: Array<
       Pick<StorefrontAPI.Product, 'id' | 'title' | 'handle'> & {
@@ -2721,7 +2763,7 @@ interface GeneratedQueryTypes {
     return: LlmsProductsQuery;
     variables: LlmsProductsQueryVariables;
   };
-  '#graphql\n  fragment HomeProduct on Product {\n    id\n    title\n    handle\n    featuredImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    variants(first: 20) {\n      nodes {\n        id\n        availableForSale\n        selectedOptions {\n          name\n          value\n        }\n      }\n    }\n  }\n  query HomeShelves(\n    $country: CountryCode\n    $language: LanguageCode\n    $confessional: String!\n    $courtship: String!\n    $pettyCrimes: String!\n    $pair: String!\n    $errata: String!\n  ) @inContext(country: $country, language: $language) {\n    bestSellers: products(first: 8, sortKey: BEST_SELLING) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    newArrivals: products(first: 8, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    confessional: products(first: 3, query: $confessional) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    courtship: products(first: 3, query: $courtship) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    pettyCrimes: products(first: 3, query: $pettyCrimes) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    pair: products(first: 2, query: $pair) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    errata: products(first: 6, query: $errata) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n  }\n': {
+  '#graphql\n  fragment HomeProduct on Product {\n    id\n    title\n    handle\n    featuredImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    variants(first: 20) {\n      nodes {\n        id\n        availableForSale\n        selectedOptions {\n          name\n          value\n        }\n      }\n    }\n  }\n  query HomeShelves(\n    $country: CountryCode\n    $language: LanguageCode\n    $confessional: String!\n    $courtship: String!\n    $pettyCrimes: String!\n    $pair: String!\n    $errata: String!\n    $picks: [ID!]!\n  ) @inContext(country: $country, language: $language) {\n    picks: nodes(ids: $picks) {\n      ... on Product {\n        ...HomeProduct\n      }\n    }\n    bestSellers: products(first: 8, sortKey: BEST_SELLING) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    newArrivals: products(first: 8, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    confessional: products(first: 3, query: $confessional) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    courtship: products(first: 3, query: $courtship) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    pettyCrimes: products(first: 3, query: $pettyCrimes) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    pair: products(first: 2, query: $pair) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    errata: products(first: 6, query: $errata) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n  }\n': {
     return: HomeShelvesQuery;
     variables: HomeShelvesQueryVariables;
   };

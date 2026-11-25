@@ -127,14 +127,18 @@ h3 {
   .sx-hero__copy .sx-hero__headline {
     font-size: clamp(3.6rem, 7.2vw, 7.4rem);
   }
+  /* 3fr + 1fr: three stacked squares make the right column 3 units tall,
+     so the featured tile is exactly 3×3 — square, like the mockup. A
+     portrait tile crops the photo's sides before the print zoom and cut
+     wide designs off ("ERTIFIE / CHMUC"). */
   .sx-hero__wall {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 3fr 1fr;
     grid-template-rows: repeat(3, minmax(0, 1fr));
     gap: clamp(0.75rem, 1.4vw, 1.25rem);
   }
   .sx-hero__wall .sx-herotile:first-child {
     grid-row: 1 / span 3;
-    aspect-ratio: auto;
+    aspect-ratio: 1 / 1;
     box-shadow: 9px 9px 0 var(--ink);
   }
   /* Three supporting tiles fill the right column exactly. */
