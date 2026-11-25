@@ -13,6 +13,7 @@ export function NewsletterForm({
   inputClassName,
   inputStyle,
   buttonLabel,
+  buttonClassName = 'sx-btn sx-btn--ketchup',
   done,
 }: {
   /** Analytics label: where on the site the signup happened. */
@@ -21,6 +22,8 @@ export function NewsletterForm({
   inputClassName?: string;
   inputStyle?: React.CSSProperties;
   buttonLabel: string;
+  /** Defaults to the ketchup button. */
+  buttonClassName?: string;
   /** What to render once subscribed. */
   done: ReactNode;
 }) {
@@ -70,7 +73,7 @@ export function NewsletterForm({
         aria-hidden="true"
         style={{position: 'absolute', left: '-10000px', width: 1, height: 1}}
       />
-      <button className="sx-btn sx-btn--ketchup" type="submit" disabled={busy}>
+      <button className={buttonClassName} type="submit" disabled={busy}>
         {busy ? 'Signing…' : buttonLabel}
       </button>
       {result && !result.ok ? (

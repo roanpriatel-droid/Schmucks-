@@ -469,6 +469,19 @@ export type ShopPoliciesQuery = {
   };
 };
 
+export type LlmsProductsQueryVariables = StorefrontAPI.Exact<{
+  after?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']['input']>;
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+}>;
+
+export type LlmsProductsQuery = {
+  products: {
+    nodes: Array<Pick<StorefrontAPI.Product, 'title' | 'handle' | 'tags'>>;
+    pageInfo: Pick<StorefrontAPI.PageInfo, 'hasNextPage' | 'endCursor'>;
+  };
+};
+
 export type HomeProductFragment = Pick<
   StorefrontAPI.Product,
   'id' | 'title' | 'handle'
@@ -2654,6 +2667,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query ShopPolicies($country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    shop {\n      privacyPolicy { title handle }\n      refundPolicy { title handle }\n      shippingPolicy { title handle }\n      termsOfService { title handle }\n    }\n  }\n': {
     return: ShopPoliciesQuery;
     variables: ShopPoliciesQueryVariables;
+  };
+  '#graphql\n  query LlmsProducts($after: String, $country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    products(first: 250, after: $after, sortKey: TITLE) {\n      nodes {\n        title\n        handle\n        tags\n      }\n      pageInfo {\n        hasNextPage\n        endCursor\n      }\n    }\n  }\n': {
+    return: LlmsProductsQuery;
+    variables: LlmsProductsQueryVariables;
   };
   '#graphql\n  fragment HomeProduct on Product {\n    id\n    title\n    handle\n    featuredImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    variants(first: 20) {\n      nodes {\n        id\n        availableForSale\n        selectedOptions {\n          name\n          value\n        }\n      }\n    }\n  }\n  query HomeShelves(\n    $country: CountryCode\n    $language: LanguageCode\n    $confessional: String!\n    $courtship: String!\n    $pettyCrimes: String!\n    $pair: String!\n    $errata: String!\n  ) @inContext(country: $country, language: $language) {\n    bestSellers: products(first: 8, sortKey: BEST_SELLING) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    newArrivals: products(first: 8, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    confessional: products(first: 3, query: $confessional) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    courtship: products(first: 3, query: $courtship) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    pettyCrimes: products(first: 3, query: $pettyCrimes) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    pair: products(first: 2, query: $pair) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n    errata: products(first: 6, query: $errata) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n  }\n': {
     return: HomeShelvesQuery;

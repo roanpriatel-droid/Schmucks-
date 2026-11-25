@@ -16,6 +16,7 @@ import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import schmucksStyles from '~/styles/schmucks.css?url';
+import upgradeStyles from '~/styles/upgrade.css?url';
 import {PageLayout} from './components/PageLayout';
 import {MelShrug} from '~/components/brand/Brand';
 import {pageMeta} from '~/lib/seo';
@@ -256,6 +257,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
         <link rel="stylesheet" href={schmucksStyles}></link>
+        <link rel="stylesheet" href={upgradeStyles}></link>
         <Meta />
         <Links />
         <script
