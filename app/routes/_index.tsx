@@ -16,6 +16,7 @@ import {
 } from '~/data/commerce';
 import {pageMeta} from '~/lib/seo';
 import {splitTitle} from '~/lib/productCopy';
+import {HERO_PICKS, PICK_IDS, STAFF_PICKS} from '~/data/picks';
 
 export const meta: Route.MetaFunction = (args) =>
   pageMeta(args, {
@@ -37,8 +38,23 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
       pettyCrimes: "tag:'petty-crimes'",
       pair: "tag:'the-pair-programme'",
       errata: "tag:'errata'",
+      picks: PICK_IDS,
     },
   });
+
+  // Hand-picked merchandising (app/data/picks.ts). nodes(ids:) returns null
+  // for an ID that no longer resolves, so a deleted pick is simply skipped.
+  const picked = new Map(
+    ((data?.picks ?? []).filter(Boolean) as HomeProductFragment[]).map(
+      (product) => [product.id, product] as const,
+    ),
+  );
+  const resolve = (list: typeof HERO_PICKS) =>
+    list
+      .map((pick) => picked.get(pick.id))
+      .filter((product): product is HomeProductFragment => Boolean(product));
+  const heroPicks = resolve(HERO_PICKS);
+  const staffPicks = resolve(STAFF_PICKS);
 
   // Best Sellers needs sales history to populate. Until the store has any, the
   // row falls back to New Arrivals rather than rendering an empty rail.
@@ -64,13 +80,29 @@ async function loadCriticalData({context}: Route.LoaderArgs) {
   return {
     // The hero shows real shirts. Four is enough to read as a catalogue
     // without turning the top of the page into a grid.
-    heroProducts: newArrivals.slice(0, 4),
-    featured: {
-      title: usingFallback ? 'New Arrivals' : 'Best Sellers',
-      handle: usingFallback ? 'new-arrivals' : 'best-sellers',
-      usingFallback,
-      products: usingFallback ? newArrivals : bestSellers,
-    },
+    heroProducts: heroPicks.length >= 4 ? heroPicks : newArrivals.slice(0, 4),
+    // Without sales history there's no honest "best sellers", so the first
+    // rail is our own picks — labelled as picks, never as popularity.
+    featured: usingFallback
+      ? staffPicks.length >= 4
+        ? {
+            mode: 'picks' as const,
+            title: 'Most Likely to Start Something',
+            handle: 'tees',
+            products: staffPicks,
+          }
+        : {
+            mode: 'new' as const,
+            title: 'New Arrivals',
+            handle: 'new-arrivals',
+            products: newArrivals,
+          }
+      : {
+          mode: 'best' as const,
+          title: 'Best Sellers',
+          handle: 'best-sellers',
+          products: bestSellers,
+        },
     boards: [
       boardFor('the-confessional', data?.confessional?.nodes),
       boardFor('courtship', data?.courtship?.nodes),
@@ -115,9 +147,9 @@ function FeaturedRow({
   featured,
 }: {
   featured: {
+    mode: 'picks' | 'new' | 'best';
     title: string;
     handle: string;
-    usingFallback: boolean;
     products: HomeProductFragment[];
   };
 }) {
@@ -129,9 +161,11 @@ function FeaturedRow({
         <div className="sx-section-head">
           <div>
             <p className="sx-eyebrow">
-              {featured.usingFallback
-                ? 'Straight Off the Press'
-                : 'Bought Most'}
+              {featured.mode === 'picks'
+                ? 'Staff Picks'
+                : featured.mode === 'new'
+                  ? 'Straight Off the Press'
+                  : 'Bought Most'}
             </p>
             <h2 className="sx-section-title" id="sx-featured-title">
               {featured.title}
@@ -140,16 +174,18 @@ function FeaturedRow({
           <p className="sx-section-note">
             {!hasProducts
               ? 'This shelf fills itself the moment the tagging run finds something.'
-              : featured.usingFallback
-                ? 'Fresh off the press — the newest additions to the catalogue.'
-                : 'The ones other idiots bought. Draw your own conclusions.'}
+              : featured.mode === 'picks'
+                ? 'Picked by us, not by sales. The ones that make strangers read your chest twice.'
+                : featured.mode === 'new'
+                  ? 'Fresh off the press — the newest additions to the catalogue.'
+                  : 'The ones other idiots bought. Draw your own conclusions.'}
           </p>
         </div>
 
         {hasProducts ? (
           <>
             <Reveal className="sx-grid">
-              {featured.products.slice(0, 8).map((product, i) => (
+              {featured.products.slice(0, 10).map((product, i) => (
                 <ProductItem
                   key={product.id}
                   product={product as never}
@@ -159,8 +195,11 @@ function FeaturedRow({
               ))}
             </Reveal>
             <div className="sx-specials__cta">
-              <Link className="sx-btn" to={`/collections/${featured.handle}`}>
-                See the whole shelf
+              <Link
+                className="sx-btn"
+                to={featured.handle === 'tees' ? '/tees' : `/collections/${featured.handle}`}
+              >
+                {featured.mode === 'picks' ? 'See every shirt' : 'See the whole shelf'}
               </Link>
             </div>
           </>
@@ -526,12 +565,12 @@ function Hero({products}: {products: HomeProductFragment[]}) {
                     alt={`The print on ${displayTitle}`}
                     aspectRatio="1/1"
                     // Widened for the 2.6x print zoom (see --print-zoom).
-                    // The featured tile is ~34vw of layout on desktop (upgrade.css),
-                    // so it needs ~90vw of pixels; the support tiles ~17vw → 45vw.
+                    // The featured tile is ~38vw of layout on desktop (upgrade.css),
+                    // so it needs ~100vw of pixels; the support tiles ~13vw → 35vw.
                     sizes={
                       index === 0
-                        ? '(min-width: 60em) 90vw, 100vw'
-                        : '(min-width: 60em) 45vw, 100vw'
+                        ? '(min-width: 60em) 100vw, 100vw'
+                        : '(min-width: 60em) 35vw, 100vw'
                     }
                     loading={index < 2 ? 'eager' : 'lazy'}
                     fetchPriority={index === 0 ? 'high' : undefined}
@@ -598,7 +637,13 @@ const HOME_SHELVES_QUERY = `#graphql
     $pettyCrimes: String!
     $pair: String!
     $errata: String!
+    $picks: [ID!]!
   ) @inContext(country: $country, language: $language) {
+    picks: nodes(ids: $picks) {
+      ... on Product {
+        ...HomeProduct
+      }
+    }
     bestSellers: products(first: 8, sortKey: BEST_SELLING) {
       nodes {
         ...HomeProduct

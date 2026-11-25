@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Replace the front print of the editorial designs (N° 21-394) with the bold
-artwork from render.py, in Printify, and push the new mockups to Shopify.
+Replace the front print of designs with the bold artwork from render.py
+(default N° 21-394; --from 1 --to 20 re-sets the deli series, whose original
+files were clipped at the canvas edges), in Printify, and push the new mockups to Shopify.
 
 DRY-RUN BY DEFAULT: renders previews into --out and changes nothing.
 
@@ -104,6 +105,9 @@ def main():
     ap.add_argument('--apply', action='store_true')
     ap.add_argument('--only', type=int)
     ap.add_argument('--limit', type=int, default=10 ** 6)
+    ap.add_argument('--from', dest='start', type=int, default=21,
+                    help='first design number (N° 1–20 are the deli series)')
+    ap.add_argument('--to', dest='end', type=int, default=10 ** 6)
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
@@ -111,7 +115,7 @@ def main():
     todo = []
     for p in products:
         n, statement = number_and_statement(p['title'])
-        if n is None or n < 21 or (a.only and n != a.only):
+        if n is None or n < a.start or n > a.end or (a.only and n != a.only):
             continue
         names = [im['name'] for im in front_images(p)]
         if all(name.startswith('schmucks-bold-') for name in names):
@@ -151,7 +155,9 @@ def main():
                         continue
                     keep ={k: im[k] for k in ('id', 'x', 'y', 'scale', 'angle')}
                     if ph['position'] == 'front':
-                        ink_name = 'cream' if '-cream' in im['name'] else 'black'
+                        # "cream" (Natural) and "mustard" (Gold) files carry
+                        # dark ink; "black" files carry light ink.
+                        ink_name = 'black' if '-black' in im['name'] else 'cream'
                         keep['id'] = new_ids[ink_name]
                     imgs.append(keep)
                 if imgs:  # Printify rejects empty placeholders (back, sleeves)
