@@ -41,7 +41,7 @@ import {
   collectionSeo,
 } from './config.mjs';
 
-const DEFAULT_STEPS = ['shipping', 'markets', 'collections', 'products', 'publish', 'menus', 'policies'];
+const DEFAULT_STEPS = ['shipping', 'markets', 'collections', 'products', 'google', 'publish', 'menus', 'policies'];
 const only = argValue('only');
 const steps = only ? only.split(',') : DEFAULT_STEPS;
 const want = (s) => steps.includes(s);
@@ -263,6 +263,27 @@ const PROFILE_UPDATE = `#graphql
   mutation SetupProfileUpdate($id: ID!, $profile: DeliveryProfileInput!) {
     deliveryProfileUpdate(id: $id, profile: $profile) {
       profile { id }
+      userErrors { field message }
+    }
+  }`;
+
+const GOOGLE_PRODUCTS_Q = `#graphql
+  query SetupGoogleProducts($after: String) {
+    products(first: 100, after: $after) {
+      pageInfo { hasNextPage endCursor }
+      nodes {
+        id title isGiftCard
+        gender: metafield(namespace: "mm-google-shopping", key: "gender") { value }
+        custom: metafield(namespace: "mm-google-shopping", key: "custom_product") { value }
+        mpn: metafield(namespace: "mm-google-shopping", key: "mpn") { value }
+      }
+    }
+  }`;
+
+const METAFIELDS_SET = `#graphql
+  mutation SetupMetafields($metafields: [MetafieldsSetInput!]!) {
+    metafieldsSet(metafields: $metafields) {
+      metafields { id }
       userErrors { field message }
     }
   }`;
@@ -573,6 +594,38 @@ async function stepShipping() {
   }
 }
 
+/**
+ * Google Shopping fields the Google & YouTube channel reads. Printed-to-order
+ * shirts have no GTIN, so custom_product=true is what keeps Google from
+ * rejecting or limiting them; brand + MPN identify each design instead.
+ */
+async function stepGoogle() {
+  log('\n▸ Google Shopping fields');
+  const products = await paginate(GOOGLE_PRODUCTS_Q, (d) => d.products);
+  const todo = products.filter(
+    (p) => !p.isGiftCard && (!p.gender || !p.custom || !p.mpn),
+  );
+  log(`  ${products.length} products, ${todo.length} need fields`);
+  const NS = 'mm-google-shopping';
+  const fields = [];
+  for (const p of todo) {
+    const n = p.title.match(/N°\.\s*0*(\d+)/)?.[1];
+    const add = (key, type, value) => fields.push({ownerId: p.id, namespace: NS, key, type, value});
+    add('gender', 'single_line_text_field', 'unisex');
+    add('age_group', 'single_line_text_field', 'adult');
+    add('condition', 'single_line_text_field', 'new');
+    add('custom_product', 'boolean', 'true');
+    if (n) add('mpn', 'single_line_text_field', `SCHMUCKS-${n.padStart(3, '0')}`);
+  }
+  for (let i = 0; i < fields.length; i += 25) {
+    const batch = fields.slice(i, i + 25);
+    await change(`set ${batch.length} Google fields (${i + batch.length}/${fields.length})`, () =>
+      mutate(METAFIELDS_SET, {metafields: batch}, 'metafieldsSet'),
+    );
+  }
+  if (fields.length) bump('google fields');
+}
+
 async function existingDiscountTitles() {
   const {discountNodes} = await gql(DISCOUNTS_Q);
   return new Set(discountNodes.nodes.map((n) => n.discount.title));
@@ -672,6 +725,7 @@ async function main() {
   if (want('markets')) await stepMarkets();
   if (want('collections')) await stepCollections();
   if (want('products')) await stepProducts();
+  if (want('google')) await stepGoogle();
   // Publish after collections exist so new ones go out too.
   if (want('publish')) await stepPublish();
   if (want('menus')) await stepMenus();

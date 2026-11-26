@@ -114,7 +114,10 @@ export async function loader(args: Route.LoaderArgs) {
       // domain; without this fallback Analytics.Provider logs a console error.
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN ?? env.PUBLIC_STORE_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
-      withPrivacyBanner: false,
+      // Shopify's cookie banner. Shown only to visitors in regions that need
+      // consent (EU/UK/Canada etc.), per Settings → Customer privacy; consent
+      // is passed to Shopify Analytics and any pixels automatically.
+      withPrivacyBanner: true,
       // localize the privacy banner
       country: args.context.storefront.i18n.country,
       language: args.context.storefront.i18n.language,
