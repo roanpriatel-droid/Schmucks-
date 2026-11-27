@@ -37,6 +37,7 @@ import {
   STACK_TIERS,
   TSHIRT_CATEGORY,
   WELCOME_CODE,
+  EXCLUDED_COUNTRIES,
   collectionHtml,
   collectionSeo,
 } from './config.mjs';
@@ -532,12 +533,30 @@ async function stepMarkets() {
       .filter((m) => m.status === 'ACTIVE')
       .flatMap((m) => m.conditions?.regionsCondition?.regions.nodes.map((r) => r.code) ?? []),
   );
-  const missing = shop.shipsToCountries.filter((c) => c !== 'ZZ' && !covered.has(c));
+  const missing = shop.shipsToCountries.filter(
+    (c) => c !== 'ZZ' && !covered.has(c) && !EXCLUDED_COUNTRIES[c],
+  );
   const secondaries = markets.nodes.filter((m) => !m.primary && m.status === 'ACTIVE');
   if (secondaries.length) {
     log(`  ⚠ active secondary markets: ${secondaries.map((m) => m.name).join(', ')} — their countries may show as sold out (see comment above)`);
   }
-  if (!missing.length) return log(`  ✓ primary market "${primary.name}" covers every ship-to country`);
+  // Only sell where we can ship: strip any excluded country from the market.
+  const primaryCodes = primary.conditions?.regionsCondition?.regions.nodes.map((r) => r.code) ?? [];
+  const forbidden = primaryCodes.filter((c) => EXCLUDED_COUNTRIES[c]);
+  if (forbidden.length) {
+    await change(`remove ${forbidden.length} non-shippable countries: ${forbidden.join(', ')}`, () =>
+      mutate(
+        MARKET_UPDATE,
+        {
+          id: primary.id,
+          input: {conditions: {conditionsToDelete: {regionsCondition: {regions: forbidden.map((countryCode) => ({countryCode}))}}}},
+        },
+        'marketUpdate',
+      ),
+    );
+    bump('markets');
+  }
+  if (!missing.length) return log(`  ✓ primary market "${primary.name}" covers every ship-to country (minus ${Object.keys(EXCLUDED_COUNTRIES).length} excluded)`);
   await change(`add ${missing.length} countries to primary market "${primary.name}": ${missing.join(', ')}`, () =>
     mutate(
       MARKET_UPDATE,
