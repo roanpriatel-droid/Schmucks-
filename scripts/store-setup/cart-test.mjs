@@ -33,7 +33,8 @@ const ADDRESSES = {
   US: {address1: '1 Main St', city: 'Austin', provinceCode: 'TX', countryCode: 'US', zip: '73301'},
   CA: {address1: '1 Main St', city: 'Vancouver', provinceCode: 'BC', countryCode: 'CA', zip: 'V5K 0A1'},
 };
-const CURRENCY = {US: 'USD', CA: 'CAD'};
+// The store prices every market in USD (store currency switched 2026-11-27).
+const CURRENCY = {US: 'USD', CA: 'USD'};
 
 const {productVariants} = await gql(VARIANT_Q);
 const variant = productVariants.nodes[0];

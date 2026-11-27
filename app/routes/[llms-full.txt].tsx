@@ -69,7 +69,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   push(`- Sizes ${SIZE_RUN}. Printed direct-to-garment with water-based ink in Miami, FL.`);
   push();
   push('## Price and offers');
-  push('- US$42 per shirt (C$42 for orders delivered to Canada).');
+  push('- US$42 per shirt, everywhere (prices are in US dollars).');
   if (STACK_DISCOUNT_LIVE) {
     push(
       `- Stack & Save, automatic at checkout: ${STACK_TIERS.map((t, i) => `${t.quantity}${i === STACK_TIERS.length - 1 ? '+' : ''} shirts ${t.percent}% off`).join(', ')}.`,
@@ -79,7 +79,7 @@ export async function loader({request, context}: Route.LoaderArgs) {
   push('## Shipping and returns');
   push(`- Made to order: up to ${PRODUCTION_DAYS} days to print before shipping.`);
   if (FREE_SHIPPING_LIVE) {
-    push(`- Free shipping: US orders US$${FREE_SHIPPING_THRESHOLD}+, Canadian orders C$${FREE_SHIPPING_THRESHOLD_CA}+.`);
+    push(`- Free shipping: US orders US$${FREE_SHIPPING_THRESHOLD}+, Canadian orders US$${FREE_SHIPPING_THRESHOLD_CA}+.`);
   }
   for (const r of SHIPPING_RATES) {
     push(`- ${r.region}: $${r.first.toFixed(2)} first shirt, +$${r.extra.toFixed(2)} each extra (USD).`);

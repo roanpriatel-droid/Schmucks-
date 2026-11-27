@@ -9,12 +9,6 @@ storefront, Online Store and Shop. Markets, collections, menus, policies, Stack
 & Save and free shipping are live. Re-check any time with
 `node scripts/store-setup/audit.mjs` and `node scripts/store-setup/cart-test.mjs`.
 
-**Support email mismatch (fix before launch).** The site, footer and the
-published policies use `roanpriatel379@gmail.com` (`CONTACT_EMAIL` in
-`app/data/commerce.ts`), but this store's Shopify customer email — the one
-order confirmations use — is `roanpriatel389@gmail.com`. One is wrong. Tell
-me which, and I'll update the code and republish the policies.
-
 **BLOCKER 1 — nothing outside Canada can be bought.** In a US (or EU) context
 every product reports `availableForSale: false` and carts return
 `MERCHANDISE_OUT_OF_STOCK`; Canada works. The storefront browses as `US`
@@ -46,9 +40,6 @@ Also:
   cards (Best Sellers/New Arrivals rules), so it's safe to switch on.
 - **Social handles** — send them and they go into the footer and the
   OnlineStore schema (`sameAs`).
-- Canadians are charged C$42; US and International pay US$42 (manual rate
-  1.0). If you'd rather everyone pays USD, change the store currency to USD in
-  Settings → Store details (no orders exist yet, so it's allowed).
 - Newsletter signups now create subscribed customers (verified on this store).
 
 ## Trust / social proof

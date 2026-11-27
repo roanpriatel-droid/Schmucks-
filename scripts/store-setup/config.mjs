@@ -8,7 +8,7 @@
  */
 
 export const BRAND = 'SCHMUCKS';
-export const CONTACT_EMAIL = 'roanpriatel379@gmail.com';
+export const CONTACT_EMAIL = 'roanpriatel389@gmail.com';
 export const PRODUCT_TYPE = 'T-Shirt';
 /** Shopify Standard Product Taxonomy: Apparel & Accessories › Clothing › Clothing Tops › T-Shirts */
 export const TSHIRT_CATEGORY = 'gid://shopify/TaxonomyCategory/aa-1-13-8';
@@ -215,7 +215,7 @@ export const POLICIES = {
 <h3>Orders</h3>
 <p>Placing an order is an offer to buy. We can decline or cancel an order — if we do, you get a full refund, promptly. Every shirt is printed to order, so once production has started an order usually can’t be changed or cancelled. If you need to change something, email us fast and we’ll try.</p>
 <h3>Prices</h3>
-<p>Prices are in US dollars, except for orders delivered to Canada, which are charged in Canadian dollars. We can change prices at any time, but never after you’ve paid. Taxes and duties are calculated at checkout or charged on import, depending on where you are — see the shipping policy.</p>
+<p>All prices are in US dollars. We can change prices at any time, but never after you’ve paid. Taxes and duties are calculated at checkout or charged on import, depending on where you are — see the shipping policy.</p>
 <h3>The product</h3>
 <p>Colours on a screen are not colours on cotton. Print position and size may vary very slightly between garments, which is what happens when a person prints a shirt rather than a machine stamping a billion identical ones.</p>
 <h3>The designs</h3>
@@ -231,7 +231,7 @@ export const POLICIES = {
 <h2>Made to order, then sent.</h2>
 <p>Nothing sits in a warehouse. Your shirt is printed after you order it, which takes up to 10 days before it ships. Delivery time is on top of that and depends on where you are.</p>
 <h3>Free shipping</h3>
-<p><strong>United States:</strong> free on orders of US$50 or more. <strong>Canada:</strong> free on orders of C$75 or more. Two shirts gets you there either way. Applied automatically at checkout — no code.</p>
+<p><strong>United States:</strong> free on orders of US$50 or more. <strong>Canada:</strong> free on orders of US$75 or more. Two shirts gets you there either way. Applied automatically at checkout — no code.</p>
 <h3>What it costs otherwise</h3>
 <p>Charged by weight, so it goes up with the number of shirts rather than the price of them. Rates in US dollars:</p>
 <table>
