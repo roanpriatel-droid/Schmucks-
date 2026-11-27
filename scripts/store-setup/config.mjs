@@ -14,6 +14,41 @@ export const PRODUCT_TYPE = 'T-Shirt';
 export const TSHIRT_CATEGORY = 'gid://shopify/TaxonomyCategory/aa-1-13-8';
 export const PRINTIFY_SHOP_ID = 28354424;
 
+/**
+ * Countries the store must NOT sell to, even though Printify's provider lists
+ * "rest of the world". The rule: someone can only buy if we can actually ship
+ * there. Printify states it never ships to Cuba, Iran and North Korea, and
+ * puts orders to other restricted destinations on hold (the customer has
+ * paid; you refund). These stay out of every market.
+ */
+export const EXCLUDED_COUNTRIES = {
+  CU: 'Printify does not ship (sanctions)',
+  IR: 'Printify does not ship (sanctions)',
+  KP: 'Printify does not ship (sanctions)',
+  SY: 'sanctions',
+  RU: 'sanctions; carriers suspended',
+  BY: 'sanctions; carriers suspended',
+  UA: 'occupied regions sanctioned; carrier suspensions',
+  VE: 'sanctions; unreliable delivery',
+  AF: 'conflict; carriers suspended',
+  MM: 'sanctions; unreliable delivery',
+  YE: 'conflict; carriers suspended',
+  SD: 'conflict; carriers suspended',
+  SS: 'conflict; carriers suspended',
+  LY: 'conflict; carriers suspended',
+  SO: 'conflict; carriers suspended',
+  EH: 'disputed territory; no reliable postal service',
+  UM: 'uninhabited; no postal delivery',
+  TF: 'uninhabited; no postal delivery',
+  IO: 'military territory; no civilian delivery',
+  GS: 'uninhabited; no postal delivery',
+  PN: 'no regular courier service',
+  TK: 'no regular courier service',
+  AQ: 'uninhabited',
+  BV: 'uninhabited',
+  HM: 'uninhabited',
+};
+
 /** Every product that is a tee carries this tag; the Tees collection uses it. */
 export const BASE_TAG = 'tees';
 

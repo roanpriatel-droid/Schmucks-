@@ -23,6 +23,25 @@ market is active.
 
 The production storefront is public as of 2026-11-27.
 
+**Launch readiness check (2026-11-27).** Verified via the API and real carts:
+235/235 countries can buy, every one at US$42.00 (USD is the only enabled
+currency); real carts with delivery in 24 countries across six continents
+all return a USD shipping rate matching the published table; the live site
+adds to cart and reaches Shopify checkout (Shop Pay, PayPal, Google Pay)
+in USD; Stack & Save and US/CA free shipping apply; all 393 products are
+linked to Printify. Primary market renamed "Worldwide".
+
+Still to do in admin:
+- **Untick the pre-checked marketing box at checkout.** Settings → Checkout →
+  Marketing options → turn off "Preselect the sign-up option". A pre-ticked
+  box isn't valid consent under CASL (Canada) or GDPR (EU).
+- **Payouts are in CAD.** Shopify Payments converts each USD sale to CAD
+  (~1.5–2%). To avoid that, add a USD bank account under Settings → Payments
+  → Shopify Payments → Payouts, if your bank offers one.
+- **Taxes:** turn on collection only where you're registered (Settings →
+  Taxes and duties); confirm GST/HST and US states with an accountant.
+- **Printify order approval:** confirm automatic or manual in Printify.
+
 **Shipping profile (2026-11-27).** All 4,770 shirt variants are in a custom
 delivery profile, "Printify — All" (location: Printify), that Printify's sync
 can't overwrite. Same zones and rates as Printify's profile, extended past its
