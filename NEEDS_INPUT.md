@@ -2,36 +2,26 @@
 
 ## Store status 2026-11-24 (store-setup session) — read this first
 
-The live store is **x1ugph-ad.myshopify.com** (CAD base, Canada). It was empty;
+The live store is **x1ugph-ad.myshopify.com** (USD, business in Canada). It was empty;
 it now holds all 393 designs, every one linked to Printify by SKU (orders route
 to Printify for printing), on the right shelves, published to the Hydrogen
 storefront, Online Store and Shop. Markets, collections, menus, policies, Stack
 & Save and free shipping are live. Re-check any time with
 `node scripts/store-setup/audit.mjs` and `node scripts/store-setup/cart-test.mjs`.
 
-**BLOCKER 1 — nothing outside Canada can be bought.** In a US (or EU) context
-every product reports `availableForSale: false` and carts return
-`MERCHANDISE_OUT_OF_STOCK`; Canada works. The storefront browses as `US`
-(`app/lib/context.ts`), so the site currently shows everything sold out.
-Ruled out via the API: stock (9999, CONTINUE policy), publication, shipping
-zones and rates (US/EU/AU/ROW all present), markets (active, USD), timing.
-Also ruled out on 2026-11-25 by reversible experiments (all restored):
-untracked inventory (still sold out), the US market priced in the store's own
-CAD (still sold out), delivery customizations and fulfilment constraint
-rules (none exist), and both locations are eligible for delivery profiles.
-Both locations — including Printify's — are registered in **Canada**, so the
-likely cause is an order-routing / fulfillable-inventory rule that keeps a
-market to locations inside it. Check Settings → Shipping and delivery →
-**Order routing** (e.g. "Stay within the destination market") and any
-"Fulfillable inventory" / "sell only within shipping zones" option, and
-Settings → Markets → United States. The Printify location's address can only
-be edited by Printify (the API refuses) — if needed, ask Printify support to
-set it to the real origin (Monster Digital, Miami FL). Then run
-`cart-test.mjs`: the US rows should show a shipping rate.
+**RESOLVED 2026-11-27 — "sold out" outside Canada.** Root cause: on this store a
+secondary market can only fulfil from locations inside its own region, and
+both locations (Shop, and Printify's fulfilment location) are registered in
+Canada. The separate "United States" and "International" markets therefore
+made every product show as sold out (MERCHANDISE_OUT_OF_STOCK) to anyone
+outside Canada. Fix: those countries were moved into the primary market and
+the two secondary markets set to Draft. US, Canada and EU checkout verified
+with real carts (prices, Stack & Save, free shipping, rates). **Do not
+re-activate the draft markets or create new ones** — `apply.mjs`'s markets
+step now only adds countries to the primary market and warns if a secondary
+market is active.
 
-**BLOCKER 2 — the production storefront is private.** `schmucks.store`
-redirects visitors to a Shopify login. Hydrogen → Storefront settings →
-Environments → Production → URL privacy → Public. Fix blocker 1 first.
+The production storefront is public as of 2026-11-27.
 
 Also:
 - **Gift cards are switched off in Shopify.** Creating the gift card product

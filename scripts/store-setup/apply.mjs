@@ -231,16 +231,16 @@ const MARKETS_Q = `#graphql
     shop { currencyCode shipsToCountries }
     markets(first: 50) {
       nodes {
-        id name handle status
+        id name handle status primary
         conditions { regionsCondition { regions(first: 250) { nodes { ... on MarketRegionCountry { code } } } } }
       }
     }
   }`;
 
-const MARKET_CREATE = `#graphql
-  mutation SetupMarketCreate($input: MarketCreateInput!) {
-    marketCreate(input: $input) {
-      market { id handle }
+const MARKET_UPDATE = `#graphql
+  mutation SetupMarketUpdate($id: ID!, $input: MarketUpdateInput!) {
+    marketUpdate(id: $id, input: $input) {
+      market { id }
       userErrors { field message }
     }
   }`;
@@ -510,52 +510,45 @@ async function stepPolicies() {
 }
 
 /**
- * Sell outside Canada. Printify's shipping profile already covers the US, EU,
- * Australia and the rest of the world, but Shopify only had a Canada market,
- * so nobody else could check out. Both new markets price in USD at a manual
- * rate of 1.0 against the shop currency, so a $42 product is US$42 — what the
- * site and the policies say — whatever the store's base currency is.
+ * Sell everywhere Printify ships, from the PRIMARY market.
+ *
+ * Lesson learned the hard way (2026-11-27): on this store, a secondary market
+ * can only fulfil from locations inside its own region. Both locations (Shop
+ * and Printify's fulfilment location) are registered in Canada, so separate
+ * "United States" and "International" markets made every product show as
+ * sold out (MERCHANDISE_OUT_OF_STOCK) to anyone outside Canada. Moving those
+ * countries into the primary market fixed it immediately. So this step only
+ * ever ADDS missing ship-to countries to the primary market; it never creates
+ * secondary markets. The store currency is USD, so every country pays US$42.
  */
 async function stepMarkets() {
   log('\n▸ Markets');
   const {shop, markets} = await gql(MARKETS_Q);
+  const primary = markets.nodes.find((m) => m.primary);
+  if (!primary) return log('  no primary market found — set one up in admin');
+  // Only ACTIVE markets count: the old US/International markets are drafts.
   const covered = new Set(
-    markets.nodes.flatMap((m) => m.conditions?.regionsCondition?.regions.nodes.map((r) => r.code) ?? []),
+    markets.nodes
+      .filter((m) => m.status === 'ACTIVE')
+      .flatMap((m) => m.conditions?.regionsCondition?.regions.nodes.map((r) => r.code) ?? []),
   );
-  const usd = shop.currencyCode === 'USD'
-    ? {baseCurrency: 'USD', localCurrencies: false}
-    : {baseCurrency: 'USD', baseCurrencyManualRate: '1.0', localCurrencies: false};
-  const plan = [
-    {name: 'United States', handle: 'us', countries: ['US']},
-    {
-      name: 'International',
-      handle: 'international',
-      countries: shop.shipsToCountries.filter((c) => !['US', 'CA'].includes(c) && c !== 'ZZ'),
-    },
-  ];
-  for (const m of plan) {
-    const countries = m.countries.filter((c) => !covered.has(c));
-    if (markets.nodes.some((x) => x.handle === m.handle) || countries.length === 0) {
-      log(`  ✓ ${m.name}`);
-      continue;
-    }
-    await change(`create market ${m.name} (${countries.length} countries, USD)`, () =>
-      mutate(
-        MARKET_CREATE,
-        {
-          input: {
-            name: m.name,
-            handle: m.handle,
-            status: 'ACTIVE',
-            conditions: {regionsCondition: {regions: countries.map((countryCode) => ({countryCode}))}},
-            currencySettings: usd,
-          },
-        },
-        'marketCreate',
-      ),
-    );
-    bump('markets');
+  const missing = shop.shipsToCountries.filter((c) => c !== 'ZZ' && !covered.has(c));
+  const secondaries = markets.nodes.filter((m) => !m.primary && m.status === 'ACTIVE');
+  if (secondaries.length) {
+    log(`  ⚠ active secondary markets: ${secondaries.map((m) => m.name).join(', ')} — their countries may show as sold out (see comment above)`);
   }
+  if (!missing.length) return log(`  ✓ primary market "${primary.name}" covers every ship-to country`);
+  await change(`add ${missing.length} countries to primary market "${primary.name}": ${missing.join(', ')}`, () =>
+    mutate(
+      MARKET_UPDATE,
+      {
+        id: primary.id,
+        input: {conditions: {conditionsToAdd: {regionsCondition: {regions: missing.map((countryCode) => ({countryCode}))}}}},
+      },
+      'marketUpdate',
+    ),
+  );
+  bump('markets');
 }
 
 /**
