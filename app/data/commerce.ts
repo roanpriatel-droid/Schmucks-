@@ -17,7 +17,7 @@
  * TRUE as of 2026-11-24, on the store at x1ugph-ad.myshopify.com. Two
  * automatic free-shipping discounts exist (scripts/store-setup, --free-shipping):
  *   United States — order subtotal ≥ US$50
- *   Canada        — order subtotal ≥ C$75
+ *   Canada        — order subtotal ≥ US$75
  * Verified with `node scripts/store-setup/cart-test.mjs`: a two-shirt Canadian
  * cart applies "Free shipping — CA orders $75+". The subtotal is measured after
  * Stack & Save, so two shirts ($75.60) still clear both thresholds.
@@ -33,7 +33,7 @@ export const FREE_SHIPPING_LIVE = true;
  */
 export const FREE_SHIPPING_THRESHOLD = 50;
 
-/** Canada's threshold, in Canadian dollars (Canadian orders are charged in CAD). */
+/** Canada's threshold, in US dollars (the store and every market price in USD). */
 export const FREE_SHIPPING_THRESHOLD_CA = 75;
 
 /**
@@ -172,7 +172,7 @@ export const RETURNS_DAYS = 30;
  * minute and looks considerably better on a receipt. Change this constant and
  * every path updates.
  */
-export const CONTACT_EMAIL = 'roanpriatel379@gmail.com';
+export const CONTACT_EMAIL = 'roanpriatel389@gmail.com';
 
 /**
  * The honest multi-buy reason while Stack & Save is off: one shirt sits under
