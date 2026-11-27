@@ -23,6 +23,18 @@ market is active.
 
 The production storefront is public as of 2026-11-27.
 
+**Shipping profile (2026-11-27).** All 4,770 shirt variants are in a custom
+delivery profile, "Printify — All" (location: Printify), that Printify's sync
+can't overwrite. Same zones and rates as Printify's profile, extended past its
+12-shirt limit to ~30 shirts, with "Printed to order (up to 10 days), then
+N business days in transit" at checkout. This also fixed rest-of-world
+checkout (UK, NZ, Japan…), which Printify's own profile blocked. Verified with
+real carts in US/CA/DE/AU/GB/NZ/JP at 1, 2, 15 and 25 shirts. **After
+publishing new designs from Printify, run
+`node scripts/store-setup/shipping-profile.mjs --apply`** so they move into the
+custom profile too. Undo: `--revert --apply`. Backup of the original profiles:
+`scripts/store-setup/backups/delivery-profiles-*.json` (gitignored, local).
+
 Also:
 - **Gift cards are switched off in Shopify.** Creating the gift card product
   ($25/$50/$100, copy ready in the session notes) is refused until you turn

@@ -55,8 +55,7 @@ export default function ShippingReturns() {
           <p className="sx-pagehead__eyebrow">Getting It To You, Getting It Back</p>
           <h1 className="sx-pagehead__title">Shipping &amp; Returns</h1>
           <p className="sx-pagehead__desc">
-            Printed to order, shipped to the US, Canada, the EU and Australia,
-            returnable for{' '}
+            Printed to order, shipped worldwide, returnable for{' '}
             {RETURNS_DAYS} days. The whole arrangement, in plain language.
           </p>
         </div>

@@ -54,6 +54,7 @@ export const SHIPPING_RATES = [
   {region: 'Canada', first: 9.69, extra: 4.39},
   {region: 'European Union', first: 13.49, extra: 4.0},
   {region: 'Australia', first: 12.99, extra: 4.99},
+  {region: 'Rest of world', first: 10.39, extra: 4.0},
 ] as const;
 
 /**

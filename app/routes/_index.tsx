@@ -535,7 +535,7 @@ function Hero({products}: {products: HomeProductFragment[]}) {
           <p className="sx-hero__social">
             <span>Printed to order</span>
             <span className="sx-hero__dot">·</span>
-            <span>Ships to US, Canada, EU &amp; Australia</span>
+            <span>Ships worldwide</span>
             <span className="sx-hero__dot">·</span>
             <span>30-day returns</span>
           </p>
