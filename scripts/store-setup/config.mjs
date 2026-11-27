@@ -241,7 +241,6 @@ export const POLICIES = {
 <tr><td>Canada</td><td>$9.69</td><td>+$4.39</td></tr>
 <tr><td>European Union</td><td>$13.49</td><td>+$4.00</td></tr>
 <tr><td>Australia</td><td>$12.99</td><td>+$4.99</td></tr>
-<tr><td>Rest of world</td><td>$10.39</td><td>+$4.00</td></tr>
 </tbody>
 </table>
 <p>The exact figure is confirmed at checkout before you pay. No surprise line items after the fact.</p>

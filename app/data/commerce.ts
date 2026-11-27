@@ -4,7 +4,7 @@
  *
  * Verified against the live Storefront API on 2026-07-26:
  *   391 products, all USD $42.00, one price across every variant and size,
- *   options Color (Gold / Natural / Black) and Size (S–3XL), ships worldwide.
+ *   options Color (Gold / Natural / Black) and Size (S–3XL).
  *
  * Prices are NEVER hardcoded in components — render <Money> from the API so a
  * price change in admin can't leave stale copy behind. The constants below are
@@ -54,7 +54,6 @@ export const SHIPPING_RATES = [
   {region: 'Canada', first: 9.69, extra: 4.39},
   {region: 'European Union', first: 13.49, extra: 4.0},
   {region: 'Australia', first: 12.99, extra: 4.99},
-  {region: 'Rest of world', first: 10.39, extra: 4.0},
 ] as const;
 
 /**
